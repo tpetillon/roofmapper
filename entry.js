@@ -17,8 +17,8 @@ $("body").append("<button id='authenticate'>Authenticate</button><button id='log
 $("body").append("<div id='map'></div>");
 
 var auth = osmAuth({
-    oauth_consumer_key: 'WLwXbm6XFMG7WrVnE8enIF6GzyefYIN6oUJSxG65',
-    oauth_secret: '9WfJnwQxDvvYagx1Ut0tZBsOZ0ZCzAvOje3u1TV0',
+    oauth_consumer_key: 'aF9d6GToknMHKvU7KLo208XCMaHxPo2EtyMxgLtd',
+    oauth_secret: '0QrDWTZMCG0IYFnm92iq045HTzv26p1QzwhhItaV',
     auto: true // show a login form if the user is not authenticated and
                // you try to do a call
 });
