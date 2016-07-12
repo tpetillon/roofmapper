@@ -3,7 +3,10 @@
 require("./style.css");
 //document.write(require("./content.js"));
 
+var $ = require("jquery");
 var osmAuth = require('osm-auth');
+
+$("body").append("<button id='authenticate'>Authenticate</button><button id='logout'>Logout</button>");
 
 var auth = osmAuth({
     oauth_consumer_key: 'WLwXbm6XFMG7WrVnE8enIF6GzyefYIN6oUJSxG65',
