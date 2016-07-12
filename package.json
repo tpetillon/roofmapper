@@ -1,0 +1,18 @@
+{
+  "name": "roofmapper-client",
+  "version": "0.0.1",
+  "description": "RoofMapper client",
+  "main": "bundle.js",
+  "dependencies": {
+    "osm-auth": "^0.2.8",
+    "css-loader": "^0.23.1",
+    "jquery": "^3.1.0",
+    "style-loader": "^0.13.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Thomas Petillon <tpetillon@gmail.com>",
+  "license": "MIT"
+}
