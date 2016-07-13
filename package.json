@@ -5,10 +5,11 @@
   "main": "bundle.js",
   "dependencies": {
     "css-loader": "^0.23.1",
+    "defined": "^1.0.0",
     "file-loader": "^0.9.0",
     "jquery": "^3.1.0",
     "leaflet": "^0.7.7",
-    "osm-auth": "^0.2.8",
+    "osm-auth": "https://github.com/tpetillon/osm-auth#landing-url",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7"
   },

@@ -5,6 +5,7 @@
 var $ = require("jquery");
 var osmAuth = require('osm-auth');
 var L = require('leaflet');
+var defined = require('defined');
 
 require("leaflet/dist/leaflet.css");
 require("./style.css");
@@ -14,42 +15,77 @@ require("./style.css");
 //L.Icon.Default.imagePath = 'http://cdn.leafletjs.com/leaflet-0.7.3/images';
 
 $("body").append("<button id='authenticate'>Authenticate</button><button id='logout'>Logout</button>");
+$("body").append("<p id='connection-status'>Disconnected</p>");
 $("body").append("<div id='map'></div>");
+
+var username = undefined;
 
 var auth = osmAuth({
     oauth_consumer_key: 'aF9d6GToknMHKvU7KLo208XCMaHxPo2EtyMxgLtd',
     oauth_secret: '0QrDWTZMCG0IYFnm92iq045HTzv26p1QzwhhItaV',
-    auto: true // show a login form if the user is not authenticated and
+    auto: true, // show a login form if the user is not authenticated and
                // you try to do a call
+    landing: "/land.html"
 });
 
-document.getElementById('authenticate').onclick = function() {
+function logout() {
+    auth.logout();
+    
+    console.log("logged out");
+    
+    updateConnectionStatusDisplay();
+}
+
+function fetchUserName() {
     // Signed method call - since `auto` is true above, this will
     // automatically start an authentication process if the user isn't
     // authenticated yet.
     auth.xhr({
         method: 'GET',
         path: '/api/0.6/user/details'
-    }, function(err, details) {
-        // details is an XML DOM of user details
-        console.log("authentication: " + err + " - " + JSON.stringify(details));
+    }, function(error, details) {
+        if (defined(error)) {
+            alert("Error: " + error.responseText);
+            console.log("could not connect: " + error.responseText);
+            
+            if (error.status === 401) {
+                logout();
+            }
+            
+            return;
+        }
         
         var u = details.getElementsByTagName('user')[0];
-        var changesets = details.getElementsByTagName('changesets')[0];
-        var o = {
-            display_name: u.getAttribute('display_name'),
-            id: u.getAttribute('id'),
-            count: changesets.getAttribute('count')
-        };
+        username = u.getAttribute('display_name');
+        var userId = u.getAttribute('id');
         
-        console.log("details: " + JSON.stringify(o));
+        console.log("connected as " + username + " (" + userId + ")");
+        
+        updateConnectionStatusDisplay();
     });
 };
 
-document.getElementById('logout').onclick = function() {
-    auth.logout();
-    console.log("logged out");
+function updateConnectionStatusDisplay() {
+    if (auth.authenticated()) {
+        $("#authenticate").prop('disabled', true);
+        $("#logout").prop('disabled', false);
+        $("#connection-status").text("Connected as " + username);
+    } else {
+        $("#authenticate").prop('disabled', false);
+        $("#logout").prop('disabled', true);
+        $("#connection-status").text("Disconnected");
+    }
 }
+
+updateConnectionStatusDisplay();
+
+if (auth.authenticated()) {
+    $("#connection-status").text("Connected, retrieving username...");
+    fetchUserName();
+}
+
+document.getElementById('authenticate').onclick = fetchUserName; // login is automatically triggered
+document.getElementById('logout').onclick = logout;
 
 var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
