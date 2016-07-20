@@ -16,9 +16,11 @@ require("./style.css");
 
 $("body").append("<button id='authenticate'>Authenticate</button><button id='logout'>Logout</button>");
 $("body").append("<p id='connection-status'>Disconnected</p>");
+$("body").append("<button id='download'>Download</button>");
 $("body").append("<div id='map'></div>");
 
 var username = undefined;
+var map = undefined;
 
 var auth = osmAuth({
     oauth_consumer_key: 'aF9d6GToknMHKvU7KLo208XCMaHxPo2EtyMxgLtd',
@@ -87,8 +89,40 @@ if (auth.authenticated()) {
 document.getElementById('authenticate').onclick = fetchUserName; // login is automatically triggered
 document.getElementById('logout').onclick = logout;
 
+document.getElementById('download').onclick = function() {
+    auth.xhr({
+        method: 'GET',
+        path: '/api/0.6/way/45827933/full'
+    }, function(error, response) {
+        if (defined(error)) {
+            console.error("Download error: " + error.responseText);
+        } else {
+            var $data = $(response);
+            var nodes = {};
+            $data.children("osm").children("node").each(function() {
+                var id = Number($(this).attr("id"));
+                var lat = Number($(this).attr("lat"));
+                var lon = Number($(this).attr("lon"));
+                nodes[id] = [ lat, lon ];
+            });
+            console.log("nodes: " + JSON.stringify(nodes));
+            var ids = $data.children("osm").children("way").children("nd").map(function() {
+                return Number($(this).attr("ref"));
+            });
+            console.log("ids: " + JSON.stringify(ids));
+            var positions = $.map(ids, function(id_) {
+                // array in array because map() flattens arrays and we don't want that
+                return [ nodes[id_] ];
+            });
+            var polygon = L.polygon(positions)
+            polygon.addTo(map);
+            map.fitBounds(polygon.getBounds());
+        }
+    });
+};
+
 var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
 var osm = new L.TileLayer(osmUrl, {minZoom: 0, maxZoom: 18, attribution: osmAttrib});
-var map = L.map('map').setView([46.935, 2.780], 7);
+map = L.map('map').setView([46.935, 2.780], 7);
 map.addLayer(osm);
