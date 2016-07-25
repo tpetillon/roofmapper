@@ -89,7 +89,89 @@ if (auth.authenticated()) {
 document.getElementById('authenticate').onclick = fetchUserName; // login is automatically triggered
 document.getElementById('logout').onclick = logout;
 
-document.getElementById('download').onclick = function() {
+function extractNodes($data) {
+    var nodes = {};
+    
+    $data.children("osm").children("node").each(function() {
+        var id = Number($(this).attr("id"));
+        var lat = Number($(this).attr("lat"));
+        var lon = Number($(this).attr("lon"));
+        nodes[id] = [ lat, lon ];
+    });
+    
+    return nodes;
+}
+
+function extractWays($data) {
+    var nodes = extractNodes($data);
+    
+    var ways = {};
+    
+    $data.children("osm").children("way").each(function() {
+        var id = Number($(this).attr("id"));
+        
+        var nodeIds = $(this).children("nd").map(function() {
+            return Number($(this).attr("ref"));
+        });
+        
+        var positions = $.map(nodeIds, function(id_) {
+            // array in array because map() flattens arrays and we don't want that
+            return [ nodes[id_] ];
+        });
+        
+        ways[id] = positions;
+    });
+    
+    return ways;
+}
+
+function extractRelation($data) {
+    var ways = extractWays($data);
+    
+    var outerWays = [];
+    var innerWays = [];
+    
+    $data.children("osm").children("relation").children("member").filter("[type='way']").each(function() {
+        var ref = Number($(this).attr("ref"));
+        var role = $(this).attr("role");
+        
+        var way = ways[ref];
+        
+        if (role === "outer") {
+            outerWays.push(way);
+        } else if (role === "inner") {
+            innerWays.push(way);
+        }
+    });
+    
+    return {
+        outer : outerWays,
+        inner : innerWays
+    };
+}
+
+function displayOsmWayAsPolygon($data) {
+    var ways = extractWays($data);
+    var positions = ways[Object.keys(ways)[0]];
+    var polygon = L.polygon(positions)
+    polygon.addTo(map);
+    map.fitBounds(polygon.getBounds());
+    return polygon;
+}
+
+function displayOsmWayAsMultiPolygon($data) {
+    var relation = extractRelation($data);
+    var polygons = [];
+    for (var i = 0; i < relation.outer.length; i++) {
+        polygons.push([relation.outer[i]].concat(relation.inner));
+    }
+    var multiPolygon = L.multiPolygon(polygons)
+    multiPolygon.addTo(map);
+    map.fitBounds(multiPolygon.getBounds());
+    return multiPolygon;
+}
+
+/*document.getElementById('download').onclick = function() {
     auth.xhr({
         method: 'GET',
         path: '/api/0.6/way/45827933/full'
@@ -98,25 +180,21 @@ document.getElementById('download').onclick = function() {
             console.error("Download error: " + error.responseText);
         } else {
             var $data = $(response);
-            var nodes = {};
-            $data.children("osm").children("node").each(function() {
-                var id = Number($(this).attr("id"));
-                var lat = Number($(this).attr("lat"));
-                var lon = Number($(this).attr("lon"));
-                nodes[id] = [ lat, lon ];
-            });
-            console.log("nodes: " + JSON.stringify(nodes));
-            var ids = $data.children("osm").children("way").children("nd").map(function() {
-                return Number($(this).attr("ref"));
-            });
-            console.log("ids: " + JSON.stringify(ids));
-            var positions = $.map(ids, function(id_) {
-                // array in array because map() flattens arrays and we don't want that
-                return [ nodes[id_] ];
-            });
-            var polygon = L.polygon(positions)
-            polygon.addTo(map);
-            map.fitBounds(polygon.getBounds());
+            displayOsmWayAsPolygon($data);
+        }
+    });
+};*/
+
+document.getElementById('download').onclick = function() {
+    auth.xhr({
+        method: 'GET',
+        path: '/api/0.6/relation/252751/full'
+    }, function(error, response) {
+        if (defined(error)) {
+            console.error("Download error: " + error.responseText);
+        } else {
+            var $data = $(response);
+            displayOsmWayAsMultiPolygon($data);
         }
     });
 };
