@@ -21,6 +21,19 @@ $("body").append("<div id='map'></div>");
 
 var username = undefined;
 var map = undefined;
+var buildingPolygon = undefined;
+
+var buildingList = [
+    {
+        type : "way",
+        id : 45827933
+    },
+    {
+        type : "relation",
+        id : 252751
+    }
+];
+var nextBuildingIndex = 0;
 
 var auth = osmAuth({
     oauth_consumer_key: 'aF9d6GToknMHKvU7KLo208XCMaHxPo2EtyMxgLtd',
@@ -159,7 +172,7 @@ function displayOsmWayAsPolygon($data) {
     return polygon;
 }
 
-function displayOsmWayAsMultiPolygon($data) {
+function displayOsmRelationAsMultiPolygon($data) {
     var relation = extractRelation($data);
     var polygons = [];
     for (var i = 0; i < relation.outer.length; i++) {
@@ -171,32 +184,49 @@ function displayOsmWayAsMultiPolygon($data) {
     return multiPolygon;
 }
 
-/*document.getElementById('download').onclick = function() {
+function destroyBuildingPolygon() {
+    if (defined(buildingPolygon)) {
+        map.removeLayer(buildingPolygon);
+        buildingPolygon = undefined;
+    }
+}
+
+function loadAndDisplayBuilding(building) {
+    destroyBuildingPolygon();
+    
+    if (!defined(building)) {
+        return;
+    }
+    
     auth.xhr({
-        method: 'GET',
-        path: '/api/0.6/way/45827933/full'
+        method : 'GET',
+        path : '/api/0.6/' + building.type + '/' + building.id + '/full'
     }, function(error, response) {
         if (defined(error)) {
             console.error("Download error: " + error.responseText);
         } else {
             var $data = $(response);
-            displayOsmWayAsPolygon($data);
+            
+            if (building.type === 'way') {
+                buildingPolygon = displayOsmWayAsPolygon($data);
+            } else if (building.type === 'relation') {
+                buildingPolygon = displayOsmRelationAsMultiPolygon($data);
+            }
         }
-    });
-};*/
+    });    
+}
 
 document.getElementById('download').onclick = function() {
-    auth.xhr({
-        method: 'GET',
-        path: '/api/0.6/relation/252751/full'
-    }, function(error, response) {
-        if (defined(error)) {
-            console.error("Download error: " + error.responseText);
-        } else {
-            var $data = $(response);
-            displayOsmWayAsMultiPolygon($data);
-        }
-    });
+    destroyBuildingPolygon();
+    
+    if (nextBuildingIndex >= buildingList.length) {
+        return;
+    }
+    
+    var building = buildingList[nextBuildingIndex];
+    loadAndDisplayBuilding(building);
+    
+    nextBuildingIndex++;
 };
 
 var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
