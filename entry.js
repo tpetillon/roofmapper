@@ -31,11 +31,13 @@ var buildingPolygon = undefined;
 var buildingList = [
     {
         type : "way",
-        id : 45827933
+        id : 45827933,
+        version : 1
     },
     {
         type : "relation",
-        id : 252751
+        id : 252751,
+        version : 1
     }
 ];
 var nextBuildingIndex = 0;
@@ -213,8 +215,17 @@ function loadAndDisplayBuilding(building) {
     }, function(error, response) {
         if (defined(error)) {
             console.error("Download error: " + error.responseText);
+            changeBuilding();
         } else {
             var $data = $(response);
+            var version = Number($data.children("osm").children(building.type).attr("version"));
+            
+            if (version !== building.version) {
+                console.log("Building " + building.type + "/" + building.id + " is at version " + version +
+                    ", was expecting version " + building.version + ". Skipping.");
+                changeBuilding();
+                return;
+            }
             
             if (building.type === 'way') {
                 buildingPolygon = displayOsmWayAsPolygon($data);
@@ -225,7 +236,7 @@ function loadAndDisplayBuilding(building) {
     });    
 }
 
-document.getElementById('download').onclick = function() {
+function changeBuilding() {
     destroyBuildingPolygon();
     
     if (nextBuildingIndex >= buildingList.length) {
@@ -236,6 +247,10 @@ document.getElementById('download').onclick = function() {
     loadAndDisplayBuilding(building);
     
     nextBuildingIndex++;
+}
+
+document.getElementById('download').onclick = function() {
+    changeBuilding();
 };
 
 var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
