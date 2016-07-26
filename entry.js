@@ -14,9 +14,14 @@ require("./style.css");
 // solution is to point it to where you host the the leaflet images yourself
 //L.Icon.Default.imagePath = 'http://cdn.leafletjs.com/leaflet-0.7.3/images';
 
-$("body").append("<button id='authenticate'>Authenticate</button><button id='logout'>Logout</button>");
-$("body").append("<p id='connection-status'>Disconnected</p>");
-$("body").append("<button id='download'>Download</button>");
+$("body").append("<div id='header'></div>");
+$("body").children("#header").append(
+    "<div id='connection-buttons'>" +
+    "<span id='connection-status'>Disconnected</span> " +
+    "<button id='authenticate'>Authenticate</button>" +
+    "<button id='logout'>Logout</button>" +
+    "</div>");
+$("body").children("#header").append("<button id='download'>Download</button>");
 $("body").append("<div id='map'></div>");
 
 var username = undefined;
@@ -82,13 +87,17 @@ function fetchUserName() {
 
 function updateConnectionStatusDisplay() {
     if (auth.authenticated()) {
-        $("#authenticate").prop('disabled', true);
-        $("#logout").prop('disabled', false);
+        $("#authenticate").prop('disabled', true).hide();
+        $("#logout").prop('disabled', false).show();
         $("#connection-status").text("Connected as " + username);
+        
+        $("#download").prop('disabled', false);
     } else {
-        $("#authenticate").prop('disabled', false);
-        $("#logout").prop('disabled', true);
+        $("#authenticate").prop('disabled', false).show();
+        $("#logout").prop('disabled', true).hide();
         $("#connection-status").text("Disconnected");
+        
+        $("#download").prop('disabled', true);
     }
 }
 
