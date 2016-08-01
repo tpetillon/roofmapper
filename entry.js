@@ -4,7 +4,10 @@ var $ = require('jquery');
 var osmAuth = require('osm-auth');
 var L = require('leaflet');
 var defined = require('defined');
+var Session = require('./session.js');
 var Building = require('./building.js');
+var Session = require('./session.js');
+var BuildingService = require('./buildingservice.js');
 
 require('leaflet/dist/leaflet.css');
 require('./style.css');
@@ -13,25 +16,29 @@ require('./style.css');
 // solution is to point it to where you host the the leaflet images yourself
 //L.Icon.Default.imagePath = 'http://cdn.leafletjs.com/leaflet-0.7.3/images';
 
-$("body").append("<div id='header'></div>");
-$("body").children("#header").append(
+$("body").append("<div id='wrapper'></div>");
+var wrapper = $("body").children("#wrapper");
+wrapper.append("<div id='header'></div>");
+wrapper.children("#header").append(
     "<div id='connection-buttons'>" +
     "<span id='connection-status'>Disconnected</span> " +
     "<button id='authenticate'>Authenticate</button>" +
     "<button id='logout'>Logout</button>" +
-    "</div>");
-$("body").children("#header").append("<button id='download'>Download</button>");
-$("body").append("<div id='map'></div>");
+    "</div>"
+);
+wrapper.append("<div id='map'></div>");
+wrapper.append("<div id='footer'></div>");
+wrapper.children("#footer").append(
+    "<div id='building-buttons'>" +
+    "<button id='previous-building'>Previous building</button>" +
+    "<button id='next-building'>Next building</button>" +
+    "</div>"
+);
 
 var username = undefined;
 var map = undefined;
 var buildingPolygon = undefined;
-
-var buildingList = [
-    new Building("way", 45827933, 1),
-    new Building("relation", 252751, 1)
-];
-var nextBuildingIndex = 0;
+var session = new Session();
 
 var auth = osmAuth({
     oauth_consumer_key: 'aF9d6GToknMHKvU7KLo208XCMaHxPo2EtyMxgLtd',
@@ -111,54 +118,69 @@ function destroyBuildingPolygon() {
     }
 }
 
-function loadAndDisplayBuilding(building) {
+function displayBuildingPolygon(building) {
     destroyBuildingPolygon();
     
-    if (!defined(building)) {
-        return;
-    }
+    building.polygon.addTo(map);
+    map.fitBounds(building.polygon.getBounds());
+    buildingPolygon = building.polygon;
+}
+
+function loadAndDisplayNewBuilding(onError) {
+    destroyBuildingPolygon();
     
-    auth.xhr({
-        method : 'GET',
-        path : '/api/0.6/' + building.type + '/' + building.id + '/full'
-    }, function(error, response) {
-        if (defined(error)) {
-            console.error("Download error: " + error.responseText);
-            changeBuilding();
-        } else {
-            var $data = $(response);
-            var version = Number($data.children("osm").children(building.type).attr("version"));
-            
-            if (version !== building.version) {
-                console.log("Building " + building.type + "/" + building.id + " is at version " + version +
-                    ", was expecting version " + building.version + ". Skipping.");
-                changeBuilding();
-                return;
+    BuildingService.getBuilding(function(building) {
+        auth.xhr({
+            method : 'GET',
+            path : '/api/0.6/' + building.type + '/' + building.id + '/full'
+        }, function(error, response) {
+            if (defined(error)) {
+                console.error("Download error: " + error.responseText);
+                onError();
+            } else {
+                var $data = $(response);
+                var version = Number($data.children("osm").children(building.type).attr("version"));
+                
+                if (version !== building.version) {
+                    console.log("Building " + building.type + "/" + building.id + " is at version " + version +
+                        ", was expecting version " + building.version + ". Skipping.");
+                    onError();
+                } else {
+                    building.setData($data);
+                    session.addBuilding(building, true);
+                    displayBuildingPolygon(building);
+                }
             }
-            
-            building.setData($data);
-            building.polygon.addTo(map);
-            map.fitBounds(building.polygon.getBounds());
-            buildingPolygon = building.polygon;
-        }
-    });    
+        });
+    });
 }
 
-function changeBuilding() {
-    destroyBuildingPolygon();
-    
-    if (nextBuildingIndex >= buildingList.length) {
-        return;
+function displayPreviousBuilding() {
+    if (session.currentIndex > 0) {
+        session.currentIndex = session.currentIndex - 1;
+        var building = session.getCurrentBuilding();
+        displayBuildingPolygon(building);
     }
-    
-    var building = buildingList[nextBuildingIndex];
-    loadAndDisplayBuilding(building);
-    
-    nextBuildingIndex++;
 }
 
-document.getElementById('download').onclick = function() {
-    changeBuilding();
+function displayNextBuilding() {
+    if (session.currentIndex < session.buildingCount - 1) {
+        session.currentIndex = session.currentIndex + 1;
+        var building = session.getCurrentBuilding();
+        displayBuildingPolygon(building);
+    } else {
+        destroyBuildingPolygon();
+        
+        loadAndDisplayNewBuilding(loadAndDisplayNewBuilding);
+    }
+}
+
+document.getElementById('previous-building').onclick = function() {
+    displayPreviousBuilding();
+};
+
+document.getElementById('next-building').onclick = function() {
+    displayNextBuilding();
 };
 
 var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';

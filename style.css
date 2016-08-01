@@ -8,19 +8,19 @@ html, body {
     margin: 0;
 }
 
+#wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
 #header {
-    width: 100%;
     height: 2em;
     margin: 0;
 }
 
 #map {
-    width: 100%;
-    position: absolute;
-    top: 2em;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    flex: 1;
     margin: 0;
 }
 
@@ -28,6 +28,11 @@ html, body {
     float: right;
 }
 
-#download {
+#buildings-buttons {
     float: left;
+}
+
+#footer {
+    height: 8em;
+    margin: 0;
 }
