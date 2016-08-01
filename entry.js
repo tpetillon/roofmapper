@@ -1,14 +1,13 @@
 'use strict';
 
-//document.write(require("./content.js"));
-
-var $ = require("jquery");
+var $ = require('jquery');
 var osmAuth = require('osm-auth');
 var L = require('leaflet');
 var defined = require('defined');
+var Building = require('./building.js');
 
-require("leaflet/dist/leaflet.css");
-require("./style.css");
+require('leaflet/dist/leaflet.css');
+require('./style.css');
 
 // since leaflet is bundled into the browserify package it won't be able to detect where the images
 // solution is to point it to where you host the the leaflet images yourself
@@ -29,16 +28,8 @@ var map = undefined;
 var buildingPolygon = undefined;
 
 var buildingList = [
-    {
-        type : "way",
-        id : 45827933,
-        version : 1
-    },
-    {
-        type : "relation",
-        id : 252751,
-        version : 1
-    }
+    new Building("way", 45827933, 1),
+    new Building("relation", 252751, 1)
 ];
 var nextBuildingIndex = 0;
 
@@ -113,88 +104,6 @@ if (auth.authenticated()) {
 document.getElementById('authenticate').onclick = fetchUserName; // login is automatically triggered
 document.getElementById('logout').onclick = logout;
 
-function extractNodes($data) {
-    var nodes = {};
-    
-    $data.children("osm").children("node").each(function() {
-        var id = Number($(this).attr("id"));
-        var lat = Number($(this).attr("lat"));
-        var lon = Number($(this).attr("lon"));
-        nodes[id] = [ lat, lon ];
-    });
-    
-    return nodes;
-}
-
-function extractWays($data) {
-    var nodes = extractNodes($data);
-    
-    var ways = {};
-    
-    $data.children("osm").children("way").each(function() {
-        var id = Number($(this).attr("id"));
-        
-        var nodeIds = $(this).children("nd").map(function() {
-            return Number($(this).attr("ref"));
-        });
-        
-        var positions = $.map(nodeIds, function(id_) {
-            // array in array because map() flattens arrays and we don't want that
-            return [ nodes[id_] ];
-        });
-        
-        ways[id] = positions;
-    });
-    
-    return ways;
-}
-
-function extractRelation($data) {
-    var ways = extractWays($data);
-    
-    var outerWays = [];
-    var innerWays = [];
-    
-    $data.children("osm").children("relation").children("member").filter("[type='way']").each(function() {
-        var ref = Number($(this).attr("ref"));
-        var role = $(this).attr("role");
-        
-        var way = ways[ref];
-        
-        if (role === "outer") {
-            outerWays.push(way);
-        } else if (role === "inner") {
-            innerWays.push(way);
-        }
-    });
-    
-    return {
-        outer : outerWays,
-        inner : innerWays
-    };
-}
-
-function displayOsmWayAsPolygon($data) {
-    var ways = extractWays($data);
-    var positions = ways[Object.keys(ways)[0]];
-    var polygon = L.polygon(positions)
-    polygon.addTo(map);
-    map.fitBounds(polygon.getBounds());
-    return polygon;
-}
-
-function displayOsmRelationAsMultiPolygon($data) {
-    var relation = extractRelation($data);
-    var polygons = [];
-    for (var i = 0; i < relation.outer.length; i++) {
-        polygons.push([relation.outer[i]].concat(relation.inner));
-    }
-    var multiPolygon = L.multiPolygon(polygons)
-    multiPolygon.addTo(map);
-    map.fitBounds(multiPolygon.getBounds());
-    return multiPolygon;
-}
-
 function destroyBuildingPolygon() {
     if (defined(buildingPolygon)) {
         map.removeLayer(buildingPolygon);
@@ -227,11 +136,10 @@ function loadAndDisplayBuilding(building) {
                 return;
             }
             
-            if (building.type === 'way') {
-                buildingPolygon = displayOsmWayAsPolygon($data);
-            } else if (building.type === 'relation') {
-                buildingPolygon = displayOsmRelationAsMultiPolygon($data);
-            }
+            building.setData($data);
+            building.polygon.addTo(map);
+            map.fitBounds(building.polygon.getBounds());
+            buildingPolygon = building.polygon;
         }
     });    
 }
