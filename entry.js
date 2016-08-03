@@ -10,12 +10,19 @@ var Session = require('./session.js');
 var BuildingService = require('./buildingservice.js');
 var LoadingStatus = require('./loadingstatus.js');
 
+require('leaflet-easybutton');
+
 require('leaflet/dist/leaflet.css');
+require('leaflet/dist/images/marker-icon.png');
+require('leaflet/dist/images/marker-icon-2x.png');
+require('leaflet/dist/images/marker-shadow.png');
+require('leaflet-easybutton/src/easy-button.css');
+require('font-awesome/css/font-awesome.css');
 require('./style.css');
 
 // since leaflet is bundled into the browserify package it won't be able to detect where the images
 // solution is to point it to where you host the the leaflet images yourself
-//L.Icon.Default.imagePath = 'http://cdn.leafletjs.com/leaflet-0.7.3/images';
+L.Icon.Default.imagePath = 'http://cdn.leafletjs.com/leaflet-0.7.3/images';
 
 $("body").append("<div id='wrapper'></div>");
 var wrapper = $("body").children("#wrapper");
@@ -38,6 +45,7 @@ wrapper.children("#footer").append(
 
 var _username = undefined;
 var _map = undefined;
+var _recenterButton = undefined;
 var _buildingPolygon = undefined;
 var _session = new Session();
 var _loadingStatus = new LoadingStatus();
@@ -93,8 +101,6 @@ function fetchUserName(callback) {
     });
 };
 
-_loadingStatus.addListener(updateButtons);
-
 function updateButtons()
 {
     var loading = _loadingStatus.isLoading;
@@ -105,6 +111,12 @@ function updateButtons()
     
     if (_session.currentIndex <= 0) {
         $("#previous-building").prop('disabled', true);
+    }
+    
+    if (_session.currentIndex < 0) {
+        _recenterButton.disable();
+    } else {
+        _recenterButton.enable();
     }
 }
 
@@ -119,9 +131,6 @@ function updateConnectionStatusDisplay() {
         $("#connection-status").text("Disconnected");
     }
 }
-
-updateConnectionStatusDisplay();
-updateButtons();
 
 if (auth.authenticated()) {
     $("#connection-status").text("Connected, retrieving username...");
@@ -210,8 +219,35 @@ document.getElementById('next-building').onclick = function() {
     displayNextBuilding();
 };
 
-var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-var osm = new L.TileLayer(osmUrl, {minZoom: 0, maxZoom: 18, attribution: osmAttrib});
-_map = L.map('map').setView([46.935, 2.780], 7);
-_map.addLayer(osm);
+function init() {
+    var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+    var osm = new L.TileLayer(osmUrl, {minZoom: 0, maxZoom: 18, attribution: osmAttrib});
+    _map = L.map('map').setView([46.935, 2.780], 7);
+    _map.addLayer(osm);
+    
+    _recenterButton = L.easyButton(
+        'fa-crosshairs fa-lg',
+        function(button, map) {
+            if (defined(_buildingPolygon)) {
+                _map.fitBounds(_buildingPolygon.getBounds());
+            }
+        },
+        '', // title
+        'recenter-button' // id
+    );
+    _recenterButton.addTo(_map);
+    _recenterButton.disable();
+    
+    // Set the title here and not in the button constructor because when set by
+    // the constructor, the title is only displayable when the button is active.
+    // With this alternative way its always displayable.
+    $("#recenter-button").closest(".leaflet-control").prop("title", "Recenter on building");
+    
+    _loadingStatus.addListener(updateButtons);
+    
+    updateConnectionStatusDisplay();
+    updateButtons();
+}
+
+init();
