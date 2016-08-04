@@ -16,6 +16,15 @@ Object.defineProperties(Session.prototype, {
             }
         }
     },
+    currentBuilding : {
+        get : function() {
+            if (this._currentIndex >= 0) {
+                return this._buildings[this._currentIndex];
+            } else {
+                return undefined;
+            }
+        }
+    },
     buildingCount : {
         get : function() {
             return this._buildings.length;

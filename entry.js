@@ -40,6 +40,13 @@ wrapper.children("#footer").append(
     "<div id='building-buttons'>" +
     "<button id='previous-building'>Previous building</button>" +
     "<button id='next-building'>Next building</button>" +
+    "</div>" +
+    "<div id='tag-buttons'>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-tiles' value='tiles' autocomplete='off' />Tiles</label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-slate' value='slate' autocomplete='off' />Slate</label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-metal' value='metal' autocomplete='off' />Metal</label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-copper' value='copper' autocomplete='off' />Copper</label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-concrete' value='concrete' autocomplete='off' />Concrete</label>" +
     "</div>"
 );
 
@@ -107,16 +114,29 @@ function updateButtons()
     
     $("#authenticate").prop('disabled', loading || auth.authenticated());
     $("#logout").prop('disabled', loading || !auth.authenticated())
-    $("#footer").find("button").prop('disabled', loading);
+    $("#building-buttons").find("button").prop('disabled', loading);
     
     if (_session.currentIndex <= 0) {
         $("#previous-building").prop('disabled', true);
     }
     
-    if (_session.currentIndex < 0) {
-        _recenterButton.disable();
-    } else {
+    if (defined(_session.currentBuilding)) {
         _recenterButton.enable();
+    } else {
+        _recenterButton.disable();
+    }
+    
+    $("#tag-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
+}
+
+function updateTagButtons() {
+    $("#tag-buttons").find("input").prop("checked", false);
+    
+    var roofType = defined(_session.currentBuilding) ?
+        _session.currentBuilding.roofType : undefined;
+    
+    if (defined(roofType)) {
+        $("#tag-" + roofType).prop("checked", true);
     }
 }
 
@@ -184,6 +204,7 @@ function loadAndDisplayNewBuilding() {
                     building.setData($data);
                     _session.addBuilding(building, true);
                     displayBuildingPolygon(building);
+                    updateTagButtons();
                     _loadingStatus.removeSystem('load-building');
                 }
             }
@@ -197,6 +218,7 @@ function displayPreviousBuilding() {
         var building = _session.getCurrentBuilding();
         displayBuildingPolygon(building);
         updateButtons();
+        updateTagButtons();
     }
 }
 
@@ -206,6 +228,7 @@ function displayNextBuilding() {
         var building = _session.getCurrentBuilding();
         displayBuildingPolygon(building);
         updateButtons();
+        updateTagButtons();
     } else {
         loadAndDisplayNewBuilding();
     }
@@ -245,6 +268,13 @@ function init() {
     $("#recenter-button").closest(".leaflet-control").prop("title", "Recenter on building");
     
     _loadingStatus.addListener(updateButtons);
+    
+    $('input[type=radio][name=tag-selection]').change(function() {
+        if (defined(_session.currentBuilding)) {
+            _session.currentBuilding.roofType = this.value;
+            updateTagButtons()
+        }
+    });
     
     updateConnectionStatusDisplay();
     updateButtons();

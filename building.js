@@ -2,6 +2,15 @@
 
 var $ = require('jquery');
 var L = require('leaflet');
+var defined = require('defined');
+
+var roofTypes = [
+    'tiles',
+    'slate',
+    'metal',
+    'copper',
+    'concrete'
+];
 
 function Building(type, id, version) {
     this._type = type;
@@ -9,6 +18,7 @@ function Building(type, id, version) {
     this._version = version;
     
     this._polygon = undefined;
+    this._roofType = undefined;
 }
 
 Object.defineProperties(Building.prototype, {
@@ -30,6 +40,18 @@ Object.defineProperties(Building.prototype, {
     polygon : {
         get : function() {
             return this._polygon;
+        }
+    },
+    roofType : {
+        get : function() {
+            return this._roofType;
+        },
+        set : function(type) {
+            if (!defined(type) || roofTypes.indexOf(type) != -1) {
+                this._roofType = type;
+            } else {
+                throw "Invalid roof type: " + type;
+            }
         }
     }
 });
