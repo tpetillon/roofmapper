@@ -42,6 +42,7 @@ wrapper.children("#footer").append(
     "<button id='next-building'>Next building</button>" +
     "</div>" +
     "<div id='tag-buttons'>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-undefined' value='undefined' autocomplete='off' />Undefined</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-tiles' value='tiles' autocomplete='off' />Tiles</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-slate' value='slate' autocomplete='off' />Slate</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-metal' value='metal' autocomplete='off' />Metal</label>" +
@@ -132,10 +133,8 @@ function updateButtons()
 function updateTagButtons() {
     $("#tag-buttons").find("input").prop("checked", false);
     
-    var roofType = defined(_session.currentBuilding) ?
-        _session.currentBuilding.roofType : undefined;
-    
-    if (defined(roofType)) {
+    if (defined(_session.currentBuilding)) {
+        var roofType = _session.currentBuilding.roofType;
         $("#tag-" + roofType).prop("checked", true);
     }
 }
@@ -271,7 +270,8 @@ function init() {
     
     $('input[type=radio][name=tag-selection]').change(function() {
         if (defined(_session.currentBuilding)) {
-            _session.currentBuilding.roofType = this.value;
+            var value = this.value === 'undefined' ? undefined : this.value;
+            _session.currentBuilding.roofType = value;
             updateTagButtons()
         }
     });
