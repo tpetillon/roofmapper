@@ -242,6 +242,8 @@ document.getElementById('next-building').onclick = function() {
 };
 
 function init() {
+    console.log("ENV: " + ENV);
+    
     var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
     var osm = new L.TileLayer(osmUrl, {minZoom: 0, maxZoom: 18, attribution: osmAttrib});

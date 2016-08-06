@@ -15,9 +15,11 @@
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "webpack-config": "^6.0.0"
+  },
   "scripts": {
-    "start": "webpack-dev-server --progress --colors --devtool source-map",
+    "start": "webpack-dev-server --progress --colors --devtool source-map --config conf/webpack.development.config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Thomas Petillon <tpetillon@gmail.com>",
