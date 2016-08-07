@@ -52,4 +52,18 @@ Session.prototype.getCurrentBuilding = function() {
     return undefined;
 }
 
+Session.prototype.toOsmChange = function(changesetId) {
+    var xml = '';
+    
+    xml += '<osmChange version="0.6">';
+    
+    this._buildings.forEach(function(building) {
+        xml += building.toOsmChange(changesetId);
+    });
+    
+    xml += '</osmChange>';
+    
+    return xml;
+}
+
 module.exports = Session;

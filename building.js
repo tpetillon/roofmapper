@@ -4,7 +4,7 @@ var $ = require('jquery');
 var L = require('leaflet');
 var defined = require('defined');
 
-var roofTypes = [
+var roofMaterials = [
     'tiles',
     'slate',
     'metal',
@@ -16,9 +16,10 @@ function Building(type, id, version) {
     this._type = type;
     this._id = id;
     this._version = version;
+    this._tags = [];
     
     this._polygon = undefined;
-    this._roofType = undefined;
+    this._roofMaterial = undefined;
 }
 
 Object.defineProperties(Building.prototype, {
@@ -42,15 +43,15 @@ Object.defineProperties(Building.prototype, {
             return this._polygon;
         }
     },
-    roofType : {
+    roofMaterial : {
         get : function() {
-            return this._roofType;
+            return this._roofMaterial;
         },
-        set : function(type) {
-            if (!defined(type) || roofTypes.indexOf(type) != -1) {
-                this._roofType = type;
+        set : function(material) {
+            if (!defined(material) || roofMaterials.indexOf(material) != -1) {
+                this._roofMaterial = material;
             } else {
-                throw "Invalid roof type: " + type;
+                throw "Invalid roof material: " + material;
             }
         }
     }
@@ -60,14 +61,16 @@ Building.prototype.setData = function($data) {
     if (this.type === 'way') {
         var ways = extractWays($data);
         var positions = ways[Object.keys(ways)[0]];
-        this._polygon = L.polygon(positions)
+        this._polygon = L.polygon(positions);
+        this._tags = extractTags($data.children("osm").children("way"));
     } else if (this.type === 'relation') {
         var relation = extractRelation($data);
         var polygons = [];
         for (var i = 0; i < relation.outer.length; i++) {
             polygons.push([relation.outer[i]].concat(relation.inner));
         }
-        this._polygon = L.multiPolygon(polygons)
+        this._polygon = L.multiPolygon(polygons);
+        this._tags = extractTags($data.children("osm").children("relation"));
     } else {
         throw 'Unsupported building type: ' + type;
     }
@@ -133,5 +136,35 @@ function extractRelation($data) {
         inner : innerWays
     };
 }
+
+function extractTags($object) {
+    return $object.children("tag").map(function() {
+        return {
+            k : $(this).attr("k"),
+            v : $(this).attr("v")
+        };
+    }).toArray();
+}
+
+Building.prototype.toOsmChange = function(changesetId) {
+    if (this._roofMaterial === undefined) {
+        return '';
+    }
+    
+    var xml = '';
+    xml += '<modify>';
+    xml += '<' + this._type + ' id="' + this._id + '" changeset="' + changesetId + '" version="' + (this._version + 1) + '" visible="true">';
+    
+    this._tags.forEach(function(tag) {
+        xml += '<tag k="' + tag.k + '" v="' + tag.v + '" />';
+    });
+    
+    xml += '<tag k="roof:material" v="' + this._roofMaterial + '" />';
+    
+    xml += '</' + this._type + '>';
+    xml += '</modify>';
+    
+    return xml;
+};
 
 module.exports = Building;

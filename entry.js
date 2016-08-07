@@ -134,8 +134,8 @@ function updateTagButtons() {
     $("#tag-buttons").find("input").prop("checked", false);
     
     if (defined(_session.currentBuilding)) {
-        var roofType = _session.currentBuilding.roofType;
-        $("#tag-" + roofType).prop("checked", true);
+        var roofMaterial = _session.currentBuilding.roofMaterial;
+        $("#tag-" + roofMaterial).prop("checked", true);
     }
 }
 
@@ -273,7 +273,7 @@ function init() {
     $('input[type=radio][name=tag-selection]').change(function() {
         if (defined(_session.currentBuilding)) {
             var value = this.value === 'undefined' ? undefined : this.value;
-            _session.currentBuilding.roofType = value;
+            _session.currentBuilding.roofMaterial = value;
             updateTagButtons()
         }
     });
