@@ -1,5 +1,7 @@
 'use strict';
 
+var defined = require('defined');
+
 function Session() {
     this._buildings = [];
     this._currentIndex = -1;
@@ -64,6 +66,14 @@ Session.prototype.toOsmChange = function(changesetId) {
     xml += '</osmChange>';
     
     return xml;
-}
+};
+
+Session.prototype.clearTaggedBuildings = function() {
+    this._buildings = this._buildings.filter(function(building) {
+        return !defined(building.roofMaterial);
+    });
+    
+    this._currentIndex = this._buildings.length - 1;
+};
 
 module.exports = Session;

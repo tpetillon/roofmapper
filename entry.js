@@ -174,6 +174,10 @@ function destroyBuildingPolygon() {
 function displayBuildingPolygon(building) {
     destroyBuildingPolygon();
     
+    if (!defined(building)) {
+        return;
+    }
+    
     building.polygon.addTo(_map);
     _map.fitBounds(building.polygon.getBounds());
     _buildingPolygon = building.polygon;
@@ -231,6 +235,14 @@ function displayNextBuilding() {
     } else {
         loadAndDisplayNewBuilding();
     }
+}
+
+function clearTaggedBuildings() {
+    _session.clearTaggedBuildings();
+    var building = _session.getCurrentBuilding();
+    displayBuildingPolygon(building);
+    updateButtons();
+    updateTagButtons();
 }
 
 document.getElementById('previous-building').onclick = function() {
