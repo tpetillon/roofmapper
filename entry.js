@@ -75,7 +75,7 @@ function logout() {
     updateButtons();
 }
 
-function fetchUserName(callback) {
+function fetchUserName(onSuccess, onError) {
     // Signed method call - since `auto` is true above, this will
     // automatically start an authentication process if the user isn't
     // authenticated yet.
@@ -85,10 +85,10 @@ function fetchUserName(callback) {
     }, function(error, details) {
         if (defined(error)) {
             alert("Error: " + error.responseText);
-            console.log("could not connect: " + error.responseText);
+            console.log("could not connect: " + error.responseText);            
             
-            if (error.status === 401) {
-                logout();
+            if (defined(onError)) {
+                onError(error);
             }
             
             return;
@@ -103,8 +103,8 @@ function fetchUserName(callback) {
         updateConnectionStatusDisplay();
         updateButtons();
         
-        if (defined(callback)) {
-            callback();
+        if (defined(onSuccess)) {
+            onSuccess();
         }
     });
 };
@@ -158,9 +158,17 @@ if (auth.authenticated()) {
 
 document.getElementById('authenticate').onclick = function() {
     _loadingStatus.addSystem('username-fetch');
-    fetchUserName(function() { // login is automatically triggered
-        _loadingStatus.removeSystem('username-fetch');
-    });
+    fetchUserName(
+        function() { // login is automatically triggered
+            _loadingStatus.removeSystem('username-fetch');
+        },
+        function(error) {
+            _loadingStatus.removeSystem('username-fetch');
+            if (error.status === 401) {
+                logout();
+            }
+        }
+    );
 };
 document.getElementById('logout').onclick = logout;
 
