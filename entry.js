@@ -69,13 +69,11 @@ function logout() {
 }
 
 function fetchUserName(onSuccess, onError) {
-    // Signed method call - since `auto` is true above, this will
-    // automatically start an authentication process if the user isn't
-    // authenticated yet.
     _api.request('/api/0.6/user/details', 'GET', function(error, details) {
         if (defined(error)) {
-            alert("Error: " + error.responseText);
-            console.log("could not connect: " + error.responseText);            
+            var message = defined(error.responseText) ? error.responseText : error;
+            alert("Error: " + message);
+            console.log("could not connect: " + message);            
             
             if (defined(onError)) {
                 onError(error);
@@ -146,18 +144,24 @@ if (_api.authenticated) {
 }
 
 document.getElementById('authenticate').onclick = function() {
-    _loadingStatus.addSystem('username-fetch');
-    fetchUserName(
-        function() { // login is automatically triggered
-            _loadingStatus.removeSystem('username-fetch');
-        },
-        function(error) {
-            _loadingStatus.removeSystem('username-fetch');
-            if (error.status === 401) {
-                logout();
-            }
+    _loadingStatus.addSystem('authentication');
+    _api.authenticate(function() {
+        _loadingStatus.removeSystem('authentication');
+        
+        updateConnectionStatusDisplay();
+        updateButtons();
+        
+        if (_api.authenticated) {
+            fetchUserName(
+                function() {},
+                function(error) {
+                    if (error.status === 401) {
+                        logout();
+                    }
+                }
+            );
         }
-    );
+    });
 };
 document.getElementById('logout').onclick = logout;
 
@@ -186,7 +190,8 @@ function loadAndDisplayNewBuilding() {
     BuildingService.getBuilding(function(building) {
         _api.request('/api/0.6/' + building.type + '/' + building.id + '/full', 'GET', function(error, response) {
             if (defined(error)) {
-                console.error("Download error: " + error.responseText);
+                var message = defined(error.responseText) ? error.responseText : error;
+                console.error("Download error: " + message);
                 _loadingStatus.removeSystem('load-building');
             } else {
                 var $data = $(response);

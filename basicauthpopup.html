@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <title>OpenStreetMap dev server authentication</title>
+    </head>
+    <body>
+        <script>
+            function submit() {
+                var username = document.getElementById("username").value;
+                var password = document.getElementById("password").value;
+                
+                window.opener.authComplete({ username : username, password : password });
+                window.close();
+            }
+        </script>
+        <h1>OpenStreetMap dev server authentication</h1>
+        <label>Username:</label><br />
+        <input type="text" id="username" /><br />
+        <label>Password:</label><br />
+        <input type="password" id="password" /><br /><br />
+        <input type="button" value="Login" onclick="submit();">
+    </body>
+</html>
