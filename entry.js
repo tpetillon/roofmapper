@@ -1,9 +1,9 @@
 'use strict';
 
 var $ = require('jquery');
-var osmAuth = require('osm-auth');
 var L = require('leaflet');
 var defined = require('defined');
+var OsmApi = require('./osmapi.js');
 var Session = require('./session.js');
 var Building = require('./building.js');
 var Session = require('./session.js');
@@ -55,19 +55,12 @@ var _username = undefined;
 var _map = undefined;
 var _recenterButton = undefined;
 var _buildingPolygon = undefined;
+var _api = new OsmApi();
 var _session = new Session();
 var _loadingStatus = new LoadingStatus();
 
-var auth = osmAuth({
-    oauth_consumer_key: 'aF9d6GToknMHKvU7KLo208XCMaHxPo2EtyMxgLtd',
-    oauth_secret: '0QrDWTZMCG0IYFnm92iq045HTzv26p1QzwhhItaV',
-    auto: true, // show a login form if the user is not authenticated and
-               // you try to do a call
-    landing: "/land.html"
-});
-
 function logout() {
-    auth.logout();
+    _api.logout();
     
     console.log("logged out");
     
@@ -79,10 +72,7 @@ function fetchUserName(onSuccess, onError) {
     // Signed method call - since `auto` is true above, this will
     // automatically start an authentication process if the user isn't
     // authenticated yet.
-    auth.xhr({
-        method: 'GET',
-        path: '/api/0.6/user/details'
-    }, function(error, details) {
+    _api.request('/api/0.6/user/details', 'GET', function(error, details) {
         if (defined(error)) {
             alert("Error: " + error.responseText);
             console.log("could not connect: " + error.responseText);            
@@ -109,12 +99,11 @@ function fetchUserName(onSuccess, onError) {
     });
 };
 
-function updateButtons()
-{
+function updateButtons() {
     var loading = _loadingStatus.isLoading;
     
-    $("#authenticate").prop('disabled', loading || auth.authenticated());
-    $("#logout").prop('disabled', loading || !auth.authenticated())
+    $("#authenticate").prop('disabled', loading || _api.authenticated);
+    $("#logout").prop('disabled', loading || !_api.authenticated)
     $("#building-buttons").find("button").prop('disabled', loading);
     
     if (_session.currentIndex <= 0) {
@@ -140,7 +129,7 @@ function updateTagButtons() {
 }
 
 function updateConnectionStatusDisplay() {
-    if (auth.authenticated()) {
+    if (_api.authenticated) {
         $("#authenticate").hide();
         $("#logout").show();
         $("#connection-status").text("Connected as " + _username);
@@ -151,7 +140,7 @@ function updateConnectionStatusDisplay() {
     }
 }
 
-if (auth.authenticated()) {
+if (_api.authenticated) {
     $("#connection-status").text("Connected, retrieving username...");
     fetchUserName();
 }
@@ -195,10 +184,7 @@ function loadAndDisplayNewBuilding() {
     _loadingStatus.addSystem('load-building');
     
     BuildingService.getBuilding(function(building) {
-        auth.xhr({
-            method : 'GET',
-            path : '/api/0.6/' + building.type + '/' + building.id + '/full'
-        }, function(error, response) {
+        _api.request('/api/0.6/' + building.type + '/' + building.id + '/full', 'GET', function(error, response) {
             if (defined(error)) {
                 console.error("Download error: " + error.responseText);
                 _loadingStatus.removeSystem('load-building');
