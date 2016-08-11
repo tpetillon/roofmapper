@@ -17,6 +17,8 @@ function Building(type, id, version) {
     this._id = id;
     this._version = version;
     this._tags = [];
+    this._nodes = []; // for ways
+    this._members = []; // for relations
     
     this._polygon = undefined;
     this._roofMaterial = undefined;
@@ -60,8 +62,9 @@ Object.defineProperties(Building.prototype, {
 Building.prototype.setData = function($data) {
     if (this.type === 'way') {
         var ways = extractWays($data);
-        var positions = ways[Object.keys(ways)[0]];
+        var positions = ways[Object.keys(ways)[0]].map(function(node) { return node.position; });
         this._polygon = L.polygon(positions);
+        this._nodes = ways[Object.keys(ways)[0]].map(function(node) { return node.nodeId; });
         this._tags = extractTags($data.children("osm").children("way"));
     } else if (this.type === 'relation') {
         var relation = extractRelation($data);
@@ -70,6 +73,7 @@ Building.prototype.setData = function($data) {
             polygons.push([relation.outer[i]].concat(relation.inner));
         }
         this._polygon = L.multiPolygon(polygons);
+        this._members = relation.members;
         this._tags = extractTags($data.children("osm").children("relation"));
     } else {
         throw 'Unsupported building type: ' + type;
@@ -102,8 +106,10 @@ function extractWays($data) {
         });
         
         var positions = $.map(nodeIds, function(id_) {
-            // array in array because map() flattens arrays and we don't want that
-            return [ nodes[id_] ];
+            return {
+                nodeId : id_,
+                position : nodes[id_]
+            };
         });
         
         ways[id] = positions;
@@ -123,17 +129,27 @@ function extractRelation($data) {
         var role = $(this).attr("role");
         
         var way = ways[ref];
+        var wayPositions = way.map(function(node) { return node.position; });
         
         if (role === "outer") {
-            outerWays.push(way);
+            outerWays.push(wayPositions);
         } else if (role === "inner") {
-            innerWays.push(way);
+            innerWays.push(wayPositions);
         }
     });
     
+    var members = $data.children("osm").children("relation").children("member").map(function() {
+        return {
+            type : $(this).attr("type"),
+            ref : Number($(this).attr("ref")),
+            role : $(this).attr("role")
+        }
+    }).toArray();
+    
     return {
         outer : outerWays,
-        inner : innerWays
+        inner : innerWays,
+        members : members
     };
 }
 
@@ -153,7 +169,17 @@ Building.prototype.toOsmChange = function(changesetId) {
     
     var xml = '';
     xml += '<modify>';
-    xml += '<' + this._type + ' id="' + this._id + '" changeset="' + changesetId + '" version="' + (this._version + 1) + '" visible="true">';
+    xml += '<' + this._type + ' id="' + this._id + '" changeset="' + changesetId + '" version="' + this._version + '">';
+    
+    if (this._type === "way") {
+        this._nodes.forEach(function(nodeId) {
+            xml +=  '<nd ref="' + nodeId + '" />';
+        });
+    } else if (this._type === "relation") {
+        this._members.forEach(function(member) {
+            xml +=  '<member type="' + member.type + '" ref="' + member.ref + '" role="' + member.role + '" />';
+        });
+    }
     
     this._tags.forEach(function(tag) {
         xml += '<tag k="' + tag.k + '" v="' + tag.v + '" />';
