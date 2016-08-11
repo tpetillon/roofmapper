@@ -44,18 +44,23 @@ BasicAuthOsmApi.prototype.logout = function() {
     store.set('basic_auth_token', undefined);
 };
 
-BasicAuthOsmApi.prototype.request = function(url, method, callback) {
+BasicAuthOsmApi.prototype.request = function(url, method, callback, data) {
     $.ajax({
         type: method,
         url: 'http://master.apis.dev.openstreetmap.org' + url,
+        data : data,
         headers: { "Authorization" : this._token }
     })
     .done(function(data) {
         callback(undefined, data);
     })
     .fail(function(xhr, status, error) {
-        callback(error, undefined);
+        callback(xhr, undefined);
     });
+};
+
+BasicAuthOsmApi.prototype.requestWithData = function(url, method, data, callback) {
+    this.request(url, method, callback, data);
 };
 
 module.exports = BasicAuthOsmApi;

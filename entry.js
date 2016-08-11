@@ -48,7 +48,8 @@ wrapper.children("#footer").append(
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-metal' value='metal' autocomplete='off' />Metal</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-copper' value='copper' autocomplete='off' />Copper</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-concrete' value='concrete' autocomplete='off' />Concrete</label>" +
-    "</div>"
+    "</div>" +
+    "<button id='upload-changes'>Send changes</button>"
 );
 
 var _username = undefined;
@@ -71,9 +72,8 @@ function logout() {
 function fetchUserName(onSuccess, onError) {
     _api.request('/api/0.6/user/details', 'GET', function(error, details) {
         if (defined(error)) {
-            var message = defined(error.responseText) ? error.responseText : error;
-            alert("Error: " + message);
-            console.log("could not connect: " + message);            
+            alert("Error: " + error.responseText);
+            console.log("could not connect: " + error.responseText);            
             
             if (defined(onError)) {
                 onError(error);
@@ -115,6 +115,8 @@ function updateButtons() {
     }
     
     $("#tag-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
+    
+    $("#upload-changes").prop("disabled", loading || _session.taggedBuildingCount <= 0);
 }
 
 function updateTagButtons() {
@@ -190,8 +192,7 @@ function loadAndDisplayNewBuilding() {
     BuildingService.getBuilding(function(building) {
         _api.request('/api/0.6/' + building.type + '/' + building.id + '/full', 'GET', function(error, response) {
             if (defined(error)) {
-                var message = defined(error.responseText) ? error.responseText : error;
-                console.error("Download error: " + message);
+                console.error("Download error: " + error.responseText);
                 _loadingStatus.removeSystem('load-building');
             } else {
                 var $data = $(response);
@@ -244,12 +245,67 @@ function clearTaggedBuildings() {
     updateTagButtons();
 }
 
-document.getElementById('previous-building').onclick = function() {
-    displayPreviousBuilding();
-};
+document.getElementById('previous-building').onclick = displayPreviousBuilding;
+document.getElementById('next-building').onclick = displayNextBuilding;
 
-document.getElementById('next-building').onclick = function() {
-    displayNextBuilding();
+function createChangeset(callback) {
+    var changesetData =
+        '<osm>' +
+        '<changeset>' +
+        '<tag k="created_by" v="RoofMapper ' + VERSION + '"/>' +
+        '<tag k="comment" v="Add building roof:material data from imagery"/>' +
+        '</changeset>' +
+        '</osm>';
+    
+    _loadingStatus.addSystem('changeset-creation');
+    
+    _api.requestWithData('/api/0.6/changeset/create', 'PUT', changesetData, function(error, response) {
+        if (defined(error)) {
+            console.error("Changeset creation error: " + error.responseText);
+            _loadingStatus.removeSystem('changeset-creation');
+        } else {
+            var changesetId = Number(response);
+            console.log("Changeset " + changesetId + " created");
+            _session.changesetId = changesetId;
+            
+            callback();
+            _loadingStatus.removeSystem('changeset-creation');
+        }
+    });
+}
+
+function uploadChanges() {
+    if (!defined(_session.changesetId)) {
+        return;
+    }
+    
+    var changeData = _session.toOsmChange();
+    
+    _loadingStatus.addSystem('changes-upload');
+    
+    var url = '/api/0.6/changeset/' + _session.changesetId + '/upload';
+    _api.requestWithData(url, 'POST', changeData, function(error, response) {
+        if (defined(error)) {
+            console.error("Changes upload error: " + error.responseText);
+            _loadingStatus.removeSystem('changes-upload');
+        } else {
+            console.log("Changes uploaded");
+            
+            _session.clearTaggedBuildings();
+            destroyBuildingPolygon();
+            loadAndDisplayNewBuilding();
+            
+            _loadingStatus.removeSystem('changes-upload');
+        }
+    });
+}
+
+document.getElementById('upload-changes').onclick = function() {
+    if (!defined(_session.changesetId)) {
+        createChangeset(uploadChanges);
+    } else {
+        uploadChanges();
+    }
 };
 
 function init() {
@@ -284,8 +340,9 @@ function init() {
     $('input[type=radio][name=tag-selection]').change(function() {
         if (defined(_session.currentBuilding)) {
             var value = this.value === 'undefined' ? undefined : this.value;
-            _session.currentBuilding.roofMaterial = value;
-            updateTagButtons()
+            _session.setBuildingRoofMaterial(_session.currentBuilding, value);
+            updateButtons();
+            updateTagButtons();
         }
     });
     

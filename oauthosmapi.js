@@ -27,11 +27,16 @@ OAuthOsmApi.prototype.logout = function() {
     this._auth.logout();
 };
 
-OAuthOsmApi.prototype.request = function(url, method, callback) {
+OAuthOsmApi.prototype.request = function(url, method, callback, data) {
     this._auth.xhr({
         method: method,
-        path: url
+        path: url,
+        content : data
     }, callback);
+};
+
+OAuthOsmApi.prototype.requestWithData = function(url, method, data, callback) {
+    this.request(url, method, callback, data);
 };
 
 module.exports = OAuthOsmApi;
