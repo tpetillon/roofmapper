@@ -49,7 +49,9 @@ wrapper.children("#footer").append(
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-copper' value='copper' autocomplete='off' />Copper</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-concrete' value='concrete' autocomplete='off' />Concrete</label>" +
     "</div>" +
-    "<button id='upload-changes'>Send changes</button>"
+    "<button id='upload-changes'>Send changes</button>" +
+    "<p id='tagged-building-count'>0 buildings tagged</p>" +
+    "<p id='uploaded-building-count'>0 buildings uploaded</p>"
 );
 
 var _username = undefined;
@@ -66,7 +68,7 @@ function logout() {
     console.log("logged out");
     
     updateConnectionStatusDisplay();
-    updateButtons();
+    updateUi();
 }
 
 function fetchUserName(onSuccess, onError) {
@@ -89,7 +91,7 @@ function fetchUserName(onSuccess, onError) {
         console.log("connected as " + _username + " (" + userId + ")");
         
         updateConnectionStatusDisplay();
-        updateButtons();
+        updateUi();
         
         if (defined(onSuccess)) {
             onSuccess();
@@ -97,7 +99,7 @@ function fetchUserName(onSuccess, onError) {
     });
 };
 
-function updateButtons() {
+function updateUi() {
     var loading = _loadingStatus.isLoading;
     
     $("#authenticate").prop('disabled', loading || _api.authenticated);
@@ -117,15 +119,22 @@ function updateButtons() {
     $("#tag-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
     
     $("#upload-changes").prop("disabled", loading || _session.taggedBuildingCount <= 0);
-}
-
-function updateTagButtons() {
+    
     $("#tag-buttons").find("input").prop("checked", false);
     
     if (defined(_session.currentBuilding)) {
         var roofMaterial = _session.currentBuilding.roofMaterial;
         $("#tag-" + roofMaterial).prop("checked", true);
     }
+    
+    $("#tagged-building-count").text(
+        _session.taggedBuildingCount +
+        " building" + (_session.taggedBuildingCount === 1 ? "" : "s") +
+        " tagged");
+    $("#uploaded-building-count").text(
+        _session.uploadedBuildingCount +
+        " building" + (_session.uploadedBuildingCount === 1 ? "" : "s") +
+        " uploaded");
 }
 
 function updateConnectionStatusDisplay() {
@@ -151,7 +160,7 @@ document.getElementById('authenticate').onclick = function() {
         _loadingStatus.removeSystem('authentication');
         
         updateConnectionStatusDisplay();
-        updateButtons();
+        updateUi();
         
         if (_api.authenticated) {
             fetchUserName(
@@ -215,7 +224,7 @@ function loadAndDisplayNewBuilding() {
                         console.log("Displaying building " + building.type + "/" + building.id);
                         _session.addBuilding(building, true);
                         displayBuildingPolygon(building);
-                        updateTagButtons();
+                        updateUi();
                         _loadingStatus.removeSystem('load-building');
                     }
                 }
@@ -229,8 +238,7 @@ function displayPreviousBuilding() {
         _session.currentIndex = _session.currentIndex - 1;
         var building = _session.getCurrentBuilding();
         displayBuildingPolygon(building);
-        updateButtons();
-        updateTagButtons();
+        updateUi();
     }
 }
 
@@ -239,8 +247,7 @@ function displayNextBuilding() {
         _session.currentIndex = _session.currentIndex + 1;
         var building = _session.getCurrentBuilding();
         displayBuildingPolygon(building);
-        updateButtons();
-        updateTagButtons();
+        updateUi();
     } else {
         loadAndDisplayNewBuilding();
     }
@@ -250,8 +257,7 @@ function clearTaggedBuildings() {
     _session.clearTaggedBuildings();
     var building = _session.getCurrentBuilding();
     displayBuildingPolygon(building);
-    updateButtons();
-    updateTagButtons();
+    updateUi();
 }
 
 document.getElementById('previous-building').onclick = displayPreviousBuilding;
@@ -331,8 +337,7 @@ function removeBuildingInConflict(errorString) {
     if (_session.currentIndex >= 0 && _session.currentIndex < _session.buildingCount) {
         var building = _session.getCurrentBuilding();
         displayBuildingPolygon(building);
-        updateButtons();
-        updateTagButtons();
+        updateUi();
     } else {
         loadAndDisplayNewBuilding();
     }
@@ -373,19 +378,18 @@ function init() {
     // With this alternative way its always displayable.
     $("#recenter-button").closest(".leaflet-control").prop("title", "Recenter on building");
     
-    _loadingStatus.addListener(updateButtons);
+    _loadingStatus.addListener(updateUi);
     
     $('input[type=radio][name=tag-selection]').change(function() {
         if (defined(_session.currentBuilding)) {
             var value = this.value === 'undefined' ? undefined : this.value;
             _session.setBuildingRoofMaterial(_session.currentBuilding, value);
-            updateButtons();
-            updateTagButtons();
+            updateUi();
         }
     });
     
     updateConnectionStatusDisplay();
-    updateButtons();
+    updateUi();
 }
 
 init();

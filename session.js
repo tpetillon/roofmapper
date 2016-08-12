@@ -6,6 +6,7 @@ function Session() {
     this._buildings = [];
     this._currentIndex = -1;
     this._taggedBuildingCount = 0;
+    this._uploadedBuildingCount = 0;
     this._changesetId = undefined;
 }
 
@@ -37,6 +38,11 @@ Object.defineProperties(Session.prototype, {
     taggedBuildingCount : {
         get : function() {
             return this._taggedBuildingCount;
+        }
+    },
+    uploadedBuildingCount : {
+        get : function() {
+            return this._uploadedBuildingCount;
         }
     },
     changesetId : {
@@ -125,12 +131,15 @@ Session.prototype.removeBuilding = function(type, id) {
 };
 
 Session.prototype.clearTaggedBuildings = function() {
+    var buildingCountBefore = this._buildings.length;
+    
     this._buildings = this._buildings.filter(function(building) {
         return !defined(building.roofMaterial);
     });
     
     this._currentIndex = this._buildings.length - 1;
     this._taggedBuildingCount = 0;
+    this._uploadedBuildingCount += buildingCountBefore - this._buildings.length;
 };
 
 module.exports = Session;
