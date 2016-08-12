@@ -296,6 +296,11 @@ function uploadChanges() {
     _api.requestWithData(url, 'POST', changeData, function(error, response) {
         if (defined(error)) {
             console.error("Changes upload error: " + error.responseText);
+            
+            if (error.statusText === "Conflict") {
+                removeBuildingInConflict(error.responseText);
+            }
+            
             _loadingStatus.removeSystem('changes-upload');
         } else {
             console.log("Changes uploaded");
@@ -307,6 +312,30 @@ function uploadChanges() {
             _loadingStatus.removeSystem('changes-upload');
         }
     });
+}
+
+function removeBuildingInConflict(errorString) {
+    var matches = errorString.match(/(Way|Relation) (\d+)/);
+    
+    if (matches == null) {
+        return;
+    }
+    
+    var type = matches[1].toLowerCase();
+    var id = Number(matches[2]);
+    
+    console.log("Removing building " + type + "/" + id + " from session");
+    
+    _session.removeBuilding(type, id);
+    
+    if (_session.currentIndex >= 0 && _session.currentIndex < _session.buildingCount) {
+        var building = _session.getCurrentBuilding();
+        displayBuildingPolygon(building);
+        updateButtons();
+        updateTagButtons();
+    } else {
+        loadAndDisplayNewBuilding();
+    }
 }
 
 document.getElementById('upload-changes').onclick = function() {

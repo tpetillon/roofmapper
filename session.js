@@ -101,6 +101,29 @@ Session.prototype.toOsmChange = function() {
     return xml;
 };
 
+Session.prototype.removeBuilding = function(type, id) {
+    if (this._currentIndex < 0) {
+        return;
+    }
+    
+    for (var i = 0; i < this._buildings.length; i++) {
+        var building = this._buildings[i];
+        if (building.type === type && building.id === id) {
+            this._buildings.splice(i, 1);
+            
+            if (defined(building.roofMaterial)) {
+                this._taggedBuildingCount--;
+            }
+            
+            if (this._currentIndex >= i) {
+                this._currentIndex--;
+            }
+            
+            return;
+        }
+    }
+};
+
 Session.prototype.clearTaggedBuildings = function() {
     this._buildings = this._buildings.filter(function(building) {
         return !defined(building.roofMaterial);
