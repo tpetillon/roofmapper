@@ -53,6 +53,7 @@ Object.defineProperties(Session.prototype, {
         },
         set : function(value) {
             this._changesetId = value;
+            this._uploadedBuildingCount = 0;
         }
     },
     changesetIsFull : {

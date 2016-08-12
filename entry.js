@@ -311,7 +311,15 @@ function uploadChanges() {
             console.error("Changes upload error: " + error.responseText);
             
             if (error.statusText === "Conflict") {
-                removeBuildingInConflict(error.responseText);
+                if (error.responseText.match(/was closed/)) {
+                    // The changeset #id was closed at #closed_at.
+                    console.log("The changeset " + _session.changesetId +
+                        " has been closed, creating a new one.");
+                    createChangeset(uploadChanges);
+                } else if (error.responseText.match(/Version mismatch/)) {
+                    // Version mismatch: Provided #ver_client, server had: #ver_serv of [Way|Relation] #id
+                    removeBuildingInConflict(error.responseText);
+                }
             }
             
             _loadingStatus.removeSystem('changes-upload');
