@@ -2,6 +2,8 @@
 
 var defined = require('defined');
 
+const MAX_CHANGES_PER_CHANGESET = 50000;
+
 function Session() {
     this._buildings = [];
     this._currentIndex = -1;
@@ -52,10 +54,20 @@ Object.defineProperties(Session.prototype, {
         set : function(value) {
             this._changesetId = value;
         }
+    },
+    changesetIsFull : {
+        get : function() {
+            // count every potentially uploadable building
+            return this._uploadedBuildingCount + this._buildings.length > MAX_CHANGES_PER_CHANGESET;
+        }
     }
 });
 
 Session.prototype.addBuilding = function(building, setAsCurrentIndex) {
+    if (this.changesetIsFull) {
+        return;
+    }
+    
     this._buildings.push(building);
     
     if (setAsCurrentIndex === true) {

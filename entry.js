@@ -109,6 +109,9 @@ function updateUi() {
     if (_session.currentIndex <= 0) {
         $("#previous-building").prop('disabled', true);
     }
+    if (_session.changesetIsFull) {
+        $("#next-building").prop('disabled', true);
+    }
     
     if (defined(_session.currentBuilding)) {
         _recenterButton.enable();
@@ -196,6 +199,10 @@ function displayBuildingPolygon(building) {
 }
 
 function loadAndDisplayNewBuilding() {
+    if (_session.changesetIsFull) {
+        return;
+    }
+    
     _loadingStatus.addSystem('load-building');
     
     BuildingService.getBuilding(function(building) {
