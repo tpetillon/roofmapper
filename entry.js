@@ -205,10 +205,19 @@ function loadAndDisplayNewBuilding() {
                     loadAndDisplayNewBuilding();
                 } else {
                     building.setData($data);
-                    _session.addBuilding(building, true);
-                    displayBuildingPolygon(building);
-                    updateTagButtons();
-                    _loadingStatus.removeSystem('load-building');
+                    
+                    if (defined(building.roofMaterial)) {
+                        console.log("Building " + building.type + "/" + building.id +
+                            " already has its roof material defined. Skipping.");
+                        _loadingStatus.removeSystem('load-building');
+                        loadAndDisplayNewBuilding();
+                    } else {
+                        console.log("Displaying building " + building.type + "/" + building.id);
+                        _session.addBuilding(building, true);
+                        displayBuildingPolygon(building);
+                        updateTagButtons();
+                        _loadingStatus.removeSystem('load-building');
+                    }
                 }
             }
         });

@@ -78,6 +78,15 @@ Building.prototype.setData = function($data) {
     } else {
         throw 'Unsupported building type: ' + type;
     }
+    
+    for (var i = 0; i < this._tags.length; i++) {
+        var tag = this._tags[i];
+        if (tag.k === "roof:material") {
+            this._roofMaterial = tag.v;
+            this._tags.splice(i, 1);
+            break;
+        }
+    }
 };
 
 function extractNodes($data) {
