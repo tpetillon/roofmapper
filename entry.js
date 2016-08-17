@@ -193,6 +193,13 @@ function displayBuildingPolygon(building) {
         return;
     }
     
+    building.polygon.setStyle({
+        weight : 4,
+        color : '#0026FF',
+        fill : false,
+        dashArray : "5,5",
+        clickable : false
+    });
     building.polygon.addTo(_map);
     _map.fitBounds(building.polygon.getBounds());
     _buildingPolygon = building.polygon;
