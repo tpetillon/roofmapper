@@ -2,6 +2,7 @@
 
 var $ = require('expose?$!expose?jQuery!jquery');
 var L = require('leaflet');
+var keyboardJS = require('keyboardJS');
 var defined = require('./defined');
 var OsmApi = require('./osmapi.js');
 var Session = require('./session.js');
@@ -409,6 +410,18 @@ document.getElementById('upload-changes').onclick = function() {
     }
 };
 
+function addKeyboardShortcut(key, conditions, action) {
+    keyboardJS.bind(key, function(e) {
+        for (var i = 0; i < conditions.length; i++) {
+            if (!conditions[i]) {
+                return;
+            }
+        }
+        
+        action(e);
+    });
+}
+
 function init() {
     console.log("RoofMapper " + VERSION + ", environment: " + ENV);
     
@@ -446,6 +459,26 @@ function init() {
             updateUi();
         }
     });
+    
+    var isNotLoading = function() { return !_loadingStatus.isLoading; };
+    var buildingDisplayed = function() { return defined(_session.currentBuilding); };
+    var isNotAtFirstBuilding = function() { return _session.currentIndex > 0; };
+    addKeyboardShortcut('backspace', [ isNotLoading, isNotAtFirstBuilding ], displayPreviousBuilding);
+    addKeyboardShortcut('space', [ isNotLoading ], displayNextBuilding);
+    
+    var addRoofMaterialKeyboardShortcut = function(key, material) {
+        addKeyboardShortcut(key, [ isNotLoading, buildingDisplayed ], function() { $("#tag-" + material).prop("checked", true).trigger('change'); });
+    };
+    addRoofMaterialKeyboardShortcut('numzero', 'undefined');
+    addRoofMaterialKeyboardShortcut('numone', 'roof_tiles');
+    addRoofMaterialKeyboardShortcut('numtwo', 'slate');
+    addRoofMaterialKeyboardShortcut('numthree', 'metal');
+    addRoofMaterialKeyboardShortcut('numfour', 'copper');
+    addRoofMaterialKeyboardShortcut('numfive', 'concrete');
+    addRoofMaterialKeyboardShortcut('numsix', 'glass');
+    addRoofMaterialKeyboardShortcut('numseven', 'tar_paper');
+    addRoofMaterialKeyboardShortcut('numeight', 'eternit');
+    addRoofMaterialKeyboardShortcut('numnine', 'gravel');
     
     updateConnectionStatusDisplay();
     updateUi();
