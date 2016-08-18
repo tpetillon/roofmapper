@@ -16,6 +16,11 @@ Object.defineProperties(OAuthOsmApi.prototype, {
         get : function() {
             return this._auth.authenticated();
         }
+    },
+    url : {
+        get : function() {
+            return this._auth.url;
+        } 
     }
 });
 

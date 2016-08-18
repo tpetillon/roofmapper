@@ -34,18 +34,18 @@ wrapper.append("<div id='header'></div>");
 wrapper.children("#header").append(
     "<div id='connection-buttons'>" +
     "<span id='connection-status'>Disconnected</span> " +
-    "<button id='authenticate'>Authenticate</button>" +
-    "<button id='logout'>Logout</button>" +
+    "<button type='button' class='btn btn-primary' id='authenticate'>Authenticate</button>" +
+    "<button type='button' class='btn btn-default' id='logout'>Logout</button>" +
     "</div>"
 );
 wrapper.append("<div id='map'></div>");
 wrapper.append("<div id='footer'></div>");
 wrapper.children("#footer").append(
     "<div id='building-buttons'>" +
-    "<button id='previous-building'>Previous building</button>" +
-    "<button id='next-building'>Next building</button>" +
+    "<button type='button' class='btn btn-default' id='previous-building'>Previous building</button>" +
+    "<button type='button' class='btn btn-default' id='next-building'>Next building</button>" +
     "</div>" +
-    "<div id='tag-buttons'>" +
+    "<div class='btn-group' data-toggle='buttons' id='tag-buttons'>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-undefined' value='undefined' autocomplete='off' />Undefined</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-tiles' value='tiles' autocomplete='off' />Tiles</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-slate' value='slate' autocomplete='off' />Slate</label>" +
@@ -53,7 +53,7 @@ wrapper.children("#footer").append(
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-copper' value='copper' autocomplete='off' />Copper</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-concrete' value='concrete' autocomplete='off' />Concrete</label>" +
     "</div>" +
-    "<button id='upload-changes'>Send changes</button>" +
+    "<button type='button' class='btn btn-default' id='upload-changes'>Send changes</button>" +
     "<p id='tagged-building-count'>0 buildings tagged</p>" +
     "<p id='uploaded-building-count'>0 buildings uploaded</p>"
 );
@@ -125,13 +125,23 @@ function updateUi() {
     
     $("#tag-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
     
-    $("#upload-changes").prop("disabled", loading || _session.taggedBuildingCount <= 0);
+    $("#upload-changes").prop("disabled", loading || !_api.authenticated || _session.taggedBuildingCount <= 0);
     
-    $("#tag-buttons").find("input").prop("checked", false);
+    $("#tag-buttons").find("input")
+        .prop("checked", false)
+        .parent().removeClass("active");
     
     if (defined(_session.currentBuilding)) {
         var roofMaterial = _session.currentBuilding.roofMaterial;
-        $("#tag-" + roofMaterial).prop("checked", true);
+        $("#tag-" + roofMaterial)
+            .prop("checked", true)
+            .parent().addClass("active");
+        
+        $("#tag-buttons").find("input")
+            .parent().removeClass("disabled")
+    } else {
+        $("#tag-buttons").find("input")
+            .parent().addClass("disabled")
     }
     
     $("#tagged-building-count").text(
@@ -148,7 +158,10 @@ function updateConnectionStatusDisplay() {
     if (_api.authenticated) {
         $("#authenticate").hide();
         $("#logout").show();
-        $("#connection-status").text("Connected as " + _username);
+        $("#connection-status").empty().append(
+            "Connected as ",
+            $("<a href='" + _api.url + "/user/" + _username + "' />")
+                .append(document.createTextNode(_username)));
     } else {
         $("#authenticate").show();
         $("#logout").hide();

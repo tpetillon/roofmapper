@@ -5,6 +5,7 @@ var defined = require('./defined');
 var store = require('store');
 
 function BasicAuthOsmApi() {
+    this._url = 'http://master.apis.dev.openstreetmap.org';
     this._token = store.get('basic_auth_token');
 }
 
@@ -13,6 +14,11 @@ Object.defineProperties(BasicAuthOsmApi.prototype, {
         get : function() {
             return defined(this._token);
         }
+    },
+    url : {
+        get : function() {
+            return this._url;
+        } 
     }
 });
 
@@ -42,7 +48,7 @@ BasicAuthOsmApi.prototype.logout = function() {
 BasicAuthOsmApi.prototype.request = function(url, method, callback, data) {
     $.ajax({
         type: method,
-        url: 'http://master.apis.dev.openstreetmap.org' + url,
+        url: this._url + url,
         data : data,
         headers: { "Authorization" : this._token }
     })
