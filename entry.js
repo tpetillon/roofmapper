@@ -54,17 +54,21 @@ wrapper.children("#header").append(
 wrapper.append("<div id='map'></div>");
 wrapper.append("<div id='footer'></div>");
 wrapper.children("#footer").append(
-    "<div id='building-buttons'>" +
-    "<button type='button' class='btn btn-default' id='previous-building'>Previous building</button>" +
-    "<button type='button' class='btn btn-default' id='next-building'>Next building</button>" +
-    "</div>" +
     "<div class='btn-group' data-toggle='buttons' id='tag-buttons'>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-undefined' value='undefined' autocomplete='off' />Undefined</label>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-tiles' value='tiles' autocomplete='off' />Tiles</label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-undefined' value='undefined' autocomplete='off' />Undefined, other</label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-roof_tiles' value='roof_tiles' autocomplete='off' />Tiles</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-slate' value='slate' autocomplete='off' />Slate</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-metal' value='metal' autocomplete='off' />Metal</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-copper' value='copper' autocomplete='off' />Copper</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-concrete' value='concrete' autocomplete='off' />Concrete</label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-glass' value='glass' autocomplete='off' />Glass</label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-tar_paper' value='tar_paper' autocomplete='off' />Tar paper</label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-eternit' value='eternit' autocomplete='off' />Eternit</label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-gravel' value='gravel' autocomplete='off' />Gravel</label>" +
+    "</div>" +
+    "<div id='building-buttons'>" +
+    "<button type='button' class='btn btn-default' id='previous-building'><div class='fa fa-chevron-left' aria-hidden='true'></div><div>Previous building</div></button>" +
+    "<button type='button' class='btn btn-default' id='next-building'><div class='fa fa-chevron-right' aria-hidden='true'></div><div>Next building</div></button>" +
     "</div>"
 );
 

@@ -5,11 +5,15 @@ var L = require('leaflet');
 var defined = require('./defined');
 
 var roofMaterials = [
-    'tiles',
+    'roof_tiles',
     'slate',
     'metal',
     'copper',
-    'concrete'
+    'concrete',
+    'glass',
+    'tar_paper',
+    'eternit',
+    'gravel'
 ];
 
 function Building(type, id, version) {

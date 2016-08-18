@@ -15,8 +15,9 @@ html, body {
 }
 
 #header {
-    height: 2.5em;
+    height: 2.6em;
     margin: 0;
+    padding: 0.1em;
 }
 
 #map {
@@ -28,11 +29,46 @@ html, body {
     float: right;
 }
 
-#buildings-buttons {
+#session-buttons > p {
+    display: inline-block;
+    margin-left: 2em;
+}
+
+#tag-buttons {
     float: left;
+    width: 80%;
+    height: 100%;
+}
+
+#tag-buttons > label {
+    width: 10%;
+    height: 100%;
+    white-space: normal;
+    padding: 0.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#building-buttons {
+    float: right;
+    width: 20%;
+    height: 100%;
+}
+
+#building-buttons > button {
+    display: inline-block;
+    width: 50%;
+    height: 100%;
+    white-space: normal;
+}
+
+#building-buttons > div {
+    height: 100%;
 }
 
 #footer {
     height: 8em;
     margin: 0;
+    padding: 0.1em;
 }
