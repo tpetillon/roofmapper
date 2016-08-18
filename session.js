@@ -1,6 +1,6 @@
 'use strict';
 
-var defined = require('defined');
+var defined = require('./defined');
 
 const MAX_CHANGES_PER_CHANGESET = 50000;
 

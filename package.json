@@ -5,7 +5,6 @@
   "main": "bundle.js",
   "dependencies": {
     "css-loader": "^0.23.1",
-    "defined": "^1.0.0",
     "file-loader": "^0.9.0",
     "font-awesome": "^4.6.3",
     "html-loader": "^0.4.3",

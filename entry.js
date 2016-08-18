@@ -2,7 +2,7 @@
 
 var $ = require('jquery');
 var L = require('leaflet');
-var defined = require('defined');
+var defined = require('./defined');
 var OsmApi = require('./osmapi.js');
 var Session = require('./session.js');
 var Building = require('./building.js');

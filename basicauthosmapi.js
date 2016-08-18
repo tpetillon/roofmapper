@@ -1,7 +1,7 @@
 'use strict';
 
 var $ = require('jquery');
-var defined = require('defined');
+var defined = require('./defined');
 var store = require('store');
 
 function BasicAuthOsmApi() {
