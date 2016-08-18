@@ -33,9 +33,22 @@ var wrapper = $("body").children("#wrapper");
 wrapper.append("<div id='header'></div>");
 wrapper.children("#header").append(
     "<div id='connection-buttons'>" +
-    "<span id='connection-status'>Disconnected</span> " +
-    "<button type='button' class='btn btn-primary' id='authenticate'>Authenticate</button>" +
-    "<button type='button' class='btn btn-default' id='logout'>Logout</button>" +
+    "<button type='button' class='btn btn-primary' id='authenticate-button'>Authenticate</button>" +
+    "<div class='btn-group' id='user-menu'>" +
+    "<button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'><span id='username'>Username</span> <span class='caret'></span></button>" +
+    "<ul class='dropdown-menu dropdown-menu-right' role='menu'>" +
+    "<li><a href='#' target='_blank' id='user-profile-link'>OpenStreetMap profile</a></li>" +
+    "<li class='divider'></li>" +
+    "<li><a href='#' id='logout-button'>Disconnect</a></li>" +
+    "</ul>" +
+    "</div>" +
+    "</div>"
+);
+wrapper.children("#header").append(
+    "<div id='session-buttons'>" +
+    "<button type='button' class='btn btn-primary' id='upload-changes'><i class='fa fa-cloud-upload' aria-hidden='true'></i> Send changes</button>" +
+    "<p id='tagged-building-count'>0 buildings tagged</p>" +
+    "<p id='uploaded-building-count'>0 buildings uploaded</p>" +
     "</div>"
 );
 wrapper.append("<div id='map'></div>");
@@ -52,11 +65,15 @@ wrapper.children("#footer").append(
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-metal' value='metal' autocomplete='off' />Metal</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-copper' value='copper' autocomplete='off' />Copper</label>" +
     "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-concrete' value='concrete' autocomplete='off' />Concrete</label>" +
-    "</div>" +
-    "<button type='button' class='btn btn-default' id='upload-changes'>Send changes</button>" +
-    "<p id='tagged-building-count'>0 buildings tagged</p>" +
-    "<p id='uploaded-building-count'>0 buildings uploaded</p>"
+    "</div>"
 );
+
+/*$("body").append(require('html!./testpopup.html'));
+wrapper.children("#header").append("<button type='button' class='btn btn-primary' id='testbutton'>Test</button>");
+//wrapper.children("#header").append('<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">Launch demo modal</button>');
+document.getElementById('testbutton').onclick = function() {
+    $('#myModal').modal('show');
+};*/
 
 var _username = undefined;
 var _map = undefined;
@@ -156,16 +173,13 @@ function updateUi() {
 
 function updateConnectionStatusDisplay() {
     if (_api.authenticated) {
-        $("#authenticate").hide();
-        $("#logout").show();
-        $("#connection-status").empty().append(
-            "Connected as ",
-            $("<a href='" + _api.url + "/user/" + _username + "' />")
-                .append(document.createTextNode(_username)));
+        $("#authenticate-button").hide();
+        $("#user-menu").show();
+        $("#username").text(_username);
+        $("#user-profile-link").attr("href", _api.url + "/user/" + _username);
     } else {
-        $("#authenticate").show();
-        $("#logout").hide();
-        $("#connection-status").text("Disconnected");
+        $("#authenticate-button").show();
+        $("#user-menu").hide();
     }
 }
 
@@ -174,7 +188,7 @@ if (_api.authenticated) {
     fetchUserName();
 }
 
-document.getElementById('authenticate').onclick = function() {
+document.getElementById('authenticate-button').onclick = function() {
     _loadingStatus.addSystem('authentication');
     _api.authenticate(function() {
         _loadingStatus.removeSystem('authentication');
@@ -194,7 +208,7 @@ document.getElementById('authenticate').onclick = function() {
         }
     });
 };
-document.getElementById('logout').onclick = logout;
+document.getElementById('logout-button').onclick = logout;
 
 function destroyBuildingPolygon() {
     if (defined(_buildingPolygon)) {
