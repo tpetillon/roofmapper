@@ -1,22 +1,21 @@
-<html>
-    <head>
-        <title>OpenStreetMap dev server authentication</title>
-    </head>
-    <body>
-        <script>
-            function submit() {
-                var username = document.getElementById("username").value;
-                var password = document.getElementById("password").value;
-                
-                window.opener.authComplete({ username : username, password : password });
-                window.close();
-            }
-        </script>
-        <h1>OpenStreetMap dev server authentication</h1>
+<div class="modal fade" id="basic-auth-popup" tabindex="-1" role="dialog" aria-labelledby="basic-auth-popup-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="basic-auth-popup-label">OpenStreetMap dev server authentication</h4>
+      </div>
+      <div class="modal-body">
         <label>Username:</label><br />
-        <input type="text" id="username" /><br />
+        <input type="text" id="basic-auth-popup-username" /><br />
+        <br />
         <label>Password:</label><br />
-        <input type="password" id="password" /><br /><br />
-        <input type="button" value="Login" onclick="submit();">
-    </body>
-</html>
+        <input type="password" id="basic-auth-popup-password" /><br />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="basic-auth-popup-login-button">Login</button>
+      </div>
+    </div>
+  </div>
+</div>

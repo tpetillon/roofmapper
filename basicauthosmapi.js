@@ -17,26 +17,21 @@ Object.defineProperties(BasicAuthOsmApi.prototype, {
 });
 
 BasicAuthOsmApi.prototype.authenticate = function(callback) {
-    var w = 600, h = 550;
-    var settings = [
-        ['width', w], ['height', h],
-        ['left', screen.width / 2 - w / 2],
-        ['top', screen.height / 2 - h / 2]].map(function(x) {
-            return x.join('=');
-        }).join(',');
-    var popup = window.open('about:blank', 'basic_auth_window', settings);
-    popup.document.write(require('html!./basicauthpopup.html'));
-    
     var that = this;
     
-    window.authComplete = function(authInfo) {
-        window.authComplete = undefined;
+    $('body').append(require('html!./basicauthpopup.html'));
+    $('#basic-auth-popup-login-button').click(function() {
+        $('#basic-auth-popup').modal('hide');
         
-        that._token = "Basic " + btoa(authInfo.username + ":" + authInfo.password);
+        var username = $("#basic-auth-popup-username").val();
+        var password = $("#basic-auth-popup-password").val();
+        
+        that._token = "Basic " + btoa(username + ":" + password);
         store.set('basic_auth_token', that._token);
         
         callback();
-    };
+    });
+    $('#basic-auth-popup').modal('show');
 };
 
 BasicAuthOsmApi.prototype.logout = function() {
