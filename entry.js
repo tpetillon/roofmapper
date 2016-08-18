@@ -1,6 +1,6 @@
 'use strict';
 
-var $ = require('jquery');
+var $ = require('expose?$!expose?jQuery!jquery');
 var L = require('leaflet');
 var defined = require('./defined');
 var OsmApi = require('./osmapi.js');
@@ -20,6 +20,9 @@ require('leaflet/dist/images/marker-shadow.png');
 require('leaflet-easybutton/src/easy-button.css');
 require('font-awesome/css/font-awesome.css');
 require('./style.css');
+
+require('bootstrap');
+require("bootstrap-webpack");
 
 // since leaflet is bundled into the browserify package it won't be able to detect where the images
 // solution is to point it to where you host the the leaflet images yourself
