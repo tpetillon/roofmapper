@@ -195,8 +195,9 @@ function displayBuildingPolygon(building) {
     }
     
     building.polygon.setStyle({
-        weight : 4,
-        color : '#0026FF',
+        weight : 2,
+        color : '#FFFF00',
+        opacity : 0.8,
         fill : false,
         dashArray : "5,5",
         clickable : false
