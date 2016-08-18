@@ -10,6 +10,7 @@ var Session = require('./session.js');
 var BuildingService = require('./buildingservice.js');
 var LoadingStatus = require('./loadingstatus.js');
 
+require('leaflet-bing-layer');
 require('leaflet-easybutton');
 
 require('leaflet/dist/leaflet.css');
@@ -376,11 +377,12 @@ document.getElementById('upload-changes').onclick = function() {
 function init() {
     console.log("RoofMapper " + VERSION + ", environment: " + ENV);
     
-    var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-    var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-    var osm = new L.TileLayer(osmUrl, {minZoom: 0, maxZoom: 18, attribution: osmAttrib});
-    _map = L.map('map').setView([46.935, 2.780], 7);
-    _map.addLayer(osm);
+    _map = L.map('map');
+    
+    var bingKey = 'AlCYN3W0pAkcnVgUrS9Jb4Wkmoa_3WCGtD72BGvpzaYxAgjz0VEv5_5OalHYb3k5';
+    L.tileLayer.bing(bingKey).addTo(_map);
+    
+    _map.setView([46.935, 2.780], 7);
     
     _recenterButton = L.easyButton(
         'fa-crosshairs fa-lg',
