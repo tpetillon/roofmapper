@@ -318,6 +318,7 @@ function createChangeset(callback) {
         '<changeset>' +
         '<tag k="created_by" v="RoofMapper ' + VERSION + '"/>' +
         '<tag k="comment" v="Add building roof:material data from imagery"/>' +
+        '<tag k="source" v="Bing"/>' +
         '</changeset>' +
         '</osm>';
     
