@@ -199,7 +199,9 @@ document.getElementById('authenticate-button').onclick = function() {
         
         if (_api.authenticated) {
             fetchUserName(
-                function() {},
+                function() {
+                    displayNextBuilding();
+                },
                 function(error) {
                     if (error.status === 401) {
                         logout();
@@ -481,6 +483,8 @@ function init() {
     
     if (!_api.authenticated) {
         $("#about-popup").modal('show');
+    } else {
+        displayNextBuilding();
     }
 }
 
