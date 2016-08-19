@@ -1,5 +1,6 @@
 'use strict';
 
+var defined = require('./defined');
 var Building = require('./building.js');
 
 var buildings = [
@@ -1077,6 +1078,11 @@ var nextBuildingIndex = 0;
 var BuildingService = {
     getBuilding : function(callback) {
         var b = buildings[nextBuildingIndex];
+        
+        if (!defined(b)) {
+            return;
+        }
+        
         nextBuildingIndex++;
         var building = new Building(b.type, b.id, b.version);
         callback(building);
