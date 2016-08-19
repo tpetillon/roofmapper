@@ -29,6 +29,10 @@ html, body {
     float: right;
 }
 
+#connection-buttons > button {
+    margin-left: 0.2em;
+}
+
 #session-buttons > p {
     display: inline-block;
     margin-left: 2em;

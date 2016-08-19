@@ -43,6 +43,7 @@ wrapper.children("#header").append(
     "<li><a href='#' id='logout-button'>Disconnect</a></li>" +
     "</ul>" +
     "</div>" +
+    "<button type='button' class='btn btn-default' data-toggle='modal' data-target='#about-popup' id='about-button'>About</button>" +
     "</div>"
 );
 wrapper.children("#header").append(
@@ -73,12 +74,7 @@ wrapper.children("#footer").append(
     "</div>"
 );
 
-/*$("body").append(require('html!./testpopup.html'));
-wrapper.children("#header").append("<button type='button' class='btn btn-primary' id='testbutton'>Test</button>");
-//wrapper.children("#header").append('<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">Launch demo modal</button>');
-document.getElementById('testbutton').onclick = function() {
-    $('#myModal').modal('show');
-};*/
+$("body").append(require('html!./aboutpopup.html'));
 
 var _username = undefined;
 var _map = undefined;
@@ -482,6 +478,10 @@ function init() {
     
     updateConnectionStatusDisplay();
     updateUi();
+    
+    if (!_api.authenticated) {
+        $("#about-popup").modal('show');
+    }
 }
 
 init();
