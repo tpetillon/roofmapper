@@ -412,7 +412,7 @@ document.getElementById('upload-changes').onclick = function() {
 function addKeyboardShortcut(key, conditions, action) {
     keyboardJS.bind(key, function(e) {
         for (var i = 0; i < conditions.length; i++) {
-            if (!conditions[i]) {
+            if (!conditions[i]()) {
                 return;
             }
         }
