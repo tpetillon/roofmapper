@@ -131,7 +131,8 @@ function updateUi() {
     if (_session.currentIndex <= 0) {
         $("#previous-building").prop('disabled', true);
     }
-    if (_session.changesetIsFull) {
+    if (!_api.authenticated ||
+        (_session.currentIndex == _session.buildingCount - 1 && _session.changesetIsFull)) {
         $("#next-building").prop('disabled', true);
     }
     
@@ -459,11 +460,13 @@ function init() {
         }
     });
     
+    var isAuthenticated = function() { return _api.authenticated; };
     var isNotLoading = function() { return !_loadingStatus.isLoading; };
     var buildingDisplayed = function() { return defined(_session.currentBuilding); };
     var isNotAtFirstBuilding = function() { return _session.currentIndex > 0; };
+    var nextBuildingIsAvailable = function() { !(_session.currentIndex == _session.buildingCount - 1 && _session.changesetIsFull); };
     addKeyboardShortcut('backspace', [ isNotLoading, isNotAtFirstBuilding ], displayPreviousBuilding);
-    addKeyboardShortcut('space', [ isNotLoading ], displayNextBuilding);
+    addKeyboardShortcut('space', [ isNotLoading, isAuthenticated, nextBuildingIsAvailable ], displayNextBuilding);
     
     var addRoofMaterialKeyboardShortcut = function(key, material) {
         addKeyboardShortcut(key, [ isNotLoading, buildingDisplayed ], function() { $("#tag-" + material).prop("checked", true).trigger('change'); });
