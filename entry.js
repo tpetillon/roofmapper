@@ -76,7 +76,6 @@ wrapper.children("#footer").append(
 
 $("body").append(require('html!./aboutpopup.html'));
 
-var _username = undefined;
 var _map = undefined;
 var _recenterButton = undefined;
 var _buildingPolygon = undefined;
@@ -92,34 +91,6 @@ function logout() {
     updateConnectionStatusDisplay();
     updateUi();
 }
-
-function fetchUserName(onSuccess, onError) {
-    _api.request('/api/0.6/user/details', 'GET', function(error, details) {
-        if (defined(error)) {
-            alert("Error: " + error.responseText);
-            console.log("could not connect: " + error.responseText);            
-            
-            if (defined(onError)) {
-                onError(error);
-            }
-            
-            return;
-        }
-        
-        var u = details.getElementsByTagName('user')[0];
-        _username = u.getAttribute('display_name');
-        var userId = u.getAttribute('id');
-        
-        console.log("connected as " + _username + " (" + userId + ")");
-        
-        updateConnectionStatusDisplay();
-        updateUi();
-        
-        if (defined(onSuccess)) {
-            onSuccess();
-        }
-    });
-};
 
 function updateUi() {
     var loading = _loadingStatus.isLoading;
@@ -177,8 +148,8 @@ function updateConnectionStatusDisplay() {
     if (_api.authenticated) {
         $("#authenticate-button").hide();
         $("#user-menu").show();
-        $("#username").text(_username);
-        $("#user-profile-link").attr("href", _api.url + "/user/" + _username);
+        $("#username").text(_api.username);
+        $("#user-profile-link").attr("href", _api.url + "/user/" + _api.username);
     } else {
         $("#authenticate-button").show();
         $("#user-menu").hide();
@@ -186,30 +157,30 @@ function updateConnectionStatusDisplay() {
 }
 
 if (_api.authenticated) {
-    $("#connection-status").text("Connected, retrieving username...");
-    fetchUserName();
+    $("#connection-status").text("Authenticated, retrieving username...");
+    _loadingStatus.addSystem('connection');
+    _api.connect(function(error) {
+        _loadingStatus.removeSystem('connection');
+        if (!defined(error)) {
+            console.log("connected as " + _api.username + " (" + _api.userId + ")");
+        }
+        
+        updateConnectionStatusDisplay();
+        updateUi();
+    });
 }
 
 document.getElementById('authenticate-button').onclick = function() {
     _loadingStatus.addSystem('authentication');
-    _api.authenticate(function() {
+    _api.authenticate(function(error) {
         _loadingStatus.removeSystem('authentication');
+        
+        if (!defined(error)) {
+            console.log("connected as " + _api.username + " (" + _api.userId + ")");
+        }
         
         updateConnectionStatusDisplay();
         updateUi();
-        
-        if (_api.authenticated) {
-            fetchUserName(
-                function() {
-                    displayNextBuilding();
-                },
-                function(error) {
-                    if (error.status === 401) {
-                        logout();
-                    }
-                }
-            );
-        }
     });
 };
 document.getElementById('logout-button').onclick = logout;

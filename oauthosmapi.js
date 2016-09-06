@@ -1,5 +1,6 @@
 'use strict';
 
+var defined = require('./defined');
 var osmAuth = require('osm-auth');
 
 function OAuthOsmApi() {
@@ -9,6 +10,9 @@ function OAuthOsmApi() {
         auto: false,
         landing: "/land.html"
     });
+    
+    this._username = undefined;
+    this._userId = undefined;
 }
 
 Object.defineProperties(OAuthOsmApi.prototype, {
@@ -17,19 +21,63 @@ Object.defineProperties(OAuthOsmApi.prototype, {
             return this._auth.authenticated();
         }
     },
+    connected : {
+        get : function() {
+            return defined(this._userId);
+        }
+    },
     url : {
         get : function() {
             return this._auth.url;
-        } 
+        }
+    },
+    username : {
+        get : function() {
+            return this._username;
+        }
+    },
+    userId : {
+        get : function() {
+            return this._userId;
+        }
     }
 });
 
 OAuthOsmApi.prototype.authenticate = function(callback) {
-    this._auth.authenticate(callback);
+    var that = this;
+    
+    this._auth.authenticate(function() { that.connect(callback); });
+};
+
+OAuthOsmApi.prototype.connect = function(callback) {
+    var that = this;
+    
+    this.request('/api/0.6/user/details', 'GET', function(error, details) {
+        if (defined(error)) {
+            console.log("could not connect: " + error.responseText);            
+            
+            if (defined(callback)) {
+                callback(error);
+            }
+            
+            return;
+        }
+        
+        var u = details.getElementsByTagName('user')[0];
+        that._username = u.getAttribute('display_name');
+        that._userId = u.getAttribute('id');
+    
+        if (defined(callback)) {
+            callback();
+        }
+    });
 };
 
 OAuthOsmApi.prototype.logout = function() {
     this._auth.logout();
+    
+    this._username = undefined;
+    this._userId = undefined;
 };
 
 OAuthOsmApi.prototype.request = function(url, method, callback, data) {

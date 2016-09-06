@@ -7,6 +7,9 @@ var store = require('store');
 function BasicAuthOsmApi() {
     this._url = 'http://master.apis.dev.openstreetmap.org';
     this._token = store.get('basic_auth_token');
+    
+    this._username = undefined;
+    this._userId = undefined;
 }
 
 Object.defineProperties(BasicAuthOsmApi.prototype, {
@@ -15,10 +18,25 @@ Object.defineProperties(BasicAuthOsmApi.prototype, {
             return defined(this._token);
         }
     },
+    connected : {
+        get : function() {
+            return defined(this._userId);
+        }
+    },
     url : {
         get : function() {
             return this._url;
-        } 
+        }
+    },
+    username : {
+        get : function() {
+            return this._username;
+        }
+    },
+    userId : {
+        get : function() {
+            return this._userId;
+        }
     }
 });
 
@@ -35,14 +53,41 @@ BasicAuthOsmApi.prototype.authenticate = function(callback) {
         that._token = "Basic " + btoa(username + ":" + password);
         store.set('basic_auth_token', that._token);
         
-        callback();
+        that.connect(callback);
     });
     $('#basic-auth-popup').modal('show');
+};
+
+BasicAuthOsmApi.prototype.connect = function(callback) {
+    var that = this;
+    
+    this.request('/api/0.6/user/details', 'GET', function(error, details) {
+        if (defined(error)) {
+            console.log("could not connect: " + error.responseText);            
+            
+            if (defined(callback)) {
+                callback(error);
+            }
+            
+            return;
+        }
+        
+        var u = details.getElementsByTagName('user')[0];
+        that._username = u.getAttribute('display_name');
+        that._userId = u.getAttribute('id');
+    
+        if (defined(callback)) {
+            callback();
+        }
+    });
 };
 
 BasicAuthOsmApi.prototype.logout = function() {
     this._token = undefined;
     store.set('basic_auth_token', undefined);
+    
+    this._username = undefined;
+    this._userId = undefined;
 };
 
 BasicAuthOsmApi.prototype.request = function(url, method, callback, data) {
@@ -53,10 +98,14 @@ BasicAuthOsmApi.prototype.request = function(url, method, callback, data) {
         headers: { "Authorization" : this._token }
     })
     .done(function(data) {
-        callback(undefined, data);
+        if (defined(callback)) {
+            callback(undefined, data);
+        }
     })
     .fail(function(xhr, status, error) {
-        callback(xhr, undefined);
+        if (defined(callback)) {
+            callback(xhr, undefined);
+        }
     });
 };
 
