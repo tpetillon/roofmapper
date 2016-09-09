@@ -56,5 +56,6 @@ app.use(function(err, req, res, next) {
 });
 
 sessionManager.closeOpenSessions();
+sessionManager.scheduleSessionClosing();
 
 module.exports = app;

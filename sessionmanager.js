@@ -1,5 +1,7 @@
 'use strict';
 
+var schedule = require('node-schedule');
+
 var dbPool = require('./dbpool');
 var Session = require('./session');
 var SessionList = require('./sessionlist');
@@ -116,6 +118,38 @@ SessionManager.prototype.closeOpenSessions = function() {
             if (result.rowCount > 0) {
                 console.log(result.rowCount + ' open sessions closed')
             }
+        });
+    });
+};
+
+SessionManager.prototype.scheduleSessionClosing = function() {
+    var that = this;
+
+    var rule = new schedule.RecurrenceRule();
+    rule.minute = [ 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55 ];
+    schedule.scheduleJob(rule, function() {
+        dbPool.connect(function(err, client, done) {
+            if (err) {
+                console.error('Error fetching client from pool: ' + err);
+                return;
+            }
+            
+            client.query('UPDATE sessions SET end_date = now() WHERE start_date < now() - INTERVAL \'2 hours\' AND end_date IS NULL RETURNING id', [ ], function(err, result) {
+                done();
+
+                if (err) {
+                    console.error('Error running query: ' + err);
+                    return;
+                }
+
+                for (var i = 0; i < result.rowCount; i++) {
+                    that._sessions.remove(result.rows[i].id);
+                }
+
+                if (result.rowCount > 0) {
+                    console.log(result.rowCount + ' open sessions closed')
+                }
+            });
         });
     });
 };
