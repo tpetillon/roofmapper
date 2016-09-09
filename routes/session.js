@@ -1,3 +1,5 @@
+'use strict';
+
 var defined = require('../defined');
 var express = require('express');
 var router = express.Router();

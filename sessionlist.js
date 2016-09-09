@@ -1,3 +1,5 @@
+'use strict';
+
 function SessionList() {
     this._sessionsById = new Map();
     this._sessionsByUser = new Map();

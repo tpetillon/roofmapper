@@ -1,3 +1,5 @@
+'use strict';
+
 function Session(sessionId, userId, startDate) {
     this._id = sessionId;
     this._userId = userId;

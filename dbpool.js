@@ -1,3 +1,5 @@
+'use strict';
+
 var pg = require('pg');
 
 // create a config to configure both pooling behavior
