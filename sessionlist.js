@@ -43,4 +43,9 @@ SessionList.prototype.remove = function(sessionId) {
     }
 };
 
+SessionList.prototype.clear = function() {
+    this._sessionsById.clear();
+    this._sessionsByUser.clear();
+};
+
 module.exports = SessionList;
