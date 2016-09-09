@@ -10,7 +10,7 @@ var indexRoutes = require('./routes/index');
 var sessionRoutes = require('./routes/session');
 var buildingRoutes = require('./routes/building');
 
-var closeOpenSessions = require('./closeopensessions.js');
+var sessionManager = require('./sessionmanager.js');
 
 var app = express();
 
@@ -55,6 +55,6 @@ app.use(function(err, req, res, next) {
     });
 });
 
-closeOpenSessions();
+sessionManager.closeOpenSessions();
 
 module.exports = app;
