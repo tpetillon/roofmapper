@@ -1,5 +1,7 @@
 'use strict';
 
+var defined = require('./defined');
+
 function SessionList() {
     this._sessionsById = new Map();
     this._sessionsByUser = new Map();
@@ -16,8 +18,18 @@ SessionList.prototype.add = function(session) {
     }
 };
 
-SessionList.prototype.has = function(sessionId) {
-    return this._sessionsById.has(sessionId);
+SessionList.prototype.has = function(sessionId, userId) {
+    var session = this._sessionsById.get(sessionId);
+
+    if (!defined(session)) {
+        return false;
+    }
+
+    if (!defined(userId)) {
+        return true;
+    }
+
+    return session.userId === userId;
 };
 
 SessionList.prototype.hasForUser = function(userId) {

@@ -24,7 +24,7 @@ router.put('/close', function(req, res, next) {
     var userId = parseInt(req.body.user_id);
     
     if (!defined(sessionId) || isNaN(sessionId)) {
-        res.status(400).json({ error: "'sessionId' parameter absent or badly formed" });
+        res.status(400).json({ error: "'session_id' parameter absent or badly formed" });
         return;
     }
     if (!defined(userId) || isNaN(userId)) {
