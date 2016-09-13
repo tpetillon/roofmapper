@@ -84,8 +84,6 @@ SessionManager.prototype.closeSession = function(sessionId, userId, callback) {
         }
         
         client.query('UPDATE sessions SET end_date = now() WHERE id=$1::integer AND user_id=$2::integer AND end_date IS NULL', [ sessionId, userId ], function(err, result) {
-            done();
-
             if (err) {
                 callback(500, { message: 'error running query: ' + err });
                 return;
@@ -94,8 +92,17 @@ SessionManager.prototype.closeSession = function(sessionId, userId, callback) {
             that._sessions.remove(sessionId);
             
             console.log("closing session " + sessionId + " for user " + userId);
-            
-            callback(200, { message: 'session closed' });
+
+            that.releaseSessionBuildings([ sessionId ], client, function(err) {
+                done();
+
+                if (err) {
+                    callback(500, { message: 'error running query: ' + err });
+                    return;
+                }
+
+                callback(200, { message: 'session closed' });
+            });
         });
     });
 };
@@ -109,7 +116,7 @@ SessionManager.prototype.closeOpenSessions = function() {
             return;
         }
         
-        client.query('UPDATE sessions SET end_date = now() WHERE end_date IS NULL', [ ], function(err, result) {
+        client.query('UPDATE sessions SET end_date = now() WHERE end_date IS NULL RETURNING id', [ ], function(err, result) {
             done();
 
             if (err) {
@@ -120,7 +127,15 @@ SessionManager.prototype.closeOpenSessions = function() {
             that._sessions.clear();
 
             if (result.rowCount > 0) {
-                console.log(result.rowCount + ' open sessions closed')
+                console.log(result.rowCount + ' open sessions closed');
+
+                var sessionIds = result.rows.map(function(row) {
+                    return row.id;
+                });
+
+                that.releaseSessionBuildings(sessionIds, client, function(err) {
+                    done();
+                });
             }
         });
     });
@@ -130,7 +145,8 @@ SessionManager.prototype.scheduleSessionClosing = function() {
     var that = this;
 
     var rule = new schedule.RecurrenceRule();
-    rule.minute = [ 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55 ];
+    //rule.minute = [ 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55 ];
+    rule.second = [ 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55 ];
     schedule.scheduleJob(rule, function() {
         dbPool.connect(function(err, client, done) {
             if (err) {
@@ -138,9 +154,7 @@ SessionManager.prototype.scheduleSessionClosing = function() {
                 return;
             }
             
-            client.query('UPDATE sessions SET end_date = now() WHERE start_date < now() - INTERVAL \'2 hours\' AND end_date IS NULL RETURNING id', [ ], function(err, result) {
-                done();
-
+            client.query('UPDATE sessions SET end_date = now() WHERE start_date < now() - INTERVAL \'1 minutes\' AND end_date IS NULL RETURNING id', [ ], function(err, result) {
                 if (err) {
                     console.error('Error running query: ' + err);
                     return;
@@ -151,10 +165,36 @@ SessionManager.prototype.scheduleSessionClosing = function() {
                 }
 
                 if (result.rowCount > 0) {
-                    console.log(result.rowCount + ' open sessions closed')
+                    console.log(result.rowCount + ' open sessions closed');
+
+                    var sessionIds = result.rows.map(function(row) {
+                        return row.id;
+                    });
+
+                    that.releaseSessionBuildings(sessionIds, client, function(err) {
+                        done();
+                    });
+                } else {
+                    done();
                 }
             });
         });
+    });
+};
+
+SessionManager.prototype.releaseSessionBuildings = function(sessionIds, client, callback) {
+    client.query('UPDATE buildings SET session_id = NULL WHERE session_id = ANY($1::integer[]) AND changeset_id IS NULL', [ sessionIds ], function(err, result) {
+        if (err) {
+            console.error('Error running query: ' + err);
+            callback(err);
+            return;
+        }
+
+        if (result.rowCount > 0) {
+            console.log(result.rowCount + ' buildings released from sessions [' + sessionIds + ']');
+        }
+
+        callback();
     });
 };
 
