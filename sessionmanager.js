@@ -145,8 +145,7 @@ SessionManager.prototype.scheduleSessionClosing = function() {
     var that = this;
 
     var rule = new schedule.RecurrenceRule();
-    //rule.minute = [ 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55 ];
-    rule.second = [ 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55 ];
+    rule.minute = [ 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55 ];
     schedule.scheduleJob(rule, function() {
         dbPool.connect(function(err, client, done) {
             if (err) {
@@ -154,7 +153,7 @@ SessionManager.prototype.scheduleSessionClosing = function() {
                 return;
             }
             
-            client.query('UPDATE sessions SET end_date = now() WHERE start_date < now() - INTERVAL \'1 minutes\' AND end_date IS NULL RETURNING id', [ ], function(err, result) {
+            client.query('UPDATE sessions SET end_date = now() WHERE start_date < now() - INTERVAL \'2 hours\' AND end_date IS NULL RETURNING id', [ ], function(err, result) {
                 if (err) {
                     console.error('Error running query: ' + err);
                     return;
