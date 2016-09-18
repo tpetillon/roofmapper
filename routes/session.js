@@ -19,6 +19,31 @@ router.put('/open', function(req, res, next) {
     });
 });
 
+router.put('/clear', function(req, res, next) {
+    var sessionId = parseInt(req.query.session_id);
+    var userId = parseInt(req.query.user_id);
+    
+    if (!defined(sessionId) || isNaN(sessionId)) {
+        res.status(400).json({ error: "'session_id' parameter absent or badly formed" });
+        return;
+    }
+    if (!defined(userId) || isNaN(userId)) {
+        res.status(400).json({ error: "'user_id' parameter absent or badly formed" });
+        return;
+    }
+
+    if (!sessionManager.hasOpenSession(sessionId, userId)) {
+        res.status(400).json({ error: "session " + sessionId + " is not an open session for user " + userId });
+        return;
+    }
+
+    var session = sessionManager.getSession(sessionId);
+    
+    sessionManager.releaseSessionBuildings(session, function(status, response) {
+        res.status(status).json(response);
+    })
+});
+
 router.put('/close', function(req, res, next) {
     var sessionId = parseInt(req.body.session_id);
     var userId = parseInt(req.body.user_id);

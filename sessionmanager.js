@@ -97,7 +97,7 @@ SessionManager.prototype.closeSession = function(sessionId, userId, callback) {
             
             console.log("closing session " + sessionId + " for user " + userId);
 
-            that.releaseSessionBuildings([ sessionId ], client, function(err) {
+            that.releaseMultipleSessionBuildings([ sessionId ], client, function(err) {
                 done();
 
                 if (err) {
@@ -137,7 +137,7 @@ SessionManager.prototype.closeOpenSessions = function() {
                     return row.id;
                 });
 
-                that.releaseSessionBuildings(sessionIds, client, function(err) {
+                that.releaseMultipleSessionBuildings(sessionIds, client, function(err) {
                     done();
                 });
             }
@@ -174,7 +174,7 @@ SessionManager.prototype.scheduleSessionClosing = function() {
                         return row.id;
                     });
 
-                    that.releaseSessionBuildings(sessionIds, client, function(err) {
+                    that.releaseMultipleSessionBuildings(sessionIds, client, function(err) {
                         done();
                     });
                 } else {
@@ -185,7 +185,7 @@ SessionManager.prototype.scheduleSessionClosing = function() {
     });
 };
 
-SessionManager.prototype.releaseSessionBuildings = function(sessionIds, client, callback) {
+SessionManager.prototype.releaseMultipleSessionBuildings = function(sessionIds, client, callback) {
     client.query('UPDATE buildings SET session_id = NULL WHERE session_id = ANY($1::integer[]) AND changeset_id IS NULL', [ sessionIds ], function(err, result) {
         if (err) {
             console.error('Error running query: ' + err);
@@ -198,6 +198,30 @@ SessionManager.prototype.releaseSessionBuildings = function(sessionIds, client, 
         }
 
         callback();
+    });
+};
+
+SessionManager.prototype.releaseSessionBuildings = function(session, callback) {
+    dbPool.connect(function(err, client, done) {
+        if (err) {
+            callback(503, { message: 'error fetching client from pool: ' + err });
+            return;
+        }
+
+        client.query('UPDATE buildings SET session_id = NULL WHERE session_id = $1::integer AND changeset_id IS NULL', [ session.id ], function(err, result) {
+            done();
+
+            if (err) {
+                callback(500, { error: 'error running query: ' + err });
+                return;
+            }
+
+            if (result.rowCount > 0) {
+                callback(200, { message: result.rowCount + ' buildings released' });
+            }
+
+            callback();
+        });
     });
 };
 
