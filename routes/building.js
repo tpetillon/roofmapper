@@ -25,7 +25,9 @@ router.get('/untagged', function(req, res, next) {
         return;
     }
 
-    buildingManager.getUntaggedBuilding(sessionId, function(status, response) {
+    var session = sessionManager.getSession(sessionId);
+
+    buildingManager.getUntaggedBuilding(session, function(status, response) {
         res.status(status).json(response);
     });
 });
@@ -58,7 +60,9 @@ router.post('/tag', function(req, res, next) {
         return;
     }
 
-    buildingManager.tagBuildings(tagData, changesetId, sessionId, function(status, response) {
+    var session = sessionManager.getSession(sessionId);
+
+    buildingManager.tagBuildings(tagData, changesetId, session, function(status, response) {
         res.status(status).json(response);
     });
 });

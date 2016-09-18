@@ -14,6 +14,10 @@ SessionManager.prototype.hasOpenSession = function(sessionId, userId) {
     return this._sessions.has(sessionId, userId);
 };
 
+SessionManager.prototype.getSession = function(sessionId) {
+    return this._sessions.get(sessionId);
+}
+
 SessionManager.prototype.openSession = function(userId, callback) {
     if (this._sessions.hasForUser(userId)) {
         callback(403, { error: "a session is already open for user id " + userId });

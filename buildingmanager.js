@@ -2,10 +2,20 @@
 
 var dbPool = require('./dbpool');
 
+var maxBuildingsPerSession = 1000;
+
 function BuildingManager() {
 }
 
-BuildingManager.prototype.getUntaggedBuilding = function(sessionId, callback) {
+BuildingManager.prototype.getUntaggedBuilding = function(session, callback) {
+    if (session.allocatedBuildingCount >= maxBuildingsPerSession) {
+        callback(401, {
+            error: 'cannot have more than ' + maxBuildingsPerSession +
+                ' buildings simultaneously allocated to a session'
+        });
+        return;
+    }
+
     dbPool.connect(function(err, client, done) {
         if (err) {
             callback(503, { error: 'error fetching client from pool: ' + err });
@@ -25,7 +35,7 @@ BuildingManager.prototype.getUntaggedBuilding = function(sessionId, callback) {
             WHERE b.id = sub.id \
             RETURNING b.id, type, osm_id, version';
         
-        client.query(query, [ sessionId ], function(err, result) {
+        client.query(query, [ session.id ], function(err, result) {
             done();
 
             if (err) {
@@ -45,12 +55,14 @@ BuildingManager.prototype.getUntaggedBuilding = function(sessionId, callback) {
                 version: row.version
             };
 
+            session.allocatedBuildingCount++;
+
             callback(200, building);
         });
     });
 };
 
-BuildingManager.prototype.tagBuildings = function(tagData, changesetId, sessionId, callback) {
+BuildingManager.prototype.tagBuildings = function(tagData, changesetId, session, callback) {
     dbPool.connect(function(err, client, done) {
         if (err) {
             callback(503, { message: 'error fetching client from pool: ' + err });
@@ -78,11 +90,13 @@ BuildingManager.prototype.tagBuildings = function(tagData, changesetId, sessionI
             FROM unnest($1::integer[], $2::building_type[], $3::varchar[], $4::integer[]) AS v (id, type, roof_type, changeset_id) \
             WHERE b.osm_id = v.id AND b.type = v.type::building_type AND b.session_id = $5::integer";
         
-        client.query(query, [ ids, types, roofTypes, changesetIds, sessionId ], function(err, result) {
+        client.query(query, [ ids, types, roofTypes, changesetIds, session.id ], function(err, result) {
             if (err) {
                 callback(500, { message: 'error running query: ' + err });
                 return;
             }
+
+            session.allocatedBuildingCount -= result.rowCount;
 
             callback(200, { message: result.rowCount + ' buildings tagged' });
         });
