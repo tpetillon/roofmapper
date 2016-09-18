@@ -91,6 +91,8 @@ BuildingManager.prototype.tagBuildings = function(tagData, changesetId, session,
             WHERE b.osm_id = v.id AND b.type = v.type::building_type AND b.session_id = $5::integer";
         
         client.query(query, [ ids, types, roofTypes, changesetIds, session.id ], function(err, result) {
+            done();
+
             if (err) {
                 callback(500, { message: 'error running query: ' + err });
                 return;
