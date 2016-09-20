@@ -8,6 +8,8 @@ function BuildingManager() {
 }
 
 BuildingManager.prototype.getUntaggedBuilding = function(session, callback) {
+    session.setLastUpdate();
+    
     if (session.allocatedBuildingCount >= maxBuildingsPerSession) {
         callback(401, {
             error: 'cannot have more than ' + maxBuildingsPerSession +
@@ -63,6 +65,8 @@ BuildingManager.prototype.getUntaggedBuilding = function(session, callback) {
 };
 
 BuildingManager.prototype.tagBuildings = function(tagData, changesetId, session, callback) {
+    session.setLastUpdate();
+
     dbPool.connect(function(err, client, done) {
         if (err) {
             callback(503, { message: 'error fetching client from pool: ' + err });

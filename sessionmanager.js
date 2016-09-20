@@ -156,8 +156,13 @@ SessionManager.prototype.scheduleSessionClosing = function() {
                 console.error('Error fetching client from pool: ' + err);
                 return;
             }
+
+            var inactiveSessionIds = that._sessions.getInactiveSessions().map(function(session) {
+                return session.id;
+            });
             
-            client.query('UPDATE sessions SET end_date = now() WHERE start_date < now() - INTERVAL \'2 hours\' AND end_date IS NULL RETURNING id', [ ], function(err, result) {
+            var query = 'UPDATE sessions SET end_date = now() WHERE id = ANY($1::integer[]) AND end_date IS NULL RETURNING id';
+            client.query(query, [ inactiveSessionIds ], function(err, result) {
                 if (err) {
                     console.error('Error running query: ' + err);
                     return;
@@ -202,6 +207,8 @@ SessionManager.prototype.releaseMultipleSessionBuildings = function(sessionIds, 
 };
 
 SessionManager.prototype.releaseSessionBuildings = function(session, callback) {
+    session.setLastUpdate();
+
     dbPool.connect(function(err, client, done) {
         if (err) {
             callback(503, { message: 'error fetching client from pool: ' + err });

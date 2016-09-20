@@ -1,6 +1,7 @@
 'use strict';
 
 var defined = require('./defined');
+var Session = require('./session');
 
 function SessionList() {
     this._sessionsById = new Map();
@@ -58,6 +59,21 @@ SessionList.prototype.remove = function(sessionId) {
 SessionList.prototype.clear = function() {
     this._sessionsById.clear();
     this._sessionsByUser.clear();
+};
+
+SessionList.prototype.getInactiveSessions = function() {
+    var cutoffDate = Date.now() - Session.MAX_INACTIVE_DURATION;
+    var inactiveSessions = [];
+    var values = this._sessionsById.values();
+    var next = values.next();
+    while (!next.done) {
+        var session = next.value;
+        if (session.lastUpdate < cutoffDate) {
+            inactiveSessions.push(next.value);
+        }
+        next = values.next();
+    }
+    return inactiveSessions;
 };
 
 module.exports = SessionList;
