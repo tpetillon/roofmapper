@@ -8,24 +8,19 @@ var buildingManager = require('../buildingmanager');
 var sessionManager = require('../sessionmanager');
 
 router.get('/untagged', function(req, res, next) {
-    var sessionId = parseInt(req.query.session_id);
-    var userId = parseInt(req.query.user_id);
+    var sessionToken = req.query.session_token;
     
-    if (!defined(sessionId) || isNaN(sessionId)) {
-        res.status(400).json({ error: "'session_id' parameter absent or badly formed" });
+    if (!defined(sessionToken)) {
+        res.status(400).json({ error: "'session_token' parameter absent" });
         return;
     }
-    if (!defined(userId) || isNaN(userId)) {
-        res.status(400).json({ error: "'user_id' parameter absent or badly formed" });
-        return;
-    }
+    
+    var session = sessionManager.getSession(sessionToken);
 
-    if (!sessionManager.hasOpenSession(sessionId, userId)) {
-        res.status(400).json({ error: "session " + sessionId + " is not an open session for user " + userId });
+    if (!defined(session)) {
+        res.status(400).json({ error: "no active session associated to token " + sessionToken });
         return;
     }
-
-    var session = sessionManager.getSession(sessionId);
 
     buildingManager.getUntaggedBuilding(session, function(status, response) {
         res.status(status).json(response);
@@ -33,17 +28,12 @@ router.get('/untagged', function(req, res, next) {
 });
 
 router.post('/tag', function(req, res, next) {
-    var sessionId = parseInt(req.body.session_id);
-    var userId = parseInt(req.body.user_id);
+    var sessionToken = req.body.session_token;
     var changesetId = parseInt(req.body.changeset_id);
     var tagData = req.body.tag_data;
     
-    if (!defined(sessionId) || isNaN(sessionId)) {
-        res.status(400).json({ error: "'session_id' parameter absent or badly formed" });
-        return;
-    }
-    if (!defined(userId) || isNaN(userId)) {
-        res.status(400).json({ error: "'user_id' parameter absent or badly formed" });
+    if (!defined(sessionToken)) {
+        res.status(400).json({ error: "'session_token' parameter absent" });
         return;
     }
     if (!defined(changesetId) || isNaN(changesetId)) {
@@ -51,16 +41,16 @@ router.post('/tag', function(req, res, next) {
         return;
     }
     if (!defined(tagData)) {
-        res.status(400).json({ error: "'tag_data' parameter absent or badly formed" });
+        res.status(400).json({ error: "'tag_data' parameter absent" });
         return;
     }
+    
+    var session = sessionManager.getSession(sessionToken);
 
-    if (!sessionManager.hasOpenSession(sessionId, userId)) {
-        res.status(400).json({ error: "session " + sessionId + " is not an open session for user " + userId });
+    if (!defined(session)) {
+        res.status(400).json({ error: "no active session associated to token " + sessionToken });
         return;
     }
-
-    var session = sessionManager.getSession(sessionId);
 
     buildingManager.tagBuildings(tagData, changesetId, session, function(status, response) {
         res.status(status).json(response);

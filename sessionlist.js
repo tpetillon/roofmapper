@@ -6,6 +6,7 @@ var Session = require('./session');
 function SessionList() {
     this._sessionsById = new Map();
     this._sessionsByUser = new Map();
+    this._sessionsByToken = new Map();
 }
 
 SessionList.prototype.add = function(session) {
@@ -16,29 +17,20 @@ SessionList.prototype.add = function(session) {
     } else {
         this._sessionsById.set(session.id, session);
         this._sessionsByUser.set(session.userId, session);
+        this._sessionsByToken.set(session.token, session);
     }
-};
-
-SessionList.prototype.has = function(sessionId, userId) {
-    var session = this._sessionsById.get(sessionId);
-
-    if (!defined(session)) {
-        return false;
-    }
-
-    if (!defined(userId)) {
-        return true;
-    }
-
-    return session.userId === userId;
 };
 
 SessionList.prototype.hasForUser = function(userId) {
     return this._sessionsByUser.has(userId);
 };
 
-SessionList.prototype.get = function(sessionId) {
+SessionList.prototype.getById = function(sessionId) {
     return this._sessionsById.get(sessionId);
+};
+
+SessionList.prototype.getByToken = function(token) {
+    return this._sessionsByToken.get(token);
 };
 
 SessionList.prototype.remove = function(sessionId) {
@@ -53,12 +45,15 @@ SessionList.prototype.remove = function(sessionId) {
         } else {
             this._sessionsByUser.delete(session.userId);
         }
+        
+        this._sessionsByToken.delete(session.token);
     }
 };
 
 SessionList.prototype.clear = function() {
     this._sessionsById.clear();
     this._sessionsByUser.clear();
+    this._sessionsByToken.clear();
 };
 
 SessionList.prototype.getInactiveSessions = function() {

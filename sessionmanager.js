@@ -10,12 +10,8 @@ function SessionManager() {
     this._sessions = new SessionList();
 }
 
-SessionManager.prototype.hasOpenSession = function(sessionId, userId) {
-    return this._sessions.has(sessionId, userId);
-};
-
-SessionManager.prototype.getSession = function(sessionId) {
-    return this._sessions.get(sessionId);
+SessionManager.prototype.getSession = function(token) {
+    return this._sessions.getByToken(token);
 }
 
 SessionManager.prototype.openSession = function(userId, callback) {
@@ -60,25 +56,13 @@ SessionManager.prototype.openSession = function(userId, callback) {
                 
                 console.log("opening session " + session.id + " for user " + session.userId);
                 
-                callback(200, { session_id: session.id, start_date: session.startDate });
+                callback(200, { session_token: session.token, start_date: session.startDate });
             });
         });
     });
 };
 
-SessionManager.prototype.closeSession = function(sessionId, userId, callback) {
-    if (!this._sessions.has(sessionId)) {
-        callback(400, { error: "session " + sessionId + " is not an open session for user " + userId });
-        return;
-    }
-    
-    var session = this._sessions.get(sessionId);
-    
-    if (session.userId != userId) {
-        callback(400, { error: "session " + sessionId + " is not an open session for user " + userId });
-        return;
-    }
-    
+SessionManager.prototype.closeSession = function(session, callback) {
     var that = this;
     
     dbPool.connect(function(err, client, done) {
@@ -87,17 +71,17 @@ SessionManager.prototype.closeSession = function(sessionId, userId, callback) {
             return;
         }
         
-        client.query('UPDATE sessions SET end_date = now() WHERE id=$1::integer AND user_id=$2::integer AND end_date IS NULL', [ sessionId, userId ], function(err, result) {
+        client.query('UPDATE sessions SET end_date = now() WHERE id=$1::integer AND user_id=$2::integer AND end_date IS NULL', [ session.id, session.userId ], function(err, result) {
             if (err) {
                 callback(500, { message: 'error running query: ' + err });
                 return;
             }
             
-            that._sessions.remove(sessionId);
+            that._sessions.remove(session.id);
             
-            console.log("closing session " + sessionId + " for user " + userId);
+            console.log("closing session " + session.id + " for user " + session.userId);
 
-            that.releaseMultipleSessionBuildings([ sessionId ], client, function(err) {
+            that.releaseMultipleSessionBuildings([ session.id ], client, function(err) {
                 done();
 
                 if (err) {
@@ -223,11 +207,7 @@ SessionManager.prototype.releaseSessionBuildings = function(session, callback) {
                 return;
             }
 
-            if (result.rowCount > 0) {
-                callback(200, { message: result.rowCount + ' buildings released' });
-            }
-
-            callback();
+            callback(200, { message: result.rowCount + ' buildings released' });
         });
     });
 };

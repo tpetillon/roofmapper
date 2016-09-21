@@ -1,8 +1,11 @@
 'use strict';
 
+var uuid = require('node-uuid');
+
 function Session(sessionId, userId, startDate) {
     this._id = sessionId;
     this._userId = userId;
+    this._token = uuid.v4();
     this._startDate = startDate;
     this._lastUpdate = startDate;
     this._allocatedBuildingCount = 0;
@@ -19,6 +22,11 @@ Object.defineProperties(Session.prototype, {
     userId : {
         get : function() {
             return this._userId;
+        }
+    },
+    token : {
+        get : function() {
+            return this._token;
         }
     },
     startDate : {
