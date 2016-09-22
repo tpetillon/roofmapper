@@ -75,26 +75,26 @@ BuildingManager.prototype.tagBuildings = function(tagData, changesetId, session,
         
         var ids = [];
         var types = [];
-        var roofTypes = [];
+        var roofMaterials = [];
         var changesetIds = [];
         
         for (var i = 0; i < tagData.length; i++) {
             var t = tagData[i];
             ids.push(t.id);
             types.push(t.type);
-            roofTypes.push(t.roofType);
+            roofMaterials.push(t.roofMaterial);
             changesetIds.push(changesetId);
         }
 
         var query =
             "UPDATE buildings AS b \
             SET \
-                roof_type = v.roof_type, \
+                roof_material = v.roof_material, \
                 changeset_id = v.changeset_id \
-            FROM unnest($1::integer[], $2::building_type[], $3::varchar[], $4::integer[]) AS v (id, type, roof_type, changeset_id) \
+            FROM unnest($1::integer[], $2::building_type[], $3::varchar[], $4::integer[]) AS v (id, type, roof_material, changeset_id) \
             WHERE b.osm_id = v.id AND b.type = v.type::building_type AND b.session_id = $5::integer";
         
-        client.query(query, [ ids, types, roofTypes, changesetIds, session.id ], function(err, result) {
+        client.query(query, [ ids, types, roofMaterials, changesetIds, session.id ], function(err, result) {
             done();
 
             if (err) {
