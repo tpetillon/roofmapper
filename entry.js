@@ -19,11 +19,12 @@ require('leaflet/dist/images/marker-icon.png');
 require('leaflet/dist/images/marker-icon-2x.png');
 require('leaflet/dist/images/marker-shadow.png');
 require('leaflet-easybutton/src/easy-button.css');
-require('font-awesome/css/font-awesome.css');
 require('./style.css');
 
 require('bootstrap');
 require("bootstrap-webpack");
+
+require("font-awesome-webpack");
 
 // since leaflet is bundled into the browserify package it won't be able to detect where the images
 // solution is to point it to where you host the the leaflet images yourself
@@ -504,6 +505,9 @@ function init() {
     
     updateConnectionStatusDisplay();
     updateUi();
+
+    // avoid a situation where the map is partially loaded
+    setTimeout(function() { _map.invalidateSize()}, 1);
     
     if (!_api.authenticated) {
         $("#about-popup").modal('show');
