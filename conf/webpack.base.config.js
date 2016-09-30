@@ -4,7 +4,7 @@ var Config = require('webpack-config').Config;
 module.exports = new Config().merge({
     entry: "./entry.js",
     output: {
-        path: __dirname,
+        path: __dirname + "/../../server/public",
         filename: "bundle.js"
     },
     module: {
