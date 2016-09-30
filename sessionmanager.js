@@ -3,6 +3,7 @@
 var schedule = require('node-schedule');
 
 var dbPool = require('./dbpool');
+var defined = require('./defined');
 var Session = require('./session');
 var SessionList = require('./sessionlist');
 
@@ -15,8 +16,16 @@ SessionManager.prototype.getSession = function(token) {
 }
 
 SessionManager.prototype.openSession = function(userId, callback) {
-    if (this._sessions.hasForUser(userId)) {
-        callback(403, { error: "a session is already open for user id " + userId });
+    var session = this._sessions.getByUser(userId);
+    if (defined(session)) {
+        var that = this;
+        this.closeSession(session, function(status, message) {
+            if (status !== 200) {
+                callback(status, message);
+            } else {
+                that.openSession(userId, callback);
+            }
+        });
         return;
     }
 

@@ -21,12 +21,12 @@ SessionList.prototype.add = function(session) {
     }
 };
 
-SessionList.prototype.hasForUser = function(userId) {
-    return this._sessionsByUser.has(userId);
-};
-
 SessionList.prototype.getById = function(sessionId) {
     return this._sessionsById.get(sessionId);
+};
+
+SessionList.prototype.getByUser = function(userId) {
+    return this._sessionsByUser.get(userId);
 };
 
 SessionList.prototype.getByToken = function(token) {
