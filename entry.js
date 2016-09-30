@@ -11,6 +11,8 @@ var Session = require('./session.js');
 var BuildingService = require('./buildingservice.js');
 var LoadingStatus = require('./loadingstatus.js');
 
+require("jquery-fullscreen-plugin");
+
 require('leaflet-bing-layer');
 require('leaflet-easybutton');
 
@@ -45,6 +47,7 @@ wrapper.children("#header").append(
     "</ul>" +
     "</div>" +
     "<button type='button' class='btn btn-default' data-toggle='modal' data-target='#about-popup' id='about-button'>About</button>" +
+    "<div class='btn-group' data-toggle='buttons'><label class='btn btn-default'><input type='checkbox' class='btn btn-default' id='fullscreen-button' autocomplete='off' />Fullscreen</label></div>" +
     "</div>"
 );
 wrapper.children("#header").append(
@@ -443,6 +446,14 @@ function addKeyboardShortcut(key, conditions, action) {
     });
 }
 
+function toggleFullScreen() {
+    $(document).toggleFullScreen();
+}
+
+$(document).bind("fullscreenchange", function() {
+    $("#fullscreen-button").prop('checked', $(document).fullScreen() != null);
+});
+
 function init() {
     console.log("RoofMapper " + VERSION + ", environment: " + ENV);
     
@@ -508,6 +519,10 @@ function init() {
 
     // avoid a situation where the map is partially loaded
     setTimeout(function() { _map.invalidateSize()}, 1);
+
+    $("#fullscreen-button").change(function(event) {
+        toggleFullScreen();
+    });
     
     if (!_api.authenticated) {
         $("#about-popup").modal('show');
