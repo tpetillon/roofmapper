@@ -52,7 +52,7 @@ BuildingManager.prototype.getUntaggedBuilding = function(session, callback) {
 
             var row = result.rows[0];
             var building = {
-                buildingType: row.type,
+                type: row.type,
                 id: row.osm_id,
                 version: row.version
             };
@@ -82,7 +82,7 @@ BuildingManager.prototype.tagBuildings = function(tagData, changesetId, session,
             var t = tagData[i];
             ids.push(t.id);
             types.push(t.type);
-            roofMaterials.push(t.roofMaterial);
+            roofMaterials.push(t.roof_material);
             changesetIds.push(changesetId);
         }
 
