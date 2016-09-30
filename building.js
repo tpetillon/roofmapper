@@ -176,7 +176,7 @@ function extractTags($object) {
 }
 
 Building.prototype.toOsmChange = function(changesetId) {
-    if (this._roofMaterial === undefined) {
+    if (!defined(this._roofMaterial)) {
         return '';
     }
     

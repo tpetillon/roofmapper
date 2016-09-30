@@ -5,6 +5,7 @@ var defined = require('./defined');
 const MAX_CHANGES_PER_CHANGESET = 50000;
 
 function Session() {
+    this._sessionId = undefined;
     this._buildings = [];
     this._currentIndex = -1;
     this._taggedBuildingCount = 0;
@@ -13,6 +14,19 @@ function Session() {
 }
 
 Object.defineProperties(Session.prototype, {
+    open : {
+        get : function() {
+            return defined(this._sessionId);
+        }
+    },
+    id : {
+        get : function() {
+            return this._sessionId;
+        },
+        set : function(value) {
+            this._sessionId = value;
+        }
+    },
     currentIndex : {
         get : function() {
             return this._currentIndex;
@@ -118,6 +132,29 @@ Session.prototype.toOsmChange = function() {
     xml += '</osmChange>';
     
     return xml;
+};
+
+Session.prototype.toTagData = function() {
+    if (!defined(this._changesetId)) {
+        return {};
+    }
+
+    var tagData = [];
+
+    this._buildings.forEach(function(building) {
+        if (defined(building.roofMaterial)) {
+            tagData.push({
+                type : building.type,
+                id : building.id,
+                roof_material : building.roofMaterial
+            });
+        }
+    });
+    
+    return {
+        changeset_id : this._changesetId,
+        tag_data : tagData
+    };
 };
 
 Session.prototype.removeBuilding = function(type, id) {

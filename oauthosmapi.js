@@ -80,16 +80,22 @@ OAuthOsmApi.prototype.logout = function() {
     this._userId = undefined;
 };
 
-OAuthOsmApi.prototype.request = function(url, method, callback, data) {
+OAuthOsmApi.prototype.request = function(url, method, callback, contentType, data) {
+    var header = {};
+    header['Content-Type'] = contentType;
+
     this._auth.xhr({
         method: method,
         path: url,
-        content : data
+        content : data,
+        options : {
+            header : header
+        }
     }, callback);
 };
 
 OAuthOsmApi.prototype.requestWithData = function(url, method, data, callback) {
-    this.request(url, method, callback, data);
+    this.request(url, method, callback, 'application/xml; charset="utf-8"', data);
 };
 
 module.exports = OAuthOsmApi;

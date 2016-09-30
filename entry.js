@@ -84,6 +84,11 @@ var _session = new Session();
 var _loadingStatus = new LoadingStatus();
 
 function logout() {
+    if (_session.open) {
+        BuildingService.closeSession(_session.id);
+        _session.id = undefined;
+    }
+
     _api.logout();
     
     console.log("logged out");
@@ -102,7 +107,7 @@ function updateUi() {
     if (_session.currentIndex <= 0) {
         $("#previous-building").prop('disabled', true);
     }
-    if (!_api.authenticated ||
+    if (!_session.open ||
         (_session.currentIndex == _session.buildingCount - 1 && _session.changesetIsFull)) {
         $("#next-building").prop('disabled', true);
     }
@@ -115,7 +120,7 @@ function updateUi() {
     
     $("#tag-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
     
-    $("#upload-changes").prop("disabled", loading || !_api.authenticated || _session.taggedBuildingCount <= 0);
+    $("#upload-changes").prop("disabled", loading || !_session.open || _session.taggedBuildingCount <= 0);
     
     $("#tag-buttons").find("input")
         .prop("checked", false)
@@ -163,6 +168,8 @@ if (_api.authenticated) {
         _loadingStatus.removeSystem('connection');
         if (!defined(error)) {
             console.log("connected as " + _api.username + " (" + _api.userId + ")");
+            
+            openSession();
         }
         
         updateConnectionStatusDisplay();
@@ -177,13 +184,43 @@ document.getElementById('authenticate-button').onclick = function() {
         
         if (!defined(error)) {
             console.log("connected as " + _api.username + " (" + _api.userId + ")");
+
+            openSession();
         }
         
         updateConnectionStatusDisplay();
         updateUi();
     });
 };
+
 document.getElementById('logout-button').onclick = logout;
+
+function openSession() {
+    if (!_api.authenticated) {
+        return;
+    }
+
+    if (_session.open) {
+        return;
+    }
+    
+    _loadingStatus.addSystem('open-session');
+
+    BuildingService.openSession(_api.userId, function(error, sessionId) {
+        _loadingStatus.removeSystem('open-session');
+
+        if (defined(error)) {
+            console.log("could not open session: " + error.responseText);
+        } else {
+            console.log("session " + sessionId + " opened");
+            _session.id = sessionId;
+            
+            displayNextBuilding();
+        }
+        
+        updateUi();
+    });
+}
 
 function destroyBuildingPolygon() {
     if (defined(_buildingPolygon)) {
@@ -219,38 +256,42 @@ function loadAndDisplayNewBuilding() {
     
     _loadingStatus.addSystem('load-building');
     
-    BuildingService.getBuilding(function(building) {
-        _api.request('/api/0.6/' + building.type + '/' + building.id + '/full', 'GET', function(error, response) {
-            if (defined(error)) {
-                console.error("Download error: " + error.responseText);
-                _loadingStatus.removeSystem('load-building');
-            } else {
-                var $data = $(response);
-                var version = Number($data.children("osm").children(building.type).attr("version"));
-                
-                if (version !== building.version) {
-                    console.log("Building " + building.type + "/" + building.id + " is at version " + version +
-                        ", was expecting version " + building.version + ". Skipping.");
+    BuildingService.getBuilding(_session.id, function(error, building) {
+        if (defined(error)) {
+            console.error("Could not get building from building service: " + error.responseText);
+        } else {
+            _api.request('/api/0.6/' + building.type + '/' + building.id + '/full', 'GET', function(error, response) {
+                if (defined(error)) {
+                    console.error("Download error: " + error.responseText);
                     _loadingStatus.removeSystem('load-building');
-                    loadAndDisplayNewBuilding();
                 } else {
-                    building.setData($data);
+                    var $data = $(response);
+                    var version = Number($data.children("osm").children(building.type).attr("version"));
                     
-                    if (defined(building.roofMaterial)) {
-                        console.log("Building " + building.type + "/" + building.id +
-                            " already has its roof material defined. Skipping.");
+                    if (version !== building.version) {
+                        console.log("Building " + building.type + "/" + building.id + " is at version " + version +
+                            ", was expecting version " + building.version + ". Skipping.");
                         _loadingStatus.removeSystem('load-building');
                         loadAndDisplayNewBuilding();
                     } else {
-                        console.log("Displaying building " + building.type + "/" + building.id);
-                        _session.addBuilding(building, true);
-                        displayBuildingPolygon(building);
-                        updateUi();
-                        _loadingStatus.removeSystem('load-building');
+                        building.setData($data);
+                        
+                        if (defined(building.roofMaterial)) {
+                            console.log("Building " + building.type + "/" + building.id +
+                                " already has its roof material defined. Skipping.");
+                            _loadingStatus.removeSystem('load-building');
+                            loadAndDisplayNewBuilding();
+                        } else {
+                            console.log("Displaying building " + building.type + "/" + building.id);
+                            _session.addBuilding(building, true);
+                            displayBuildingPolygon(building);
+                            updateUi();
+                            _loadingStatus.removeSystem('load-building');
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     });
 }
 
@@ -339,13 +380,15 @@ function uploadChanges() {
             
             _loadingStatus.removeSystem('changes-upload');
         } else {
-            console.log("Changes uploaded");
+            console.log("Changes uploaded to OSM server");
             
-            _session.clearTaggedBuildings();
-            destroyBuildingPolygon();
-            loadAndDisplayNewBuilding();
-            
-            _loadingStatus.removeSystem('changes-upload');
+            BuildingService.tagBuildings(_session.id, _session.toTagData(), function(error) {
+                _session.clearTaggedBuildings();
+                destroyBuildingPolygon();
+                loadAndDisplayNewBuilding();
+                
+                _loadingStatus.removeSystem('changes-upload');
+            });
         }
     });
 }
@@ -431,13 +474,13 @@ function init() {
         }
     });
     
-    var isAuthenticated = function() { return _api.authenticated; };
+    var sessionOpened = function() { return _session.open; };
     var isNotLoading = function() { return !_loadingStatus.isLoading; };
     var buildingDisplayed = function() { return defined(_session.currentBuilding); };
     var isNotAtFirstBuilding = function() { return _session.currentIndex > 0; };
     var nextBuildingIsAvailable = function() { !(_session.currentIndex == _session.buildingCount - 1 && _session.changesetIsFull); };
     addKeyboardShortcut('backspace', [ isNotLoading, isNotAtFirstBuilding ], displayPreviousBuilding);
-    addKeyboardShortcut('space', [ isNotLoading, isAuthenticated, nextBuildingIsAvailable ], displayNextBuilding);
+    addKeyboardShortcut('space', [ isNotLoading, sessionOpened, nextBuildingIsAvailable ], displayNextBuilding);
     
     var addRoofMaterialKeyboardShortcut = function(key, material) {
         addKeyboardShortcut(key, [ isNotLoading, buildingDisplayed ], function() { $("#tag-" + material).prop("checked", true).trigger('change'); });
@@ -458,8 +501,6 @@ function init() {
     
     if (!_api.authenticated) {
         $("#about-popup").modal('show');
-    } else {
-        displayNextBuilding();
     }
 }
 
