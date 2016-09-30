@@ -383,11 +383,17 @@ function uploadChanges() {
             console.log("Changes uploaded to OSM server");
             
             BuildingService.tagBuildings(_session.id, _session.toTagData(), function(error) {
+                _loadingStatus.removeSystem('changes-upload');
+                
+                if (defined(error)) {
+                    console.error("Could not upload tags to building service: " + error.responseText);
+                } else {
+                    console.log("Tags uploaded to building service");
+                }
+
                 _session.clearTaggedBuildings();
                 destroyBuildingPolygon();
                 loadAndDisplayNewBuilding();
-                
-                _loadingStatus.removeSystem('changes-upload');
             });
         }
     });
