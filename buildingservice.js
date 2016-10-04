@@ -92,6 +92,23 @@ var BuildingService = {
                 callback(xhr);
             }
         });
+    },
+
+    markAsOutdated : function(buildingType, buildingId, callback) {
+        $.ajax({
+            type: 'PUT',
+            url: '/buildings/' + buildingType + '/' + buildingId + '/outdate'
+        })
+        .done(function() {
+            if (defined(callback)) {
+                callback(undefined);
+            }
+        })
+        .fail(function(xhr, status, error) {
+            if (defined(callback)) {
+                callback(xhr);
+            }
+        });
     }
 };
 

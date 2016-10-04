@@ -276,7 +276,7 @@ function loadAndDisplayNewBuilding() {
                         console.log("Building " + building.type + "/" + building.id + " is at version " + version +
                             ", was expecting version " + building.version + ". Skipping.");
                         _loadingStatus.removeSystem('load-building');
-                        releaseBuilding(building.type, building.id);
+                        markBuildingAsOutdatedAndRelease(building.type, building.id);
                         loadAndDisplayNewBuilding();
                     } else {
                         building.setData($data);
@@ -426,7 +426,15 @@ function removeBuildingInConflict(errorString) {
         loadAndDisplayNewBuilding();
     }
 
-    releaseBuilding(type, id);
+    markBuildingAsOutdatedAndRelease(type, id);
+}
+
+function markBuildingAsOutdatedAndRelease(buildingType, buildingId, callback) {
+    BuildingService.markAsOutdated(buildingType, buildingId, function() {
+        console.log("building " + buildingType + "/" + buildingId + " marked as outdated");
+
+        releaseBuilding(buildingType, buildingId, callback);
+    });
 }
 
 function releaseBuilding(buildingType, buildingId, callback) {
