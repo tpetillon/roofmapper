@@ -58,6 +58,23 @@ var BuildingService = {
         });
     },
 
+    releaseBuilding : function(sessionId, buildingType, buildingId, callback) {
+        $.ajax({
+            type: 'PUT',
+            url: '/sessions/' + sessionId + '/buildings/' + buildingType + '/' + buildingId + '/release'
+        })
+        .done(function() {
+            if (defined(callback)) {
+                callback(undefined);
+            }
+        })
+        .fail(function(xhr, status, error) {
+            if (defined(callback)) {
+                callback(xhr);
+            }
+        });
+    },
+
     tagBuildings : function(sessionId, tagData, callback) {
         $.ajax({
             type: 'POST',

@@ -276,6 +276,7 @@ function loadAndDisplayNewBuilding() {
                         console.log("Building " + building.type + "/" + building.id + " is at version " + version +
                             ", was expecting version " + building.version + ". Skipping.");
                         _loadingStatus.removeSystem('load-building');
+                        releaseBuilding(building.type, building.id);
                         loadAndDisplayNewBuilding();
                     } else {
                         building.setData($data);
@@ -424,6 +425,19 @@ function removeBuildingInConflict(errorString) {
     } else {
         loadAndDisplayNewBuilding();
     }
+
+    releaseBuilding(type, id);
+}
+
+function releaseBuilding(buildingType, buildingId, callback) {
+    BuildingService.releaseBuilding(_session.id, buildingType, buildingId, function() {
+        _session.removeBuilding(buildingType, buildingId);
+        console.log("building " + buildingType + "/" + buildingId + " released");
+
+        if (defined(callback)) {
+            callback();
+        }
+    });
 }
 
 document.getElementById('upload-changes').onclick = function() {
