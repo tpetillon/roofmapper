@@ -34,6 +34,22 @@ router.put('/:token/buildings/reserve', function(req, res, next) {
     });
 });
 
+router.put('/:token/buildings/:type(way|relation)/:id(\\d+)/release', function(req, res, next) {
+    var buildingType = req.params.type;
+    var buildingId = parseInt(req.params.id);
+    var sessionToken = req.params.token;
+    var session = sessionManager.getSession(sessionToken);
+
+    if (!defined(session)) {
+        res.status(400).json({ error: "no active session named " + sessionToken });
+        return;
+    }
+
+    buildingManager.releaseBuilding(session, buildingType, buildingId, function(status, response) {
+        res.status(status).json(response);
+    });
+});
+
 router.post('/:token/buildings/tag', function(req, res, next) {
     var sessionToken = req.params.token;
     var changesetId = parseInt(req.body.changeset_id);

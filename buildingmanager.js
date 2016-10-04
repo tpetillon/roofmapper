@@ -64,6 +64,40 @@ BuildingManager.prototype.getUntaggedBuilding = function(session, callback) {
     });
 };
 
+BuildingManager.prototype.releaseBuilding = function(session, buildingType, buildingId, callback) {
+    session.setLastUpdate();
+
+    dbPool.connect(function(err, client, done) {
+        if (err) {
+            callback(503, { error: 'error fetching client from pool: ' + err });
+            return;
+        }
+
+        var query =
+            'UPDATE buildings SET session_id = NULL \
+            WHERE session_id = $1::integer AND type = $2 AND osm_id = $3::integer';
+        client.query(query, [ session.id, buildingType, buildingId ], function(err, result) {
+            done();
+
+            if (err) {
+                callback(500, { error: 'error running query: ' + err });
+                return;
+            }
+            
+            if (result.rowCount === 0) {
+                callback(404, {
+                    error: "building " + buildingType + "/" + buildingId + " is not allocated to session " + session.token
+                });
+                return;
+            }
+
+            session.allocatedBuildingCount--;
+
+            callback(200, {});
+        });
+    });
+};
+
 BuildingManager.prototype.tagBuildings = function(tagData, changesetId, session, callback) {
     session.setLastUpdate();
 
