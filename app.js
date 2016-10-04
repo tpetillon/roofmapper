@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 
 var indexRoutes = require('./routes/index');
 var sessionRoutes = require('./routes/sessions');
+var buildingRoutes = require('./routes/buildings');
 
 var sessionManager = require('./sessionmanager.js');
 
@@ -21,6 +22,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRoutes);
 app.use('/sessions', sessionRoutes);
+app.use('/buildings', buildingRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

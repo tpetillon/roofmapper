@@ -26,11 +26,11 @@ BuildingManager.prototype.getUntaggedBuilding = function(session, callback) {
 
         var query =
             'UPDATE buildings b \
-            SET session_id=$1::integer \
+            SET session_id = $1::integer \
             FROM ( \
                 SELECT id \
                 FROM buildings \
-                WHERE session_id IS NULL \
+                WHERE session_id IS NULL AND outdated = false\
                 LIMIT 1 \
                 FOR UPDATE \
             ) sub \
@@ -139,6 +139,34 @@ BuildingManager.prototype.tagBuildings = function(tagData, changesetId, session,
             session.allocatedBuildingCount -= result.rowCount;
 
             callback(200, { message: result.rowCount + ' buildings tagged' });
+        });
+    });
+};
+
+BuildingManager.prototype.markAsOutdated = function(buildingType, buildingId, callback) {
+    dbPool.connect(function(err, client, done) {
+        if (err) {
+            callback(503, { message: 'error fetching client from pool: ' + err });
+            return;
+        }
+
+        var query =
+            'UPDATE buildings SET outdated = true \
+            WHERE type = $1 AND osm_id = $2::integer';
+        client.query(query, [ buildingType, buildingId ], function(err, result) {
+            done();
+
+            if (err) {
+                callback(500, { error: 'error running query: ' + err });
+                return;
+            }
+            
+            if (result.rowCount === 0) {
+                callback(404, { error: "building " + buildingType + "/" + buildingId + " is not present in database" });
+                return;
+            }
+
+            callback(200, {});
         });
     });
 };
