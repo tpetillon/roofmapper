@@ -112,7 +112,7 @@ function updateUi() {
         $("#previous-building").prop('disabled', true);
     }
     if (!_session.open ||
-        (_session.currentIndex == _session.buildingCount - 1 && _session.changesetIsFull)) {
+        (_session.currentIndex == _session.buildingCount - 1 && (_session.full || _session.changesetIsFull))) {
         $("#next-building").prop('disabled', true);
     }
     
@@ -254,7 +254,7 @@ function displayBuildingPolygon(building) {
 }
 
 function loadAndDisplayNewBuilding() {
-    if (_session.changesetIsFull) {
+    if (_session.full || _session.changesetIsFull) {
         return;
     }
     
@@ -510,7 +510,7 @@ function init() {
     var isNotLoading = function() { return !_loadingStatus.isLoading; };
     var buildingDisplayed = function() { return defined(_session.currentBuilding); };
     var isNotAtFirstBuilding = function() { return _session.currentIndex > 0; };
-    var nextBuildingIsAvailable = function() { !(_session.currentIndex == _session.buildingCount - 1 && _session.changesetIsFull); };
+    var nextBuildingIsAvailable = function() { !(_session.currentIndex == _session.buildingCount - 1 && (_session.full || _session.changesetIsFull)); };
     addKeyboardShortcut('backspace', [ isNotLoading, isNotAtFirstBuilding ], displayPreviousBuilding);
     addKeyboardShortcut('space', [ isNotLoading, sessionOpened, nextBuildingIsAvailable ], displayNextBuilding);
     

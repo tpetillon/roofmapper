@@ -2,6 +2,7 @@
 
 var defined = require('./defined');
 
+const MAX_SESSION_SIZE =  1000;
 const MAX_CHANGES_PER_CHANGESET = 50000;
 
 function Session() {
@@ -49,6 +50,11 @@ Object.defineProperties(Session.prototype, {
     buildingCount : {
         get : function() {
             return this._buildings.length;
+        }
+    },
+    full : {
+        get : function() {
+            return this._buildings.length >= MAX_SESSION_SIZE;
         }
     },
     taggedBuildingCount : {
