@@ -10,7 +10,7 @@ var Building = require('./building.js');
 var Session = require('./session.js');
 var BuildingService = require('./buildingservice.js');
 var LoadingStatus = require('./loadingstatus.js');
-var Localization = require('./localization.js');
+var Localizer = require('./localizer.js');
 var enMessages = require('./messages/en.json');
 var frMessages = require('./messages/fr.json');
 
@@ -94,7 +94,7 @@ wrapper.children("#footer").append(
 $("body").append(require('html!./aboutpopup.html'));
 $("body").append(require('html!./messagepopup.html'));
 
-var _localization = new Localization(document, [ enMessages, frMessages ]);
+var _localizer = new Localizer(document, [ enMessages, frMessages ]);
 var _map = undefined;
 var _recenterButton = undefined;
 var _buildingPolygon = undefined;
@@ -485,7 +485,7 @@ function showMessage(messageKey) {
         parameters.push(arguments[i]);
     }
 
-    var message = _localization.getText(messageKey, parameters);
+    var message = _localizer.getText(messageKey, parameters);
     $("#message-popup").find('#message').text(message);
     $("#message-popup").modal('show');
 }
@@ -573,11 +573,11 @@ function init() {
     });
 
     $('#language-en-button').click(function() {
-        _localization.language = 'en';
+        _localizer.language = 'en';
     })
 
     $('#language-fr-button').click(function() {
-        _localization.language = 'fr';
+        _localizer.language = 'fr';
     })
     
     if (!_api.authenticated) {

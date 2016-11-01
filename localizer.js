@@ -3,7 +3,7 @@
 var Globalize = require('globalize');
 var store = require('store');
 
-function Localization(target, messages, language) {
+function Localizer(target, messages, language) {
     this._target = target;
     
     for (var i = 0; i < messages.length; i++) {
@@ -26,7 +26,7 @@ function Localization(target, messages, language) {
             var newNodes = mutation.addedNodes;
             if (newNodes !== null) {
                 newNodes.forEach(function(node) {
-                    that._setTextRecursively(node);
+                    that.setTextFromAttributesRecursively(node);
                 });
             }
         });   
@@ -40,7 +40,7 @@ function Localization(target, messages, language) {
     this._attributeObserver = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.target.hasAttribute('l10n')) {
-                that._setText(mutation.target);
+                that.setTextFromAttributes(mutation.target);
             }
         });
     });
@@ -51,39 +51,39 @@ function Localization(target, messages, language) {
         attributeFilter : [ 'l10n', 'l10n-params' ]
     });
 
-    this._refreshTexts();
+    this.refreshTexts();
 }
 
-Object.defineProperties(Localization.prototype, {
+Object.defineProperties(Localizer.prototype, {
     language : {
         set : function(value) {
             Globalize.locale(value);
             store.set('language', value);
-            this._refreshTexts();
+            this.refreshTexts();
         }
     }
 });
 
-Localization.prototype._refreshTexts = function() {
-    this._setTextRecursively(this._target);
+Localizer.prototype.refreshTexts = function() {
+    this.setTextFromAttributesRecursively(this._target);
 }
 
-Localization.prototype._setTextRecursively = function(node) {
+Localizer.prototype.setTextFromAttributesRecursively = function(node) {
     var that = this;
 
     if (node.hasAttribute && node.hasAttribute('l10n')) {
-        this._setText(node);
+        this.setTextFromAttributes(node);
     }
 
     if (node.hasChildNodes()) {
         var children = node.childNodes;
         for (var i = 0; i < children.length; i++) {
-            that._setTextRecursively(children[i]);
+            that.setTextFromAttributesRecursively(children[i]);
         }
     }
 };
 
-Localization.prototype._setText = function(element) {
+Localizer.prototype.setTextFromAttributes = function(element) {
     var key = element.getAttribute('l10n');
     var parameters = {};
     
@@ -99,7 +99,7 @@ Localization.prototype._setText = function(element) {
     element.textContent = this.getText(key, parameters);
 };
 
-Localization.prototype.getText = function(key, parameters) {
+Localizer.prototype.getText = function(key, parameters) {
     var formatter = undefined;
     var text;
     try {
@@ -113,4 +113,4 @@ Localization.prototype.getText = function(key, parameters) {
     return text;
 }
 
-module.exports = Localization;
+module.exports = Localizer;
