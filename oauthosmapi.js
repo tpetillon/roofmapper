@@ -28,7 +28,7 @@ Object.defineProperties(OAuthOsmApi.prototype, {
     },
     url : {
         get : function() {
-            return this._auth.url;
+            return this._auth.options().url;
         }
     },
     username : {
