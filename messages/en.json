@@ -33,6 +33,13 @@
         "server-github-repo" : "Server GitHub repository",
         "licenses" : "Licences",
         "roofmapper-copyright" : "RoofMapper:",
-        "osm-data-copyright" : "OpenStreetMap data:"
+        "osm-data-copyright" : "OpenStreetMap data:",
+        "could-not-connect" : "Could not connect: {0}",
+        "could-not-authenticate" : "Could not authenticate: {0}",
+        "could-not-open-session" : "Could not open session: {0}",
+        "could-not-get-building-from-building-service" : "Could not get building from building service: {0}",
+        "download-error" : "Download error: {0}",
+        "changeset-creation-error" : "Changeset creation error: {0}",
+        "changes-uploaded-to-osm" : "Changes uploaded to the OpenStreetMap server!"
     }
 }

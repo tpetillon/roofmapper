@@ -96,6 +96,10 @@ Localization.prototype._setText = function(element) {
         }
     }
 
+    element.textContent = this.getText(key, parameters);
+};
+
+Localization.prototype.getText = function(key, parameters) {
     var formatter = undefined;
     var text;
     try {
@@ -106,7 +110,7 @@ Localization.prototype._setText = function(element) {
         text = '!' + key + '!';
     }
 
-    element.textContent = text;
-};
+    return text;
+}
 
 module.exports = Localization;

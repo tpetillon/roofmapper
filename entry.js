@@ -185,7 +185,7 @@ if (_api.authenticated) {
     _api.connect(function(error) {
         _loadingStatus.removeSystem('connection');
         if (defined(error)) {
-            showMessage("Could not connect: " + error.responseText);
+            showMessage("could-not-connect", error.responseText);
         } else {
             console.log("connected as " + _api.username + " (" + _api.userId + ")");
             
@@ -203,7 +203,7 @@ document.getElementById('authenticate-button').onclick = function() {
         _loadingStatus.removeSystem('authentication');
         
         if (defined(error)) {
-            showMessage("Could not authenticate: " + error.responseText);
+            showMessage("could-not-authenticate", error.responseText);
         } else {
             console.log("connected as " + _api.username + " (" + _api.userId + ")");
 
@@ -233,7 +233,7 @@ function openSession() {
 
         if (defined(error)) {
             console.log("could not open session: " + error.responseText);
-            showMessage("Could not open session: " + error.responseText);
+            showMessage("could-not-open-session", error.responseText);
         } else {
             console.log("session " + sessionId + " opened");
             _session.id = sessionId;
@@ -282,12 +282,12 @@ function loadAndDisplayNewBuilding() {
     BuildingService.getBuilding(_session.id, function(error, building) {
         if (defined(error)) {
             console.error("Could not get building from building service: " + error.responseText);
-            showMessage("Could not get building from building service: " + error.responseText);
+            showMessage("could-not-get-building-from-building-service", error.responseText);
         } else {
             _api.request('/api/0.6/' + building.type + '/' + building.id + '/full', 'GET', function(error, response) {
                 if (defined(error)) {
                     console.error("Download error: " + error.responseText);
-                    showMessage("Download error: " + error.responseText);
+                    showMessage("download-error", error.responseText);
                     _loadingStatus.removeSystem('load-building');
                 } else {
                     var $data = $(response);
@@ -366,7 +366,7 @@ function createChangeset(callback) {
     _api.requestWithData('/api/0.6/changeset/create', 'PUT', changesetData, function(error, response) {
         if (defined(error)) {
             console.error("Changeset creation error: " + error.responseText);
-            showMessage("Changeset creation error: " + error.responseText);
+            showMessage("changeset-creation-error", error.responseText);
             _loadingStatus.removeSystem('changeset-creation');
         } else {
             var changesetId = Number(response);
@@ -416,7 +416,7 @@ function uploadChanges() {
                     console.error("Could not upload tags to building service: " + error.responseText);
                 } else {
                     console.log("Tags uploaded to building service");
-                    showMessage("Changes uploaded to the OpenStreetMap server!");
+                    showMessage("changes-uploaded-to-osm");
                 }
 
                 _session.clearTaggedBuildings();
@@ -479,7 +479,13 @@ document.getElementById('upload-changes').onclick = function() {
     }
 };
 
-function showMessage(message) {
+function showMessage(messageKey) {
+    var parameters = [];
+    for (var i = 1; i < arguments.length; i++) {
+        parameters.push(arguments[i]);
+    }
+
+    var message = _localization.getText(messageKey, parameters);
     $("#message-popup").find('#message').text(message);
     $("#message-popup").modal('show');
 }
