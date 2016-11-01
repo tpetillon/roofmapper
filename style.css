@@ -18,7 +18,7 @@ html, body {
     height: 2.6em;
     margin: 0;
     padding: 0.1em;
-    z-index: 10000; /* go over leaflet buttons */
+    z-index: 1010; /* go over leaflet buttons */
 }
 
 #map {
