@@ -494,11 +494,13 @@ function addKeyboardShortcut(key, conditions, action) {
     keyboardJS.bind(key, function(e) {
         for (var i = 0; i < conditions.length; i++) {
             if (!conditions[i]()) {
-                return;
+                return true;
             }
         }
         
         action(e);
+
+        return false;
     });
 }
 
@@ -544,7 +546,7 @@ function init() {
     var isNotLoading = function() { return !_loadingStatus.isLoading; };
     var buildingDisplayed = function() { return defined(_session.currentBuilding); };
     var isNotAtFirstBuilding = function() { return _session.currentIndex > 0; };
-    var nextBuildingIsAvailable = function() { !(_session.currentIndex == _session.buildingCount - 1 && (_session.full || _session.changesetIsFull)); };
+    var nextBuildingIsAvailable = function() { return !(_session.currentIndex == _session.buildingCount - 1 && (_session.full || _session.changesetIsFull)); };
     addKeyboardShortcut('backspace', [ isNotLoading, isNotAtFirstBuilding ], displayPreviousBuilding);
     addKeyboardShortcut('space', [ isNotLoading, sessionOpened, nextBuildingIsAvailable ], displayNextBuilding);
     
