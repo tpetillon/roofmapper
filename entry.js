@@ -10,6 +10,8 @@ var Building = require('./building.js');
 var Session = require('./session.js');
 var BuildingService = require('./buildingservice.js');
 var LoadingStatus = require('./loadingstatus.js');
+var Localization = require('./localization.js');
+var l10nTexts = require('./texts.json');
 
 require("jquery-fullscreen-plugin");
 
@@ -40,18 +42,22 @@ wrapper.children("#header").append(
     "<div class='btn-group' id='user-menu'>" +
     "<button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'>RoofMapper <span class='caret'></span></button>" +
     "<ul class='dropdown-menu dropdown-menu-left' role='menu'>" +
-    "<li><a href='#' id='fullscreen-button'>Toggle fullscreen</a></li>" +
+    "<li class='dropdown-header' l10n='language'></li>" +
+    "<li><a href='#' id='language-en-button'>English</a></li>" +
+    "<li><a href='#' id='language-fr-button'>Français</a></li>" +
     "<li class='divider'></li>" +
-    "<li><a href='#' target='_blank' data-toggle='modal' data-target='#about-popup' id='about-button'>About</a></li>" +
+    "<li><a href='#' id='fullscreen-button' l10n='toggle-fullscreen'></a></li>" +
+    "<li class='divider'></li>" +
+    "<li><a href='#' target='_blank' data-toggle='modal' data-target='#about-popup' id='about-button' l10n='about'></a></li>" +
     "</ul>" +
     "</div>" +
-    "<button type='button' class='btn btn-primary' id='authenticate-button'>Authenticate</button>" +
+    "<button type='button' class='btn btn-primary' id='authenticate-button' l10n='authenticate'></button>" +
     "<div class='btn-group' id='user-menu'>" +
-    "<button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'><span id='username'>Username</span> <span class='caret'></span></button>" +
+    "<button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'><span id='username' l10n='username'></span> <span class='caret'></span></button>" +
     "<ul class='dropdown-menu dropdown-menu-left' role='menu'>" +
-    "<li><a href='#' target='_blank' id='user-profile-link'>OpenStreetMap profile</a></li>" +
+    "<li><a href='#' target='_blank' id='user-profile-link' l10n='osm-profile></a></li>" +
     "<li class='divider'></li>" +
-    "<li><a href='#' id='logout-button'>Disconnect</a></li>" +
+    "<li><a href='#' id='logout-button' l10n='disconnect'></a></li>" +
     "</ul>" +
     "</div>" +
     "</div>"
@@ -60,33 +66,34 @@ wrapper.children("#header").append(
     "<div id='session-buttons'>" +
     "<p id='tagged-building-count'>0 buildings tagged</p>" +
     "<p id='uploaded-building-count'>0 buildings uploaded</p>" +
-    "<button type='button' class='btn btn-primary' id='upload-changes'><i class='fa fa-cloud-upload' aria-hidden='true'></i> Send changes</button>" +
+    "<button type='button' class='btn btn-primary' id='upload-changes'><i class='fa fa-cloud-upload' aria-hidden='true'></i> <span l10n='send-changes'></span></button>" +
     "</div>"
 );
 wrapper.append("<div id='map'></div>");
 wrapper.append("<div id='footer'></div>");
 wrapper.children("#footer").append(
     "<div class='btn-group' data-toggle='buttons' id='tag-buttons'>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-undefined' value='undefined' autocomplete='off' />Undefined, other</label>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-roof_tiles' value='roof_tiles' autocomplete='off' />Tiles</label>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-slate' value='slate' autocomplete='off' />Slate</label>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-metal' value='metal' autocomplete='off' />Metal</label>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-copper' value='copper' autocomplete='off' />Copper</label>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-concrete' value='concrete' autocomplete='off' />Concrete</label>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-glass' value='glass' autocomplete='off' />Glass</label>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-tar_paper' value='tar_paper' autocomplete='off' />Tar paper</label>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-eternit' value='eternit' autocomplete='off' />Eternit</label>" +
-    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-gravel' value='gravel' autocomplete='off' />Gravel</label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-undefined' value='undefined' autocomplete='off' /><span l10n='undefined' /></label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-roof_tiles' value='roof_tiles' autocomplete='off' /><span l10n='tiles' /></label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-slate' value='slate' autocomplete='off' /><span l10n='slate' /></label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-metal' value='metal' autocomplete='off' /><span l10n='metal' /></label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-copper' value='copper' autocomplete='off' /><span l10n='copper' /></label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-concrete' value='concrete' autocomplete='off' /><span l10n='concrete' /></label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-glass' value='glass' autocomplete='off' /><span l10n='glass' /></label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-tar_paper' value='tar_paper' autocomplete='off' /><span l10n='tar-paper' /></label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-eternit' value='eternit' autocomplete='off' /><span l10n='eternit' /></label>" +
+    "<label class='btn btn-primary'><input type='radio' name='tag-selection' id='tag-gravel' value='gravel' autocomplete='off' /><span l10n='gravel' /></label>" +
     "</div>" +
     "<div id='building-buttons'>" +
-    "<button type='button' class='btn btn-default' id='previous-building'><div class='fa fa-chevron-left' aria-hidden='true'></div><div>Previous building</div></button>" +
-    "<button type='button' class='btn btn-default' id='next-building'><div class='fa fa-chevron-right' aria-hidden='true'></div><div>Next building</div></button>" +
+    "<button type='button' class='btn btn-default' id='previous-building'><div class='fa fa-chevron-left' aria-hidden='true'></div><div l10n='previous-building' /></button>" +
+    "<button type='button' class='btn btn-default' id='next-building'><div class='fa fa-chevron-right' aria-hidden='true'></div><div l10n='next-building' /></button>" +
     "</div>"
 );
 
 $("body").append(require('html!./aboutpopup.html'));
 $("body").append(require('html!./messagepopup.html'));
 
+var _localization = new Localization(document, l10nTexts);
 var _map = undefined;
 var _recenterButton = undefined;
 var _buildingPolygon = undefined;
@@ -164,11 +171,12 @@ function updateConnectionStatusDisplay() {
     if (_api.authenticated) {
         $("#authenticate-button").hide();
         $("#user-menu").show();
-        $("#username").text(_api.username);
+        $("#username").removeAttr("l10n").text(_api.username);
         $("#user-profile-link").attr("href", _api.url + "/user/" + _api.username);
     } else {
         $("#authenticate-button").show();
         $("#user-menu").hide();
+        $("#username").attr("l10n", "username");
     }
 }
 
@@ -177,7 +185,9 @@ if (_api.authenticated) {
     _loadingStatus.addSystem('connection');
     _api.connect(function(error) {
         _loadingStatus.removeSystem('connection');
-        if (!defined(error)) {
+        if (defined(error)) {
+            showMessage("Could not connect: " + error.responseText);
+        } else {
             console.log("connected as " + _api.username + " (" + _api.userId + ")");
             
             openSession();
@@ -193,7 +203,9 @@ document.getElementById('authenticate-button').onclick = function() {
     _api.authenticate(function(error) {
         _loadingStatus.removeSystem('authentication');
         
-        if (!defined(error)) {
+        if (defined(error)) {
+            showMessage("Could not authenticate: " + error.responseText);
+        } else {
             console.log("connected as " + _api.username + " (" + _api.userId + ")");
 
             openSession();
@@ -222,7 +234,7 @@ function openSession() {
 
         if (defined(error)) {
             console.log("could not open session: " + error.responseText);
-            showMessage("could not open session: " + error.responseText);
+            showMessage("Could not open session: " + error.responseText);
         } else {
             console.log("session " + sessionId + " opened");
             _session.id = sessionId;
@@ -549,15 +561,25 @@ function init() {
     updateUi();
 
     // avoid a situation where the map is partially loaded
-    setTimeout(function() { _map.invalidateSize()}, 1);
+    setTimeout(function() { _map.invalidateSize() }, 1);
 
-    $("#fullscreen-button").click(function(event) {
+    $("#fullscreen-button").click(function() {
         $(document).toggleFullScreen();
     });
+
+    $('#language-en-button').click(function() {
+        _localization.language = 'en';
+    })
+
+    $('#language-fr-button').click(function() {
+        _localization.language = 'fr';
+    })
     
     if (!_api.authenticated) {
         $("#about-popup").modal('show');
     }
+
+    $('#tagged-building-count').attr('l10n', 'test');
 }
 
 init();
