@@ -36,8 +36,12 @@
     "webpack-config": "^6.0.0"
   },
   "scripts": {
-    "start": "webpack-dev-server --progress --colors --devtool source-map --config conf/webpack.development.config.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "webpack-dev-server --progress --colors --devtool source-map --config conf/webpack.production.config.js",
+    "start-dev": "webpack-dev-server --progress --colors --devtool source-map --config conf/webpack.development.config.js",
+    "build": "webpack --progress --colors --config conf/webpack.production.config.js",
+    "build-dev": "webpack --progress --colors --config conf/webpack.development.config.js",
+    "watch": "webpack --progress --colors --watch --config conf/webpack.production.config.js",
+    "watch-dev": "webpack --progress --colors --watch --config conf/webpack.development.config.js"
   },
   "author": "Thomas Petillon <tpetillon@gmail.com>",
   "license": "MIT",
