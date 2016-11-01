@@ -31,6 +31,18 @@
             "{count, plural, ",
                 "one{bâtiment envoyé} ",
                 "other{bâtiments envoyés}}"
-        ]
+        ],
+        "ok" : "OK",
+        "close" : "Fermer",
+        "keyboard-shortcuts" : "Raccourcis clavier",
+        "keyboard-shortcuts-space" : "Espace : afficher le bâtiment suivant",
+        "keyboard-shortcuts-backspace" : "Retour arrière : afficher le bâtiment précédent",
+        "keyboard-shortcuts-numpad" : "0-9 pavé numérique : sélectionner le matériau de toit",
+        "source-code" : "Code source",
+        "client-github-repo" : "Repository GitHub client",
+        "server-github-repo" : "Repository GitHub serveur",
+        "licenses" : "Licences",
+        "roofmapper-copyright" : "RoofMapper :",
+        "osm-data-copyright" : "RoofMapper :"
     }
 }

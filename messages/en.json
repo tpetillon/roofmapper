@@ -21,6 +21,18 @@
         "previous-building" : "Previous building",
         "next-building" : "Next building",
         "n-buildings-tagged" : "{count} {count, plural, one{building} other{buildings}} tagged",
-        "n-buildings-uploaded" : "{count} {count, plural, one{building} other{buildings}} uploaded"
+        "n-buildings-uploaded" : "{count} {count, plural, one{building} other{buildings}} uploaded",
+        "ok" : "OK",
+        "close" : "Close",
+        "keyboard-shortcuts" : "Keyboard shortcuts",
+        "keyboard-shortcuts-space" : "Space: display next building",
+        "keyboard-shortcuts-backspace" : "Backspace: display previous building",
+        "keyboard-shortcuts-numpad" : "Numpad 0-9: select roof material",
+        "source-code" : "Source code",
+        "client-github-repo" : "Client GitHub repository",
+        "server-github-repo" : "Server GitHub repository",
+        "licenses" : "Licences",
+        "roofmapper-copyright" : "RoofMapper:",
+        "osm-data-copyright" : "OpenStreetMap data:"
     }
 }
