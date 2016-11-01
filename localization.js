@@ -48,7 +48,7 @@ function Localization(target, messages, language) {
     this._attributeObserver.observe(this._target, {
         attributes : true,
         subtree : true,
-        attributeFilter : [ 'l10n' ]
+        attributeFilter : [ 'l10n', 'l10n-params' ]
     });
 
     this._refreshTexts();
@@ -85,14 +85,24 @@ Localization.prototype._setTextRecursively = function(node) {
 
 Localization.prototype._setText = function(element) {
     var key = element.getAttribute('l10n');
+    var parameters = {};
+    
+    if (element.hasAttribute('l10n-params')) {
+        var paramJson = element.getAttribute('l10n-params');
+        try {
+            parameters = JSON.parse(paramJson);
+        } catch (e) {
+            console.error('invalid localization parameter JSON string for element ', element);
+        }
+    }
 
     var formatter = undefined;
     var text;
     try {
         formatter = Globalize.messageFormatter(key);
-        text = formatter();
+        text = formatter(parameters);
     } catch (e) {
-        console.error('Localization error: ', e);
+        console.error('localization error: ', e);
         text = '!' + key + '!';
     }
 

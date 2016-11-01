@@ -20,7 +20,17 @@
         "gravel" : "Gravier",
         "previous-building" : "Bâtiment précédent",
         "next-building" : "Bâtiment suivant",
-        "n-buildings-tagged" : "",
-        "n-buildings-uploaded" : ""
+        "n-buildings-tagged" : [
+            "{count} ",
+            "{count, plural, ",
+                "one{bâtiment taggué} ",
+                "other{bâtiments taggués}}"
+        ],
+        "n-buildings-uploaded" : [
+            "{count} ",
+            "{count, plural, ",
+                "one{bâtiment envoyé} ",
+                "other{bâtiments envoyés}}"
+        ]
     }
 }

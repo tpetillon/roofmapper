@@ -158,14 +158,12 @@ function updateUi() {
             .parent().addClass("disabled")
     }
     
-    $("#tagged-building-count").text(
-        _session.taggedBuildingCount +
-        " building" + (_session.taggedBuildingCount === 1 ? "" : "s") +
-        " tagged");
-    $("#uploaded-building-count").text(
-        _session.uploadedBuildingCount +
-        " building" + (_session.uploadedBuildingCount === 1 ? "" : "s") +
-        " uploaded");
+    $("#tagged-building-count")
+        .attr('l10n', 'n-buildings-tagged')
+        .attr('l10n-params', JSON.stringify({ count: _session.taggedBuildingCount }));
+    $("#uploaded-building-count")
+        .attr('l10n', 'n-buildings-uploaded')
+        .attr('l10n-params', JSON.stringify({ count: _session.uploadedBuildingCount }));
 }
 
 function updateConnectionStatusDisplay() {
