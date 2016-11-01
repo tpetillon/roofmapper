@@ -40,7 +40,7 @@ var wrapper = $("body").children("#wrapper");
 wrapper.append("<div id='header'></div>");
 wrapper.children("#header").append(
     "<div id='menu-buttons'>" +
-    "<div class='btn-group' id='user-menu'>" +
+    "<div class='btn-group' id='roofmapper-menu'>" +
     "<button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'>RoofMapper <span class='caret'></span></button>" +
     "<ul class='dropdown-menu dropdown-menu-left' role='menu'>" +
     "<li class='dropdown-header' l10n='language'></li>" +
