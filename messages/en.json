@@ -40,6 +40,10 @@
         "could-not-get-building-from-building-service" : "Could not get building from building service: {0}",
         "download-error" : "Download error: {0}",
         "changeset-creation-error" : "Changeset creation error: {0}",
-        "changes-uploaded-to-osm" : "Changes uploaded to the OpenStreetMap server!"
+        "changes-uploaded-to-osm" : "Changes uploaded to the OpenStreetMap server!",
+        "close-roofmapper-confirm" : [
+            "Some changes have not been uploaded to the OpenstreetMap server. ",
+            "Do you really want to quit RoofMapper?"
+        ]
     }
 }

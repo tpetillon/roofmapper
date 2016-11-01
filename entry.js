@@ -116,6 +116,12 @@ function logout() {
     updateUi();
 }
 
+function confirmQuit(evt) {
+    var dialogText = _localizer.getText("close-roofmapper-confirm");
+    evt.returnValue = dialogText;
+    return dialogText;
+}
+
 function updateUi() {
     var loading = _loadingStatus.isLoading;
     
@@ -164,6 +170,12 @@ function updateUi() {
     $("#uploaded-building-count")
         .attr('l10n', 'n-buildings-uploaded')
         .attr('l10n-params', JSON.stringify({ count: _session.uploadedBuildingCount }));
+
+    if (_session.taggedBuildingCount > 0) {
+        window.addEventListener('beforeunload', confirmQuit);
+    } else {
+        window.removeEventListener('beforeunload', confirmQuit)
+    }
 }
 
 function updateConnectionStatusDisplay() {
