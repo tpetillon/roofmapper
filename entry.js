@@ -36,25 +36,31 @@ $("body").append("<div id='wrapper'></div>");
 var wrapper = $("body").children("#wrapper");
 wrapper.append("<div id='header'></div>");
 wrapper.children("#header").append(
-    "<div id='connection-buttons'>" +
+    "<div id='menu-buttons'>" +
+    "<div class='btn-group' id='user-menu'>" +
+    "<button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'>RoofMapper <span class='caret'></span></button>" +
+    "<ul class='dropdown-menu dropdown-menu-left' role='menu'>" +
+    "<li><a href='#' id='fullscreen-button'>Toggle fullscreen</a></li>" +
+    "<li class='divider'></li>" +
+    "<li><a href='#' target='_blank' data-toggle='modal' data-target='#about-popup' id='about-button'>About</a></li>" +
+    "</ul>" +
+    "</div>" +
     "<button type='button' class='btn btn-primary' id='authenticate-button'>Authenticate</button>" +
     "<div class='btn-group' id='user-menu'>" +
     "<button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'><span id='username'>Username</span> <span class='caret'></span></button>" +
-    "<ul class='dropdown-menu dropdown-menu-right' role='menu'>" +
+    "<ul class='dropdown-menu dropdown-menu-left' role='menu'>" +
     "<li><a href='#' target='_blank' id='user-profile-link'>OpenStreetMap profile</a></li>" +
     "<li class='divider'></li>" +
     "<li><a href='#' id='logout-button'>Disconnect</a></li>" +
     "</ul>" +
     "</div>" +
-    "<button type='button' class='btn btn-default' data-toggle='modal' data-target='#about-popup' id='about-button'>About</button>" +
-    "<div class='btn-group' data-toggle='buttons'><label class='btn btn-default'><input type='checkbox' class='btn btn-default' id='fullscreen-button' autocomplete='off' />Fullscreen</label></div>" +
     "</div>"
 );
 wrapper.children("#header").append(
     "<div id='session-buttons'>" +
-    "<button type='button' class='btn btn-primary' id='upload-changes'><i class='fa fa-cloud-upload' aria-hidden='true'></i> Send changes</button>" +
     "<p id='tagged-building-count'>0 buildings tagged</p>" +
     "<p id='uploaded-building-count'>0 buildings uploaded</p>" +
+    "<button type='button' class='btn btn-primary' id='upload-changes'><i class='fa fa-cloud-upload' aria-hidden='true'></i> Send changes</button>" +
     "</div>"
 );
 wrapper.append("<div id='map'></div>");
@@ -479,14 +485,6 @@ function addKeyboardShortcut(key, conditions, action) {
     });
 }
 
-function toggleFullScreen() {
-    $(document).toggleFullScreen();
-}
-
-$(document).bind("fullscreenchange", function() {
-    $("#fullscreen-button").prop('checked', $(document).fullScreen() != null);
-});
-
 function init() {
     console.log("RoofMapper " + VERSION + ", environment: " + ENV);
     
@@ -553,8 +551,8 @@ function init() {
     // avoid a situation where the map is partially loaded
     setTimeout(function() { _map.invalidateSize()}, 1);
 
-    $("#fullscreen-button").change(function(event) {
-        toggleFullScreen();
+    $("#fullscreen-button").click(function(event) {
+        $(document).toggleFullScreen();
     });
     
     if (!_api.authenticated) {
