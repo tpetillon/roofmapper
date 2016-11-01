@@ -11,7 +11,8 @@ var Session = require('./session.js');
 var BuildingService = require('./buildingservice.js');
 var LoadingStatus = require('./loadingstatus.js');
 var Localization = require('./localization.js');
-var l10nTexts = require('./texts.json');
+var enMessages = require('./messages/en.json');
+var frMessages = require('./messages/fr.json');
 
 require("jquery-fullscreen-plugin");
 
@@ -55,7 +56,7 @@ wrapper.children("#header").append(
     "<div class='btn-group' id='user-menu'>" +
     "<button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'><span id='username' l10n='username'></span> <span class='caret'></span></button>" +
     "<ul class='dropdown-menu dropdown-menu-left' role='menu'>" +
-    "<li><a href='#' target='_blank' id='user-profile-link' l10n='osm-profile></a></li>" +
+    "<li><a href='#' target='_blank' id='user-profile-link' l10n='osm-profile'></a></li>" +
     "<li class='divider'></li>" +
     "<li><a href='#' id='logout-button' l10n='disconnect'></a></li>" +
     "</ul>" +
@@ -93,7 +94,7 @@ wrapper.children("#footer").append(
 $("body").append(require('html!./aboutpopup.html'));
 $("body").append(require('html!./messagepopup.html'));
 
-var _localization = new Localization(document, l10nTexts);
+var _localization = new Localization(document, [ enMessages, frMessages ]);
 var _map = undefined;
 var _recenterButton = undefined;
 var _buildingPolygon = undefined;
@@ -578,8 +579,6 @@ function init() {
     if (!_api.authenticated) {
         $("#about-popup").modal('show');
     }
-
-    $('#tagged-building-count').attr('l10n', 'test');
 }
 
 init();

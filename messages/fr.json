@@ -1,0 +1,26 @@
+{
+    "fr" : {
+        "language" : "Langue",
+        "toggle-fullscreen" : "(Dés)activer le plein-écran",
+        "about" : "À propos",
+        "authenticate" : "Connexion",
+        "username" : "Utilisateur",
+        "osm-profile" : "Compte OpenStreetMap",
+        "disconnect" : "Déconnexion",
+        "send-changes": "Envoyer les modifications",
+        "undefined" : "Indéfini, autre",
+        "tiles" : "Tuiles",
+        "slate" : "Ardoise",
+        "metal" : "Métal",
+        "copper" : "Cuivre",
+        "concrete" : "Béton",
+        "glass" : "Verre",
+        "tar-paper" : "Papier goudronné",
+        "eternit" : "Éternit",
+        "gravel" : "Gravier",
+        "previous-building" : "Bâtiment précédent",
+        "next-building" : "Bâtiment suivant",
+        "n-buildings-tagged" : "",
+        "n-buildings-uploaded" : ""
+    }
+}

@@ -1,30 +1,23 @@
 'use strict';
 
+var Globalize = require('globalize');
 var store = require('store');
 
-function Localization(target, texts, language, fallbackLanguage) {
+function Localization(target, messages, language) {
     this._target = target;
-    this._texts = texts;
+    
+    for (var i = 0; i < messages.length; i++) {
+        Globalize.loadMessages(messages[i]);
+    }
 
     if (language != undefined) {
-        this._language = language;
+        Globalize.locale(language);
     } else {
         var storedLanguage = store.get('language');
         if (storedLanguage != undefined) {
-            this._language = storedLanguage;
-        } else {
-            var browserLanguage = navigator.language || navigator.userLanguage;
-            browserLanguage = browserLanguage.substr(0, 2);
-            if (this._texts.config.availableLanguages.indexOf(browserLanguage) !== -1) {
-                this._language = browserLanguage;
-            } else {
-                this._language = this._texts.config.defaultLanguage;
-            }
+            Globalize.locale(storedLanguage);
         }
     }
-
-    this._fallbackLanguage = fallbackLanguage ?
-        fallbackLanguage : this._texts.config.defaultLanguage;
 
     var that = this;
 
@@ -63,16 +56,9 @@ function Localization(target, texts, language, fallbackLanguage) {
 
 Object.defineProperties(Localization.prototype, {
     language : {
-        get : function() {
-            return this._language;
-        },
         set : function(value) {
-            if (this._texts.config.availableLanguages.indexOf(value) === -1) {
-                return;
-            }
-
-            this._language = value;
-            store.set('language', this._language);
+            Globalize.locale(value);
+            store.set('language', value);
             this._refreshTexts();
         }
     }
@@ -100,22 +86,17 @@ Localization.prototype._setTextRecursively = function(node) {
 Localization.prototype._setText = function(element) {
     var key = element.getAttribute('l10n');
 
-    if (!this._texts.texts.hasOwnProperty(key)) {
-        return;
+    var formatter = undefined;
+    var text;
+    try {
+        formatter = Globalize.messageFormatter(key);
+        text = formatter();
+    } catch (e) {
+        console.error('Localization error: ', e);
+        text = '!' + key + '!';
     }
 
-    var entry = this._texts.texts[key];
-    
-    var text = undefined;
-    if (entry.hasOwnProperty(this._language)) {
-        text = entry[this._language];
-    } else if (entry.hasOwnProperty(this._fallbackLanguage)) {
-        text = entry[this._fallbackLanguage];
-    } 
-
-    if (text !== undefined) {
-        element.textContent = text;
-    }
+    element.textContent = text;
 };
 
 module.exports = Localization;

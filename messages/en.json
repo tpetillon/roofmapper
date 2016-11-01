@@ -1,0 +1,26 @@
+{
+    "en" : {
+        "language" : "Language",
+        "toggle-fullscreen" : "Toggle fullscreen",
+        "about" : "About",
+        "authenticate" : "Authenticate",
+        "username" : "Username",
+        "osm-profile" : "OpenStreetMap profile",
+        "disconnect" : "Disconnect",
+        "send-changes": "Send changes",
+        "undefined" : "Undefined, other",
+        "tiles" : "Tiles",
+        "slate" : "Slate",
+        "metal" : "Metal",
+        "copper" : "Copper",
+        "concrete" : "Concrete",
+        "glass" : "Glass",
+        "tar-paper" : "Tar paper",
+        "eternit" : "Eternit",
+        "gravel" : "Gravel",
+        "previous-building" : "Previous building",
+        "next-building" : "Next building",
+        "n-buildings-tagged" : "",
+        "n-buildings-uploaded" : ""
+    }
+}

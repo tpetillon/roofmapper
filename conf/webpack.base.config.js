@@ -19,6 +19,12 @@ module.exports = new Config().merge({
     plugins: [
         new webpack.DefinePlugin({
             VERSION : JSON.stringify(require("../package.json").version)
+        }),
+        new GlobalizePlugin({
+			production: false, // error when true, cf. https://github.com/rxaviers/globalize-webpack-plugin/issues/10
+			developmentLocale: "en",
+			supportedLocales: [ "en", "fr" ],
+			messages: "messages/[locale].json"
         })
     ]
 });

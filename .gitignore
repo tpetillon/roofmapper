@@ -1,3 +1,4 @@
 /node_modules
 bundle.js
 *.map
+.tmp-globalize-webpack
