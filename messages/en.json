@@ -1,5 +1,5 @@
 {
-    "en" : {
+    "root" : {
         "language" : "Language",
         "toggle-fullscreen" : "Toggle fullscreen",
         "about" : "About",
@@ -45,5 +45,6 @@
             "Some changes have not been uploaded to the OpenstreetMap server. ",
             "Do you really want to quit RoofMapper?"
         ]
-    }
+    },
+    "en" : {}
 }

@@ -3,19 +3,30 @@
 var Globalize = require('globalize');
 var store = require('store');
 
-function Localizer(target, messages, language) {
+function Localizer(target, messages) {
     this._target = target;
     
+    this._availableLanguages = new Set();
     for (var i = 0; i < messages.length; i++) {
         Globalize.loadMessages(messages[i]);
+        
+        var languages = Object.keys(messages[i]);
+        for (var j = 0; j < languages.length; j++) {
+            this._availableLanguages.add(languages[j]);
+        }
     }
+    this._availableLanguages.delete('root');
 
-    if (language != undefined) {
-        Globalize.locale(language);
-    } else {
-        var storedLanguage = store.get('language');
-        if (storedLanguage != undefined) {
-            Globalize.locale(storedLanguage);
+    var storedLanguage = store.get('language');
+    if (storedLanguage != undefined) {
+        Globalize.locale(storedLanguage);
+    } else if (navigator.languages) {
+        for (var i = 0; i < navigator.languages.length; i++) {
+            var language = navigator.languages[i];
+            if (this._availableLanguages.has(language)) {
+                Globalize.locale(language);
+                break;
+            }
         }
     }
 
@@ -57,9 +68,11 @@ function Localizer(target, messages, language) {
 Object.defineProperties(Localizer.prototype, {
     language : {
         set : function(value) {
-            Globalize.locale(value);
-            store.set('language', value);
-            this.refreshTexts();
+            if (this._availableLanguages.has(value)) {
+                Globalize.locale(value);
+                store.set('language', value);
+                this.refreshTexts();
+            }
         }
     }
 });
@@ -104,7 +117,11 @@ Localizer.prototype.getText = function(key, parameters) {
     var text;
     try {
         formatter = Globalize.messageFormatter(key);
-        text = formatter(parameters);
+        if (formatter != null) {
+            text = formatter(parameters);
+        } else {
+            text = '?' + key + '?';
+        }
     } catch (e) {
         console.error('localization error: ', e);
         text = '!' + key + '!';
