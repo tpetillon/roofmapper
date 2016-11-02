@@ -1,5 +1,6 @@
 var webpack = require('webpack');
 var Config = require('webpack-config').Config;
+var GlobalizePlugin = require('globalize-webpack-plugin');
 
 module.exports = new Config().merge({
     entry: "./entry.js",
