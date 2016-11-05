@@ -1,6 +1,7 @@
 var webpack = require('webpack');
 var Config = require('webpack-config').Config;
 var GlobalizePlugin = require('globalize-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = new Config().merge({
     entry: "./entry.js",
@@ -26,6 +27,9 @@ module.exports = new Config().merge({
 			developmentLocale: "en",
 			supportedLocales: [ "en", "fr" ],
 			messages: "messages/[locale].json"
+        }),
+        new HtmlWebpackPlugin({
+            title: 'RoofMapper'
         })
     ]
 });
