@@ -94,10 +94,11 @@ var BuildingService = {
         });
     },
 
-    markAsOutdated : function(buildingType, buildingId, callback) {
+    invalidate : function(buildingType, buildingId, reason, callback) {
         $.ajax({
             type: 'PUT',
-            url: '/buildings/' + buildingType + '/' + buildingId + '/outdate'
+            url: '/buildings/' + buildingType + '/' + buildingId + '/invalidate',
+            data : { reason : reason }
         })
         .done(function() {
             if (defined(callback)) {

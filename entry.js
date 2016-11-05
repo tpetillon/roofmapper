@@ -254,7 +254,7 @@ function loadAndDisplayNewBuilding() {
                         console.log("Building " + building.type + "/" + building.id + " is at version " + version +
                             ", was expecting version " + building.version + ". Skipping.");
                         _loadingStatus.removeSystem('load-building');
-                        markBuildingAsOutdatedAndRelease(building.type, building.id);
+                        invalidateAndReleaseBuilding(building.type, building.id, 'outdated');
                         loadAndDisplayNewBuilding();
                     } else {
                         building.setData($data);
@@ -406,12 +406,12 @@ function removeBuildingInConflict(errorString) {
         loadAndDisplayNewBuilding();
     }
 
-    markBuildingAsOutdatedAndRelease(type, id);
+    invalidateAndReleaseBuilding(type, id, 'outdated');
 }
 
-function markBuildingAsOutdatedAndRelease(buildingType, buildingId, callback) {
-    BuildingService.markAsOutdated(buildingType, buildingId, function() {
-        console.log("building " + buildingType + "/" + buildingId + " marked as outdated");
+function invalidateAndReleaseBuilding(buildingType, buildingId, reason, callback) {
+    BuildingService.invalidate(buildingType, buildingId, reason, function() {
+        console.log("building " + buildingType + "/" + buildingId + " invalidated because of \"" + reason + "\"");
 
         releaseBuilding(buildingType, buildingId, callback);
     });
