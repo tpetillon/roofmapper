@@ -30,7 +30,7 @@ BuildingManager.prototype.getUntaggedBuilding = function(session, callback) {
             FROM ( \
                 SELECT id \
                 FROM buildings \
-                WHERE session_id IS NULL AND outdated = false\
+                WHERE session_id IS NULL AND invalidity IS NULL\
                 LIMIT 1 \
                 FOR UPDATE \
             ) sub \
@@ -143,7 +143,7 @@ BuildingManager.prototype.tagBuildings = function(tagData, changesetId, session,
     });
 };
 
-BuildingManager.prototype.markAsOutdated = function(buildingType, buildingId, callback) {
+BuildingManager.prototype.markAsInvalid = function(buildingType, buildingId, reason, callback) {
     dbPool.connect(function(err, client, done) {
         if (err) {
             callback(503, { message: 'error fetching client from pool: ' + err });
@@ -151,9 +151,9 @@ BuildingManager.prototype.markAsOutdated = function(buildingType, buildingId, ca
         }
 
         var query =
-            'UPDATE buildings SET outdated = true \
+            'UPDATE buildings SET invalidity = $3 \
             WHERE type = $1 AND osm_id = $2::integer';
-        client.query(query, [ buildingType, buildingId ], function(err, result) {
+        client.query(query, [ buildingType, buildingId, reason ], function(err, result) {
             done();
 
             if (err) {
