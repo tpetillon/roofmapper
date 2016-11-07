@@ -13,7 +13,11 @@ var roofMaterials = [
     'glass',
     'tar_paper',
     'eternit',
-    'gravel'
+    'gravel',
+    'grass',
+    'plants',
+    'stone',
+    'thatch'
 ];
 
 var invalidityReasons = [

@@ -38,6 +38,7 @@ L.Icon.Default.imagePath = 'http://cdn.leafletjs.com/leaflet-0.7.3/images';
 $("body").append(require('html!./main.html'));
 $("body").append(require('html!./aboutpopup.html'));
 $("body").append(require('html!./messagepopup.html'));
+$("body").append(require('html!./roofmaterialpopup.html'));
 $("body").append(require('html!./invaliditypopup.html'));
 
 var _localizer = new Localizer(document, [ enMessages, frMessages ]);
@@ -89,14 +90,14 @@ function updateUi() {
         _recenterButton.disable();
     }
     
-    $("#tag-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
+    $(".tag-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
     $("#invalidity-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
     
     $("#upload-changes").prop(
         "disabled",
         loading || !_session.open || (_session.taggedBuildingCount <= 0 && _session.invalidatedBuildingCount <= 0));
     
-    $("#tag-buttons").find("input")
+    $(".tag-buttons").find("input")
         .prop("checked", false)
         .parent().removeClass("active");
     $("#invalidity-buttons").find("input")
@@ -117,12 +118,20 @@ function updateUi() {
             $("#tag-" + roofMaterial)
                 .prop("checked", true)
                 .parent().addClass("active");
+            
+            if (roofMaterial === "glass" || roofMaterial === "grass" ||
+                roofMaterial === "plants" || roofMaterial === "stone" ||
+                roofMaterial === "tar_paper" || roofMaterial === "thatch") {
+                $("#tag-other")
+                    .prop("checked", true)
+                    .parent().addClass("active");
+            }
         }
         
-        $("#tag-buttons").find("input")
+        $(".tag-buttons").find("input")
             .parent().removeClass("disabled")
     } else {
-        $("#tag-buttons").find("input")
+        $(".tag-buttons").find("input")
             .parent().addClass("disabled")
     }
     
@@ -555,13 +564,17 @@ function init() {
     
     _loadingStatus.addListener(updateUi);
     
-    $('input[type=checkbox][name=tag-selection]').change(function() {
+    $('input[name=tag-selection]').change(function() {
         if (defined(_session.currentBuilding)) {
             if (this.value === 'invalid') {
                 $("#invalidity-popup").modal('show');
+            } else if (this.value === 'other') {
+                $("#roof-material-popup").modal('show');
             } else if (this.checked) {
                 var value = this.value === 'undefined' ? undefined : this.value;
                 _session.setBuildingRoofMaterial(_session.currentBuilding, value);
+                
+                $("#roof-material-popup").modal('hide');
             }
             
             updateUi();
@@ -581,6 +594,8 @@ function init() {
     var buildingDisplayed = function() { return defined(_session.currentBuilding); };
     var isNotAtFirstBuilding = function() { return _session.currentIndex > 0; };
     var nextBuildingIsAvailable = function() { return !(_session.currentIndex == _session.buildingCount - 1 && (_session.full || _session.changesetIsFull)); };
+    var roofMaterialPopupIsShown = function() { return $('#roof-material-popup').hasClass('in') };
+    var roofMaterialPopupIsHidden = function() { return !$('#roof-material-popup').hasClass('in') };
     var invalidityPopupIsShown = function() { return $('#invalidity-popup').hasClass('in') };
     var invalidityPopupIsHidden = function() { return !$('#invalidity-popup').hasClass('in') };
 
@@ -590,7 +605,7 @@ function init() {
     var addRoofMaterialKeyboardShortcut = function(key, material) {
         addKeyboardShortcut(
             key,
-            [ isNotLoading, buildingDisplayed, invalidityPopupIsHidden ],
+            [ isNotLoading, buildingDisplayed, roofMaterialPopupIsHidden, invalidityPopupIsHidden ],
             function() { $("#tag-" + material).prop("checked", true).trigger('change'); });
     };
     addRoofMaterialKeyboardShortcut('numzero', 'undefined');
@@ -599,16 +614,33 @@ function init() {
     addRoofMaterialKeyboardShortcut('numthree', 'metal');
     addRoofMaterialKeyboardShortcut('numfour', 'copper');
     addRoofMaterialKeyboardShortcut('numfive', 'concrete');
-    //addRoofMaterialKeyboardShortcut('numsix', 'glass');
-    addRoofMaterialKeyboardShortcut('numsix', 'tar_paper');
-    addRoofMaterialKeyboardShortcut('numseven', 'eternit');
-    addRoofMaterialKeyboardShortcut('numeight', 'gravel');
+    addRoofMaterialKeyboardShortcut('numsix', 'eternit');
+    addRoofMaterialKeyboardShortcut('numseven', 'gravel');
+
+    addKeyboardShortcut(
+            'numeight',
+            [ isNotLoading, buildingDisplayed, roofMaterialPopupIsHidden, invalidityPopupIsHidden ],
+            function() { $("#roof-material-popup").modal('show'); }
+    );
 
     addKeyboardShortcut(
             'numnine',
-            [ isNotLoading, buildingDisplayed, invalidityPopupIsHidden ],
+            [ isNotLoading, buildingDisplayed, roofMaterialPopupIsHidden, invalidityPopupIsHidden ],
             function() { $("#invalidity-popup").modal('show'); }
     );
+
+    var addAdditionalRoofMaterialKeyboardShortcut = function(key, invalidityReason) {
+        addKeyboardShortcut(
+            key,
+            [ isNotLoading, buildingDisplayed, roofMaterialPopupIsShown ],
+            function() { $("#tag-" + invalidityReason).prop("checked", true).trigger('change'); });
+    };
+    addAdditionalRoofMaterialKeyboardShortcut('numzero', 'glass');
+    addAdditionalRoofMaterialKeyboardShortcut('numone', 'grass');
+    addAdditionalRoofMaterialKeyboardShortcut('numtwo', 'plants');
+    addAdditionalRoofMaterialKeyboardShortcut('numthree', 'stone');
+    addAdditionalRoofMaterialKeyboardShortcut('numfour', 'tar_paper');
+    addAdditionalRoofMaterialKeyboardShortcut('numfive', 'thatch');
 
     var addInvalidityKeyboardShortcut = function(key, invalidityReason) {
         addKeyboardShortcut(

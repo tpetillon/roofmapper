@@ -80,7 +80,7 @@ label.tag-button {
     height: 100%;
 }
 
-#invalidity-popup-body {
+.button-popup-body {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -88,7 +88,7 @@ label.tag-button {
     align-items: center;
 }
 
-.invalidity-button {
+.popup-button {
     width: 8em !important;
     height: 8em !important;
     white-space: normal !important;
