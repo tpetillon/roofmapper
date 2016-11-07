@@ -76,6 +76,27 @@ router.post('/:token/buildings/tag', function(req, res, next) {
     });
 });
 
+router.post('/:token/buildings/invalidate', function(req, res, next) {
+    var sessionToken = req.params.token;
+    var invalidationData = req.body.invalidation_data;
+    
+    if (!defined(invalidationData)) {
+        res.status(400).json({ error: "'invalidation_data' parameter absent" });
+        return;
+    }
+    
+    var session = sessionManager.getSession(sessionToken);
+
+    if (!defined(session)) {
+        res.status(400).json({ error: "no active session named " + sessionToken });
+        return;
+    }
+
+    buildingManager.markAllocatedBuildingsAsInvalid(invalidationData, session, function(status, response) {
+        res.status(status).json(response);
+    });
+});
+
 router.put('/:token/buildings/clear', function(req, res, next) {
     var sessionToken = req.params.token;
     var session = sessionManager.getSession(sessionToken);

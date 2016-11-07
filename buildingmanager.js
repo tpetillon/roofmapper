@@ -1,6 +1,7 @@
 'use strict';
 
 var dbPool = require('./dbpool');
+var invalidityReasons = require('./invalidityreasons');
 
 var maxBuildingsPerSession = 1000;
 
@@ -143,7 +144,61 @@ BuildingManager.prototype.tagBuildings = function(tagData, changesetId, session,
     });
 };
 
-BuildingManager.prototype.markAsInvalid = function(buildingType, buildingId, reason, callback) {
+BuildingManager.prototype.markAllocatedBuildingsAsInvalid = function(invalidationData, session, callback) {
+    session.setLastUpdate();
+
+    dbPool.connect(function(err, client, done) {
+        if (err) {
+            callback(503, { message: 'error fetching client from pool: ' + err });
+            return;
+        }
+        
+        var ids = [];
+        var types = [];
+        var invalidityReasons = [];
+        
+        for (var i = 0; i < invalidationData.length; i++) {
+            var data = invalidationData[i];
+            ids.push(data.id);
+            types.push(data.type);
+            invalidityReasons.push(data.invalidity_reason);
+
+            if (invalidityReasons.indexOf(data.invalidity_reason) === -1) {
+                callback(400, {
+                    error: 'invalid invalidity reason for building ' + data.type + '/' + data.id + ': ' + reason
+                });
+                return;
+            }
+        }
+
+        var query =
+            "UPDATE buildings AS b \
+            SET \
+                invalidity = v.invalidity \
+            FROM unnest($1::integer[], $2::building_type[], $3::invalidity_reason[]) AS v (id, type, invalidity) \
+            WHERE b.osm_id = v.id AND b.type = v.type::building_type AND b.session_id = $4::integer";
+        
+        client.query(query, [ ids, types, invalidityReasons, session.id ], function(err, result) {
+            done();
+
+            if (err) {
+                callback(500, { message: 'error running query: ' + err });
+                return;
+            }
+
+            session.allocatedBuildingCount -= result.rowCount;
+
+            callback(200, { message: result.rowCount + ' buildings invalidated' });
+        });
+    });
+};
+
+BuildingManager.prototype.markBuildingAsInvalid = function(buildingType, buildingId, reason, callback) {
+    if (invalidityReasons.indexOf('reason') === -1) {
+        callback(400, { error: 'invalid invalidity reason: ' + reason });
+        return;
+    }
+
     dbPool.connect(function(err, client, done) {
         if (err) {
             callback(503, { message: 'error fetching client from pool: ' + err });
