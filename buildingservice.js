@@ -94,11 +94,12 @@ var BuildingService = {
         });
     },
 
-    invalidate : function(buildingType, buildingId, reason, callback) {
+    invalidateBuildings : function(sessionId, invalidationData, callback) {
         $.ajax({
-            type: 'PUT',
-            url: '/buildings/' + buildingType + '/' + buildingId + '/invalidate',
-            data : { reason : reason }
+            type: 'POST',
+            url: '/sessions/' + sessionId + '/buildings/invalidate',
+            contentType: 'application/json',
+            data: JSON.stringify(invalidationData)
         })
         .done(function() {
             if (defined(callback)) {

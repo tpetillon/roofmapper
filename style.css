@@ -49,9 +49,13 @@ html, body {
     height: 100%;
 }
 
-#tag-buttons > label {
-    width: 10%;
+.tag-button {
     height: 100%;
+    width: 10%;
+    display: inline-block;
+}
+
+label.tag-button {
     white-space: normal;
     padding: 0.2em;
     display: flex;
@@ -74,6 +78,24 @@ html, body {
 
 #building-buttons > div {
     height: 100%;
+}
+
+#invalidity-popup-body {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.invalidity-button {
+    width: 8em !important;
+    height: 8em !important;
+    white-space: normal !important;
+    padding: 0.2em;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 #footer {

@@ -10,6 +10,7 @@ function Session() {
     this._buildings = [];
     this._currentIndex = -1;
     this._taggedBuildingCount = 0;
+    this._invalidatedBuildingCount = 0;
     this._uploadedBuildingCount = 0;
     this._changesetId = undefined;
 }
@@ -62,6 +63,11 @@ Object.defineProperties(Session.prototype, {
             return this._taggedBuildingCount;
         }
     },
+    invalidatedBuildingCount : {
+        get : function() {
+            return this._invalidatedBuildingCount;
+        }
+    },
     uploadedBuildingCount : {
         get : function() {
             return this._uploadedBuildingCount;
@@ -110,6 +116,7 @@ Session.prototype.getCurrentBuilding = function() {
 
 Session.prototype.setBuildingRoofMaterial = function(building, roofMaterial) {
     var previousRoofMaterial = building.roofMaterial;
+    var previousInvalidityReason = building.invalidityReason;
     
     building.roofMaterial = roofMaterial;
     
@@ -117,6 +124,27 @@ Session.prototype.setBuildingRoofMaterial = function(building, roofMaterial) {
         this._taggedBuildingCount++;
     } else if (defined(previousRoofMaterial) && !defined(roofMaterial)) {
         this._taggedBuildingCount--;
+    }
+
+    if (defined(previousInvalidityReason)) {
+        this._invalidatedBuildingCount--;
+    }
+}
+
+Session.prototype.setBuildingInvalidityReason = function(building, invalidityReason) {
+    var previousRoofMaterial = building.roofMaterial;
+    var previousInvalidityReason = building.invalidityReason;
+
+    building.invalidityReason = invalidityReason;
+
+    if (defined(previousRoofMaterial)) {
+        this._taggedBuildingCount--;
+    }
+
+    if (!defined(previousInvalidityReason) && defined(invalidityReason)) {
+        this._invalidatedBuildingCount++;
+    } else if (defined(previousInvalidityReason) && !defined(invalidityReason)) {
+        this._invalidatedBuildingCount--;
     }
 }
 
@@ -163,6 +191,24 @@ Session.prototype.toTagData = function() {
     };
 };
 
+Session.prototype.toInvalidationData = function() {
+    var invalidationData = [];
+
+    this._buildings.forEach(function(building) {
+        if (defined(building.invalidityReason)) {
+            invalidationData.push({
+                type : building.type,
+                id : building.id,
+                invalidity_reason : building.invalidityReason
+            });
+        }
+    });
+    
+    return {
+        invalidation_data : invalidationData
+    };
+};
+
 Session.prototype.removeBuilding = function(type, id) {
     if (this._currentIndex < 0) {
         return;
@@ -196,6 +242,17 @@ Session.prototype.clearTaggedBuildings = function() {
     this._currentIndex = this._buildings.length - 1;
     this._taggedBuildingCount = 0;
     this._uploadedBuildingCount += buildingCountBefore - this._buildings.length;
+};
+
+Session.prototype.clearInvalidatedBuildings = function() {
+    var buildingCountBefore = this._buildings.length;
+    
+    this._buildings = this._buildings.filter(function(building) {
+        return !defined(building.invalidityReason);
+    });
+    
+    this._currentIndex = this._buildings.length - 1;
+    this._invalidatedBuildingCount = 0;
 };
 
 module.exports = Session;

@@ -38,6 +38,7 @@ L.Icon.Default.imagePath = 'http://cdn.leafletjs.com/leaflet-0.7.3/images';
 $("body").append(require('html!./main.html'));
 $("body").append(require('html!./aboutpopup.html'));
 $("body").append(require('html!./messagepopup.html'));
+$("body").append(require('html!./invaliditypopup.html'));
 
 var _localizer = new Localizer(document, [ enMessages, frMessages ]);
 var _map = undefined;
@@ -89,18 +90,34 @@ function updateUi() {
     }
     
     $("#tag-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
+    $("#invalidity-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
     
-    $("#upload-changes").prop("disabled", loading || !_session.open || _session.taggedBuildingCount <= 0);
+    $("#upload-changes").prop(
+        "disabled",
+        loading || !_session.open || (_session.taggedBuildingCount <= 0 && _session.invalidatedBuildingCount <= 0));
     
     $("#tag-buttons").find("input")
         .prop("checked", false)
         .parent().removeClass("active");
+    $("#invalidity-buttons").find("input")
+        .prop("checked", false)
+        .parent().removeClass("active");
     
     if (defined(_session.currentBuilding)) {
-        var roofMaterial = _session.currentBuilding.roofMaterial;
-        $("#tag-" + roofMaterial)
-            .prop("checked", true)
-            .parent().addClass("active");
+        var invalidityReason = _session.currentBuilding.invalidityReason;
+        if (defined(invalidityReason)) {
+            $("#tag-invalid")
+                .prop("checked", true)
+                .parent().addClass("active");
+            $("#invalidity-" + invalidityReason)
+                .prop("checked", true)
+                .parent().addClass("active");
+        } else {
+            var roofMaterial = _session.currentBuilding.roofMaterial;
+            $("#tag-" + roofMaterial)
+                .prop("checked", true)
+                .parent().addClass("active");
+        }
         
         $("#tag-buttons").find("input")
             .parent().removeClass("disabled")
@@ -116,7 +133,7 @@ function updateUi() {
         .attr('l10n', 'n-buildings-uploaded')
         .attr('l10n-params', JSON.stringify({ count: _session.uploadedBuildingCount }));
 
-    if (_session.taggedBuildingCount > 0) {
+    if (_session.taggedBuildingCount > 0 || _session.invalidatedBuildingCount > 0) {
         window.addEventListener('beforeunload', confirmQuit);
     } else {
         window.removeEventListener('beforeunload', confirmQuit)
@@ -254,7 +271,7 @@ function loadAndDisplayNewBuilding() {
                         console.log("Building " + building.type + "/" + building.id + " is at version " + version +
                             ", was expecting version " + building.version + ". Skipping.");
                         _loadingStatus.removeSystem('load-building');
-                        invalidateAndReleaseBuilding(building.type, building.id, 'outdated');
+                        invalidateBuilding(building.type, building.id, 'outdated');
                         loadAndDisplayNewBuilding();
                     } else {
                         building.setData($data);
@@ -298,13 +315,6 @@ function displayNextBuilding() {
     }
 }
 
-function clearTaggedBuildings() {
-    _session.clearTaggedBuildings();
-    var building = _session.getCurrentBuilding();
-    displayBuildingPolygon(building);
-    updateUi();
-}
-
 document.getElementById('previous-building').onclick = displayPreviousBuilding;
 document.getElementById('next-building').onclick = displayNextBuilding;
 
@@ -330,20 +340,31 @@ function createChangeset(callback) {
             console.log("Changeset " + changesetId + " created");
             _session.changesetId = changesetId;
             
-            callback();
             _loadingStatus.removeSystem('changeset-creation');
+            
+            if (callback) {
+                callback();
+            }
         }
     });
 }
 
-function uploadChanges() {
+function uploadTags(callback) {
+    if (_session.taggedBuildingCount === 0) {
+        if (callback) {
+            callback();
+        }
+        return;
+    }
+
     if (!defined(_session.changesetId)) {
+        createChangeset(function () { uploadTags(callback); });
         return;
     }
     
-    var changeData = _session.toOsmChange();
-    
     _loadingStatus.addSystem('changes-upload');
+
+    var changeData = _session.toOsmChange();
     
     var url = '/api/0.6/changeset/' + _session.changesetId + '/upload';
     _api.requestWithData(url, 'POST', changeData, function(error, response) {
@@ -355,33 +376,74 @@ function uploadChanges() {
                     // The changeset #id was closed at #closed_at.
                     console.log("The changeset " + _session.changesetId +
                         " has been closed, creating a new one.");
-                    createChangeset(uploadChanges);
+                    createChangeset(function() { uploadTags(callback); });
                 } else if (error.responseText.match(/Version mismatch/)) {
                     // Version mismatch: Provided #ver_client, server had: #ver_serv of [Way|Relation] #id
                     removeBuildingInConflict(error.responseText);
+                    
+                    _loadingStatus.removeSystem('changes-upload');
                 }
             }
-            
-            _loadingStatus.removeSystem('changes-upload');
         } else {
             console.log("Changes uploaded to OSM server");
             
             BuildingService.tagBuildings(_session.id, _session.toTagData(), function(error) {
                 _loadingStatus.removeSystem('changes-upload');
-                
+
                 if (defined(error)) {
                     console.error("Could not upload tags to building service: " + error.responseText);
                 } else {
                     console.log("Tags uploaded to building service");
-                    showMessage("changes-uploaded-to-osm");
                 }
 
                 _session.clearTaggedBuildings();
                 destroyBuildingPolygon();
-                loadAndDisplayNewBuilding();
+
+                if (callback) {
+                    callback();
+                }
             });
         }
     });
+}
+
+function uploadInvalidationData(callback) {
+    if (_session.invalidatedBuildingCount === 0) {
+        if (defined(callback)) {
+            callback();
+        }
+        return;
+    }
+
+    _loadingStatus.addSystem('invalidation-data-upload');
+    
+    BuildingService.invalidateBuildings(_session.id, _session.toInvalidationData(), function(error) {
+        _loadingStatus.removeSystem('invalidation-data-upload');
+
+        if (defined(error)) {
+            console.error("Could not upload invalidity reasons to building service: " + error.responseText);
+        } else {
+            console.log("Invalidity reasons uploaded to building service");
+            showMessage("changes-uploaded-to-osm");
+        }
+        
+        _session.clearInvalidatedBuildings();
+        destroyBuildingPolygon();
+
+        if (defined(callback)) {
+            callback();
+        }
+    });
+}
+
+function uploadChanges() {
+    if (_session.taggedBuildingCount > 0) {
+        uploadTags(function() {
+            uploadInvalidationData(loadAndDisplayNewBuilding);
+        })
+    } else {
+        uploadInvalidationData(loadAndDisplayNewBuilding);        
+    }
 }
 
 function removeBuildingInConflict(errorString) {
@@ -406,14 +468,20 @@ function removeBuildingInConflict(errorString) {
         loadAndDisplayNewBuilding();
     }
 
-    invalidateAndReleaseBuilding(type, id, 'outdated');
+    invalidateBuilding(type, id, 'outdated');
 }
 
-function invalidateAndReleaseBuilding(buildingType, buildingId, reason, callback) {
-    BuildingService.invalidate(buildingType, buildingId, reason, function() {
-        console.log("building " + buildingType + "/" + buildingId + " invalidated because of \"" + reason + "\"");
+function invalidateBuilding(buildingType, buildingId, reason, callback) {
+    var invalidationData = [
+        {
+            type : buildingType,
+            id : buildingId,
+            invalidation_reason : reason
+        }
+    ];
 
-        releaseBuilding(buildingType, buildingId, callback);
+    BuildingService.invalidate(_session.id, invalidationData, function() {
+        console.log("building " + buildingType + "/" + buildingId + " invalidated because of \"" + reason + "\"");
     });
 }
 
@@ -429,11 +497,7 @@ function releaseBuilding(buildingType, buildingId, callback) {
 }
 
 document.getElementById('upload-changes').onclick = function() {
-    if (!defined(_session.changesetId)) {
-        createChangeset(uploadChanges);
-    } else {
-        uploadChanges();
-    }
+    uploadChanges();
 };
 
 function showMessage(messageKey) {
@@ -491,12 +555,25 @@ function init() {
     
     _loadingStatus.addListener(updateUi);
     
-    $('input[type=radio][name=tag-selection]').change(function() {
+    $('input[type=checkbox][name=tag-selection]').change(function() {
         if (defined(_session.currentBuilding)) {
-            var value = this.value === 'undefined' ? undefined : this.value;
-            _session.setBuildingRoofMaterial(_session.currentBuilding, value);
+            if (this.value === 'invalid') {
+                $("#invalidity-popup").modal('show');
+            } else if (this.checked) {
+                var value = this.value === 'undefined' ? undefined : this.value;
+                _session.setBuildingRoofMaterial(_session.currentBuilding, value);
+            }
+            
             updateUi();
         }
+    });
+    $('input[type=radio][name=invalidity-selection]').change(function() {
+        if (defined(_session.currentBuilding)) {
+            _session.setBuildingInvalidityReason(_session.currentBuilding, this.value);
+            updateUi();
+        }
+
+        $("#invalidity-popup").modal('hide');
     });
     
     var sessionOpened = function() { return _session.open; };
@@ -504,11 +581,17 @@ function init() {
     var buildingDisplayed = function() { return defined(_session.currentBuilding); };
     var isNotAtFirstBuilding = function() { return _session.currentIndex > 0; };
     var nextBuildingIsAvailable = function() { return !(_session.currentIndex == _session.buildingCount - 1 && (_session.full || _session.changesetIsFull)); };
+    var invalidityPopupIsShown = function() { return $('#invalidity-popup').hasClass('in') };
+    var invalidityPopupIsHidden = function() { return !$('#invalidity-popup').hasClass('in') };
+
     addKeyboardShortcut('backspace', [ isNotLoading, isNotAtFirstBuilding ], displayPreviousBuilding);
     addKeyboardShortcut('space', [ isNotLoading, sessionOpened, nextBuildingIsAvailable ], displayNextBuilding);
     
     var addRoofMaterialKeyboardShortcut = function(key, material) {
-        addKeyboardShortcut(key, [ isNotLoading, buildingDisplayed ], function() { $("#tag-" + material).prop("checked", true).trigger('change'); });
+        addKeyboardShortcut(
+            key,
+            [ isNotLoading, buildingDisplayed, invalidityPopupIsHidden ],
+            function() { $("#tag-" + material).prop("checked", true).trigger('change'); });
     };
     addRoofMaterialKeyboardShortcut('numzero', 'undefined');
     addRoofMaterialKeyboardShortcut('numone', 'roof_tiles');
@@ -516,10 +599,27 @@ function init() {
     addRoofMaterialKeyboardShortcut('numthree', 'metal');
     addRoofMaterialKeyboardShortcut('numfour', 'copper');
     addRoofMaterialKeyboardShortcut('numfive', 'concrete');
-    addRoofMaterialKeyboardShortcut('numsix', 'glass');
-    addRoofMaterialKeyboardShortcut('numseven', 'tar_paper');
-    addRoofMaterialKeyboardShortcut('numeight', 'eternit');
-    addRoofMaterialKeyboardShortcut('numnine', 'gravel');
+    //addRoofMaterialKeyboardShortcut('numsix', 'glass');
+    addRoofMaterialKeyboardShortcut('numsix', 'tar_paper');
+    addRoofMaterialKeyboardShortcut('numseven', 'eternit');
+    addRoofMaterialKeyboardShortcut('numeight', 'gravel');
+
+    addKeyboardShortcut(
+            'numnine',
+            [ isNotLoading, buildingDisplayed, invalidityPopupIsHidden ],
+            function() { $("#invalidity-popup").modal('show'); }
+    );
+
+    var addInvalidityKeyboardShortcut = function(key, invalidityReason) {
+        addKeyboardShortcut(
+            key,
+            [ isNotLoading, buildingDisplayed, invalidityPopupIsShown ],
+            function() { $("#invalidity-" + invalidityReason).prop("checked", true).trigger('change'); });
+    };
+    addInvalidityKeyboardShortcut('numzero', 'multiple_materials');
+    addInvalidityKeyboardShortcut('numone', 'multiple_buildings');
+    addInvalidityKeyboardShortcut('numtwo', 'building_fraction');
+    addInvalidityKeyboardShortcut('numthree', 'not_a_building');
     
     updateConnectionStatusDisplay();
     updateUi();

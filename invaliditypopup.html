@@ -1,0 +1,21 @@
+<div class="modal fade" id="invalidity-popup" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="invalidity-popup-label" l10n="invalidity-selection" />
+      </div>
+      <div class="modal-body" id="invalidity-popup-body">
+        <div class="btn-group" data-toggle="buttons" id="invalidity-buttons">
+            <label class="btn btn-warning invalidity-button"><input type="radio" name="invalidity-selection" id="invalidity-multiple_materials" value="multiple_materials" autocomplete="off" /><span l10n="multiple_materials" /></label>
+            <label class="btn btn-warning invalidity-button"><input type="radio" name="invalidity-selection" id="invalidity-multiple_buildings" value="multiple_buildings" autocomplete="off" /><span l10n="multiple_buildings" /></label>
+            <label class="btn btn-warning invalidity-button"><input type="radio" name="invalidity-selection" id="invalidity-building_fraction" value="building_fraction" autocomplete="off" /><span l10n="building_fraction" /></label>
+            <label class="btn btn-warning invalidity-button"><input type="radio" name="invalidity-selection" id="invalidity-not_a_building" value="not_a_building" autocomplete="off" /><span l10n="not_a_building" /></label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" l10n="cancel" />
+      </div>
+    </div>
+  </div>
+</div>

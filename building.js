@@ -16,6 +16,14 @@ var roofMaterials = [
     'gravel'
 ];
 
+var invalidityReasons = [
+    //'outdated',
+    'multiple_materials',
+    'multiple_buildings',
+    'building_fraction',
+    'not_a_building'
+];
+
 function Building(type, id, version) {
     this._type = type;
     this._id = id;
@@ -26,6 +34,7 @@ function Building(type, id, version) {
     
     this._polygon = undefined;
     this._roofMaterial = undefined;
+    this._invalidityReason = undefined;
 }
 
 Object.defineProperties(Building.prototype, {
@@ -56,8 +65,22 @@ Object.defineProperties(Building.prototype, {
         set : function(material) {
             if (!defined(material) || roofMaterials.indexOf(material) != -1) {
                 this._roofMaterial = material;
+                this._invalidityReason = undefined;
             } else {
                 throw "Invalid roof material: " + material;
+            }
+        }
+    },
+    invalidityReason : {
+        get : function() {
+            return this._invalidityReason;
+        },
+        set : function(reason) {
+            if (!defined(reason) || invalidityReasons.indexOf(reason) != -1) {
+                this._invalidityReason = reason;
+                this._roofMaterial = undefined;
+            } else {
+                throw "Invalid invalidity reason: " + reason;
             }
         }
     }
