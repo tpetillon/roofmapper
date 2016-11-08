@@ -8,6 +8,47 @@ var maxBuildingsPerSession = 1000;
 function BuildingManager() {
 }
 
+BuildingManager.prototype.getBuilding = function(type, id, callback) {
+    dbPool.connect(function(err, client, done) {
+        if (err) {
+            callback(503, { error: 'error fetching client from pool: ' + err });
+            return;
+        }
+
+        var query =
+            'SELECT \
+            type, osm_id, version, roof_material, changeset_id, invalidity, \
+            ST_AsGeoJSON(location) AS location \
+            FROM buildings WHERE type = $1 AND osm_id = $2::integer';
+        client.query(query, [ type, id ], function(err, result) {
+            done();
+
+            if (err) {
+                callback(500, { error: 'error running query: ' + err });
+                return;
+            }
+            
+            if (result.rowCount === 0) {
+                callback(404, { error: "building not found" });
+                return;
+            }
+
+            var row = result.rows[0];
+            var building = {
+                type: row.type,
+                id: row.osm_id,
+                location: JSON.parse(row.location),
+                version: row.version,
+                changeset_id: row.changeset_id,
+                roof_material: row.roof_material,
+                invalidity: row.invalidity
+            };
+            
+            callback(200, building);
+        });
+    });
+};
+
 BuildingManager.prototype.getUntaggedBuilding = function(session, callback) {
     session.setLastUpdate();
     
