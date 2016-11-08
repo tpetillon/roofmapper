@@ -92,7 +92,7 @@ router.post('/:token/buildings/invalidate', function(req, res, next) {
         return;
     }
 
-    buildingManager.markAllocatedBuildingsAsInvalid(invalidationData, session, function(status, response) {
+    buildingManager.markBuildingsAsInvalid(invalidationData, session, function(status, response) {
         res.status(status).json(response);
     });
 });

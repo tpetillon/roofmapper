@@ -185,7 +185,7 @@ BuildingManager.prototype.tagBuildings = function(tagData, changesetId, session,
     });
 };
 
-BuildingManager.prototype.markAllocatedBuildingsAsInvalid = function(invalidationData, session, callback) {
+BuildingManager.prototype.markBuildingsAsInvalid = function(invalidationData, session, callback) {
     session.setLastUpdate();
 
     dbPool.connect(function(err, client, done) {
@@ -230,39 +230,6 @@ BuildingManager.prototype.markAllocatedBuildingsAsInvalid = function(invalidatio
             session.allocatedBuildingCount -= result.rowCount;
 
             callback(200, { message: result.rowCount + ' buildings invalidated' });
-        });
-    });
-};
-
-BuildingManager.prototype.markBuildingAsInvalid = function(buildingType, buildingId, reason, callback) {
-    if (invalidityReasons.indexOf('reason') === -1) {
-        callback(400, { error: 'invalid invalidity reason: ' + reason });
-        return;
-    }
-
-    dbPool.connect(function(err, client, done) {
-        if (err) {
-            callback(503, { message: 'error fetching client from pool: ' + err });
-            return;
-        }
-
-        var query =
-            'UPDATE buildings SET invalidity = $3 \
-            WHERE type = $1 AND osm_id = $2::integer';
-        client.query(query, [ buildingType, buildingId, reason ], function(err, result) {
-            done();
-
-            if (err) {
-                callback(500, { error: 'error running query: ' + err });
-                return;
-            }
-            
-            if (result.rowCount === 0) {
-                callback(404, { error: "building " + buildingType + "/" + buildingId + " is not present in database" });
-                return;
-            }
-
-            callback(200, {});
         });
     });
 };
