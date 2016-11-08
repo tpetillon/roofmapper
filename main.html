@@ -43,8 +43,12 @@
             <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-concrete" value="concrete" autocomplete="off" /><span l10n="concrete" /></label>
             <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-eternit" value="eternit" autocomplete="off" /><span l10n="eternit" /></label>
             <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-gravel" value="gravel" autocomplete="off" /><span l10n="gravel" /></label>
-            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-other" value="other" autocomplete="off" /><span l10n="other-material" /></label>
-            <label class="btn btn-warning tag-button"><input type="checkbox" name="tag-selection" id="tag-invalid" value="invalid" autocomplete="off" /><span l10n="mark_as_invalid" /></label>
+            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-other" value="other" autocomplete="off" />
+                <div><span id="tag-other-text" l10n="other-material" /><span id="tag-other-detail-span"><br />(<span id="tag-other-detail-text" />)</span></div>
+            </label>
+            <label class="btn btn-warning tag-button"><input type="checkbox" name="tag-selection" id="tag-invalid" value="invalid" autocomplete="off" />
+                <div><span id="tag-invalid-text" l10n="mark_as_invalid" /><span id="tag-invalid-detail-span"><br />(<span id="tag-invalid-detail-text" />)</span></div>
+            </label>
         </div>
         <div id="building-buttons">
             <button type="button" class="btn btn-default" id="previous-building"><div class="fa fa-chevron-left" aria-hidden="true" /><div l10n="previous-building" /></button><!--

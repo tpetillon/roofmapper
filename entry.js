@@ -103,6 +103,9 @@ function updateUi() {
     $("#invalidity-buttons").find("input")
         .prop("checked", false)
         .parent().removeClass("active");
+
+    $("#tag-other-detail-span").hide();
+    $("#tag-invalid-detail-span").hide();
     
     if (defined(_session.currentBuilding)) {
         var invalidityReason = _session.currentBuilding.invalidityReason;
@@ -113,6 +116,9 @@ function updateUi() {
             $("#invalidity-" + invalidityReason)
                 .prop("checked", true)
                 .parent().addClass("active");
+            
+            $("#tag-invalid-detail-text").attr("l10n", invalidityReason);
+            $("#tag-invalid-detail-span").show();
         } else {
             var roofMaterial = _session.currentBuilding.roofMaterial;
             $("#tag-" + roofMaterial)
@@ -125,14 +131,17 @@ function updateUi() {
                 $("#tag-other")
                     .prop("checked", true)
                     .parent().addClass("active");
+                
+                $("#tag-other-detail-text").attr("l10n", roofMaterial);
+                $("#tag-other-detail-span").show();
             }
         }
         
         $(".tag-buttons").find("input")
-            .parent().removeClass("disabled")
+            .parent().removeClass("disabled");
     } else {
         $(".tag-buttons").find("input")
-            .parent().addClass("disabled")
+            .parent().addClass("disabled");
     }
     
     $("#tagged-building-count")
