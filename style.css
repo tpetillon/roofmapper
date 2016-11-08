@@ -61,6 +61,7 @@ label.tag-button {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
 #building-buttons {
