@@ -41,6 +41,29 @@ $("body").append(require('html!./messagepopup.html'));
 $("body").append(require('html!./roofmaterialpopup.html'));
 $("body").append(require('html!./invaliditypopup.html'));
 
+var roofMaterialL10nKeys = {
+    "roof_tiles" : "tiles",
+    "slate" : "slate",
+    "metal" : "metal",
+    "copper" : "copper",
+    "concrete" : "concrete",
+    "glass" : "glass",
+    "tar_paper" : "tar-paper",
+    "eternit" : "eternit",
+    "gravel" : "gravel",
+    "grass" : "grass",
+    "plants" : "plants",
+    "stone" : "stone",
+    "thatch" : "thatch"
+};
+var invalidityReasonL10nKeys = {
+    "mark_as_invalid" : "mark-as-invalid",
+    "multiple_materials" : "multiple-materials",
+    "multiple_buildings" : "multiple-buildings",
+    "building_fraction" : "building-fraction",
+    "not_a_building" : "not-a-building",
+};
+
 var _localizer = new Localizer(document, [ enMessages, frMessages ]);
 var _map = undefined;
 var _recenterButton = undefined;
@@ -117,7 +140,7 @@ function updateUi() {
                 .prop("checked", true)
                 .parent().addClass("active");
             
-            $("#tag-invalid-detail-text").attr("l10n", invalidityReason);
+            $("#tag-invalid-detail-text").attr("l10n", invalidityReasonL10nKeys[invalidityReason]);
             $("#tag-invalid-detail-span").show();
         } else {
             var roofMaterial = _session.currentBuilding.roofMaterial;
@@ -132,7 +155,7 @@ function updateUi() {
                     .prop("checked", true)
                     .parent().addClass("active");
                 
-                $("#tag-other-detail-text").attr("l10n", roofMaterial);
+                $("#tag-other-detail-text").attr("l10n", roofMaterialL10nKeys[roofMaterial]);
                 $("#tag-other-detail-span").show();
             }
         }
