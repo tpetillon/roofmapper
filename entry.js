@@ -67,6 +67,7 @@ var invalidityReasonL10nKeys = {
 var _localizer = new Localizer(document, [ enMessages, frMessages ]);
 var _map = undefined;
 var _recenterButton = undefined;
+var _outlineButton = undefined;
 var _buildingPolygon = undefined;
 var _api = new OsmApi();
 var _session = new Session();
@@ -109,8 +110,10 @@ function updateUi() {
     
     if (defined(_session.currentBuilding)) {
         _recenterButton.enable();
+        _outlineButton.enable();
     } else {
         _recenterButton.disable();
+        _outlineButton.disable();
     }
     
     $(".tag-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
@@ -589,10 +592,28 @@ function init() {
     _recenterButton.addTo(_map);
     _recenterButton.disable();
     
+    _outlineButton = L.easyButton(
+        'fa-square-o fa-lg',
+        function(button, map) {
+            if (defined(_buildingPolygon)) {
+                if (map.hasLayer(_buildingPolygon)) {
+                    map.removeLayer(_buildingPolygon);
+                } else {
+                    map.addLayer(_buildingPolygon);
+                }
+            }
+        },
+        '', // title
+        'outline-button' // id
+    );
+    _outlineButton.addTo(_map);
+    _outlineButton.disable();
+    
     // Set the title here and not in the button constructor because when set by
     // the constructor, the title is only displayable when the button is active.
     // With this alternative way its always displayable.
     $("#recenter-button").closest(".leaflet-control").prop("title", "Recenter on building");
+    $("#outline-button").closest(".leaflet-control").prop("title", "Show/hide building outline");
     
     _loadingStatus.addListener(updateUi);
     
