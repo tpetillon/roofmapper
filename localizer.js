@@ -37,29 +37,45 @@ function Localizer(target, messages) {
             var newNodes = mutation.addedNodes;
             if (newNodes !== null) {
                 newNodes.forEach(function(node) {
-                    that.setTextFromAttributesRecursively(node);
+                    that.setTextFromAttributes(node);
                 });
             }
         });   
     });
 
     this._elementObserver.observe(this._target, {
-        childList : true,
-        subtree : true
+        childList : true
     });
 
     this._attributeObserver = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
-            if (mutation.target.hasAttribute('l10n')) {
-                that.setTextFromAttributes(mutation.target);
+            if (!mutation.attributeName.startsWith('l10n')) {
+                return;
             }
+
+            if (!mutation.target.hasAttribute(mutation.attributeName)) {
+                // attribute has just been removed
+                return;
+            }
+
+            var attributeName = mutation.attributeName;
+            
+            if (mutation.attributeName === 'l10n-params') {
+                attributeName = 'l10n';
+            } else {
+                var match = /^l10n-params-(.+)/.exec(mutation.attributeName);
+                if (match !== null) {
+                    attributeName = 'l10n-attr-' + match[0];
+                }
+            }
+
+            that.setTextFromAttribute(mutation.target, attributeName);
         });
     });
 
     this._attributeObserver.observe(this._target, {
         attributes : true,
-        subtree : true,
-        attributeFilter : [ 'l10n', 'l10n-params' ]
+        subtree : true
     });
 
     this.refreshTexts();
@@ -84,9 +100,7 @@ Localizer.prototype.refreshTexts = function() {
 Localizer.prototype.setTextFromAttributesRecursively = function(node) {
     var that = this;
 
-    if (node.hasAttribute && node.hasAttribute('l10n')) {
-        this.setTextFromAttributes(node);
-    }
+    this.setTextFromAttributes(node);
 
     if (node.hasChildNodes()) {
         var children = node.childNodes;
@@ -97,19 +111,63 @@ Localizer.prototype.setTextFromAttributesRecursively = function(node) {
 };
 
 Localizer.prototype.setTextFromAttributes = function(element) {
-    var key = element.getAttribute('l10n');
-    var parameters = {};
+    var attributes = element.attributes;
     
-    if (element.hasAttribute('l10n-params')) {
-        var paramJson = element.getAttribute('l10n-params');
-        try {
-            parameters = JSON.parse(paramJson);
-        } catch (e) {
-            console.error('invalid localization parameter JSON string for element ', element);
+    if (attributes === undefined) {
+        return;
+    }
+
+    for (var i = 0; i < attributes.length; i++) {
+        var attribute = attributes[i];
+        if (attribute.name === 'l10n' || attribute.name.match(/^l10n-attr-(.+)/)) {
+            this.setTextFromAttribute(element, attribute.name);
+        }
+    }
+};
+
+Localizer.prototype.setTextFromAttribute = function(element, attributeName) {
+    var translatedAttribute = undefined;
+    var parametersAttribute = undefined;
+    var parameters = {};
+
+    if (attributeName === 'l10n') {
+        parametersAttribute = 'l10n-params';
+    } else {
+        var match = /^l10n-attr-(.+)/.exec(attributeName);
+        if (match !== null) {
+            translatedAttribute = match[1];
+            parametersAttribute = 'l10n-params-' + translatedAttribute;
+        } else {
+            console.error('wrong element/attribute combination: ', element, attributeName);
+            return;
         }
     }
 
-    element.textContent = this.getText(key, parameters);
+    if (!element.hasAttribute(attributeName)) {
+        console.error('wrong element/attribute combination: ', element, attributeName);
+        return;
+    }
+    
+    var key = element.getAttribute(attributeName);
+    
+    if (element.hasAttribute(parametersAttribute)) {
+        var paramJson = element.getAttribute(parametersAttribute);
+        try {
+            parameters = JSON.parse(paramJson);
+        } catch (e) {
+            console.error(
+                'invalid localization parameter JSON string for element/attribute ',
+                element, attributeName);
+        }
+    }
+
+    var text = this.getText(key, parameters);
+
+    if (translatedAttribute !== undefined) {
+        element.setAttribute(translatedAttribute, text);
+    } else {
+        element.textContent = text;
+    }
 };
 
 Localizer.prototype.getText = function(key, parameters) {

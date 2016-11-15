@@ -612,8 +612,8 @@ function init() {
     // Set the title here and not in the button constructor because when set by
     // the constructor, the title is only displayable when the button is active.
     // With this alternative way its always displayable.
-    $("#recenter-button").closest(".leaflet-control").prop("title", "Recenter on building");
-    $("#outline-button").closest(".leaflet-control").prop("title", "Show/hide building outline");
+    $("#recenter-button").closest(".leaflet-control").attr("l10n-attr-title", "recenter-on-building");
+    $("#outline-button").closest(".leaflet-control").attr("l10n-attr-title", "show-hide-building-outline");
     
     _loadingStatus.addListener(updateUi);
     
