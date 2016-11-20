@@ -586,7 +586,7 @@ function addKeyboardShortcut(key, conditions, action) {
 }
 
 function init() {
-    console.log("RoofMapper " + VERSION + ", environment: " + ENV);
+    console.log('RoofMapper ' + VERSION + ', server: "' + OSM_SERVER_URL + '", auth method: ' + OSM_AUTH_METHOD);
     
     _map = L.map('map');
     

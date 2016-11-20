@@ -5,7 +5,7 @@ var defined = require('./defined');
 var store = require('store');
 
 function BasicAuthOsmApi() {
-    this._url = 'http://master.apis.dev.openstreetmap.org';
+    this._url = OSM_SERVER_URL;
     this._token = store.get('basic_auth_token');
     
     this._username = undefined;

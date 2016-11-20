@@ -5,6 +5,7 @@ var osmAuth = require('osm-auth');
 
 function OAuthOsmApi() {
     this._auth = osmAuth({
+        url: OSM_SERVER_URL,
         oauth_consumer_key: 'aF9d6GToknMHKvU7KLo208XCMaHxPo2EtyMxgLtd',
         oauth_secret: '0QrDWTZMCG0IYFnm92iq045HTzv26p1QzwhhItaV',
         auto: false,
