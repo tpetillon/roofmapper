@@ -689,18 +689,28 @@ function init() {
             function() { $("#invalidity-popup").modal('show'); }
     );
 
+    addKeyboardShortcut(
+        'numzero',
+        [ isNotLoading, buildingDisplayed, roofMaterialPopupIsShown ],
+        function() { $("#roof-material-popup").modal('hide') });
+
     var addAdditionalRoofMaterialKeyboardShortcut = function(key, invalidityReason) {
         addKeyboardShortcut(
             key,
             [ isNotLoading, buildingDisplayed, roofMaterialPopupIsShown ],
             function() { $("#tag-" + invalidityReason).prop("checked", true).trigger('change'); });
     };
-    addAdditionalRoofMaterialKeyboardShortcut('numzero', 'glass');
-    addAdditionalRoofMaterialKeyboardShortcut('numone', 'grass');
-    addAdditionalRoofMaterialKeyboardShortcut('numtwo', 'plants');
-    addAdditionalRoofMaterialKeyboardShortcut('numthree', 'stone');
-    addAdditionalRoofMaterialKeyboardShortcut('numfour', 'tar_paper');
-    addAdditionalRoofMaterialKeyboardShortcut('numfive', 'thatch');
+    addAdditionalRoofMaterialKeyboardShortcut('numone', 'glass');
+    addAdditionalRoofMaterialKeyboardShortcut('numtwo', 'grass');
+    addAdditionalRoofMaterialKeyboardShortcut('numthree', 'plants');
+    addAdditionalRoofMaterialKeyboardShortcut('numfour', 'stone');
+    addAdditionalRoofMaterialKeyboardShortcut('numfive', 'tar_paper');
+    addAdditionalRoofMaterialKeyboardShortcut('numsix', 'thatch');
+
+    addKeyboardShortcut(
+        'numzero',
+        [ isNotLoading, buildingDisplayed, invalidityPopupIsShown ],
+        function() { $("#invalidity-popup").modal('hide') });
 
     var addInvalidityKeyboardShortcut = function(key, invalidityReason) {
         addKeyboardShortcut(
@@ -708,10 +718,10 @@ function init() {
             [ isNotLoading, buildingDisplayed, invalidityPopupIsShown ],
             function() { $("#invalidity-" + invalidityReason).prop("checked", true).trigger('change'); });
     };
-    addInvalidityKeyboardShortcut('numzero', 'multiple_materials');
-    addInvalidityKeyboardShortcut('numone', 'multiple_buildings');
-    addInvalidityKeyboardShortcut('numtwo', 'building_fraction');
-    addInvalidityKeyboardShortcut('numthree', 'not_a_building');
+    addInvalidityKeyboardShortcut('numone', 'multiple_materials');
+    addInvalidityKeyboardShortcut('numtwo', 'multiple_buildings');
+    addInvalidityKeyboardShortcut('numthree', 'building_fraction');
+    addInvalidityKeyboardShortcut('numfour', 'not_a_building');
     
     updateConnectionStatusDisplay();
     updateUi();
