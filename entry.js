@@ -555,6 +555,22 @@ function showMessage(messageKey) {
     $("#message-popup").modal('show');
 }
 
+function recenterMapOnBuilding() {
+    if (defined(_buildingPolygon)) {
+        _map.fitBounds(_buildingPolygon.getBounds());
+    }
+}
+
+function toggleBuildingOutline() {
+    if (defined(_buildingPolygon)) {
+        if (_map.hasLayer(_buildingPolygon)) {
+            _map.removeLayer(_buildingPolygon);
+        } else {
+            _map.addLayer(_buildingPolygon);
+        }
+    }
+}
+
 function addKeyboardShortcut(key, conditions, action) {
     keyboardJS.bind(key, function(e) {
         for (var i = 0; i < conditions.length; i++) {
@@ -581,11 +597,7 @@ function init() {
     
     _recenterButton = L.easyButton(
         'fa-crosshairs fa-lg',
-        function(button, map) {
-            if (defined(_buildingPolygon)) {
-                _map.fitBounds(_buildingPolygon.getBounds());
-            }
-        },
+        recenterMapOnBuilding,
         '', // title
         'recenter-button' // id
     );
@@ -594,15 +606,7 @@ function init() {
     
     _outlineButton = L.easyButton(
         'fa-square-o fa-lg',
-        function(button, map) {
-            if (defined(_buildingPolygon)) {
-                if (map.hasLayer(_buildingPolygon)) {
-                    map.removeLayer(_buildingPolygon);
-                } else {
-                    map.addLayer(_buildingPolygon);
-                }
-            }
-        },
+        toggleBuildingOutline,
         '', // title
         'outline-button' // id
     );
@@ -613,7 +617,7 @@ function init() {
     // the constructor, the title is only displayable when the button is active.
     // With this alternative way its always displayable.
     $("#recenter-button").closest(".leaflet-control").attr("l10n-attr-title", "recenter-on-building");
-    $("#outline-button").closest(".leaflet-control").attr("l10n-attr-title", "show-hide-building-outline");
+    $("#outline-button").closest(".leaflet-control").attr("l10n-attr-title", "toggle-building-outline");
     
     _loadingStatus.addListener(updateUi);
     
@@ -654,6 +658,9 @@ function init() {
 
     addKeyboardShortcut('backspace', [ isNotLoading, isNotAtFirstBuilding ], displayPreviousBuilding);
     addKeyboardShortcut('space', [ isNotLoading, sessionOpened, nextBuildingIsAvailable ], displayNextBuilding);
+
+    addKeyboardShortcut('c', [ buildingDisplayed ], recenterMapOnBuilding);
+    addKeyboardShortcut('b', [ buildingDisplayed ], toggleBuildingOutline);
     
     var addRoofMaterialKeyboardShortcut = function(key, material) {
         addKeyboardShortcut(
