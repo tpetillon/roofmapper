@@ -2,7 +2,7 @@
 
 var $ = require('expose?$!expose?jQuery!jquery');
 var L = require('leaflet');
-var keyboardJS = require('keyboardJS');
+var keyboardJS = require('keyboardjs');
 var defined = require('./defined');
 var OsmApi = require('./osmapi.js');
 var Session = require('./session.js');
