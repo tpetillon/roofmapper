@@ -1,0 +1,10 @@
+{
+    "port" : 3000,
+    "pg" : {
+        "user": "postgres",
+        "database": "roofmapper",
+        "password": "thomas",
+        "host": "localhost",
+        "port": 5432
+    }
+}

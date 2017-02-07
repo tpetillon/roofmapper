@@ -1,5 +1,6 @@
 'use strict';
 
+var config = require('config');
 var pg = require('pg');
 
 // create a config to configure both pooling behavior
@@ -7,11 +8,11 @@ var pg = require('pg');
 // note: all config is optional and the environment variables
 // will be read if the config is not present
 var config = {
-    user: 'postgres', //env var: PGUSER
-    database: 'roofmapper', //env var: PGDATABASE
-    password: 'thomas', //env var: PGPASSWORD
-    host: 'localhost', // Server hosting the postgres database
-    port: 5432, //env var: PGPORT
+    user: config.get('pg.user'),
+    database: config.get('pg.database'),
+    password: config.get('pg.password'),
+    host: config.get('pg.host'), // Server hosting the postgres database
+    port: config.get('pg.port'),
     max: 10, // max number of clients in the pool
     idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
 };
