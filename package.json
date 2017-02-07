@@ -34,6 +34,7 @@
   "devDependencies": {
     "expose-loader": "^0.7.1",
     "html-webpack-plugin": "^2.24.1",
+    "webpack": "^1.9.0",
     "webpack-config": "^6.0.0"
   },
   "config": {
