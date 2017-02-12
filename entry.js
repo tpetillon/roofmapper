@@ -133,7 +133,7 @@ function updateUi() {
     $("#tag-other-detail-span").hide();
     $("#tag-invalid-detail-span").hide();
     
-    if (defined(_session.currentBuilding)) {
+    if (!loading && defined(_session.currentBuilding)) {
         var invalidityReason = _session.currentBuilding.invalidityReason;
         if (defined(invalidityReason)) {
             $("#tag-invalid")
