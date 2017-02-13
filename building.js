@@ -103,7 +103,7 @@ Building.prototype.setData = function($data) {
         for (var i = 0; i < relation.outer.length; i++) {
             polygons.push([relation.outer[i]].concat(relation.inner));
         }
-        this._polygon = L.multiPolygon(polygons);
+        this._polygon = L.polygon(polygons);
         this._members = relation.members;
         this._tags = extractTags($data.children("osm").children("relation"));
     } else {
