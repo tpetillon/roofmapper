@@ -3,7 +3,7 @@
 var defined = require('./defined');
 
 const MAX_SESSION_SIZE =  1000;
-const MAX_CHANGES_PER_CHANGESET = 50000;
+const MAX_CHANGES_PER_CHANGESET = 10000;
 
 function Session() {
     this._sessionId = undefined;
