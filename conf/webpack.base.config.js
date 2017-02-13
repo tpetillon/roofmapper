@@ -21,7 +21,7 @@ module.exports = new Config().merge({
     },
     plugins: [
         new webpack.DefinePlugin({
-            VERSION : JSON.stringify(require("../package.json").version),
+            ROOFMAPPER_VERSION : JSON.stringify(require("../package.json").version),
             OSM_SERVER_URL : JSON.stringify(process.env.npm_package_config_osm_server_url),
             OSM_AUTH_METHOD : JSON.stringify(process.env.npm_package_config_osm_auth_method)
         }),

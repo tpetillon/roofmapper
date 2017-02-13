@@ -367,7 +367,7 @@ function createChangeset(callback) {
     var changesetData =
         '<osm>' +
         '<changeset>' +
-        '<tag k="created_by" v="RoofMapper ' + VERSION + '"/>' +
+        '<tag k="created_by" v="RoofMapper ' + ROOFMAPPER_VERSION + '"/>' +
         '<tag k="comment" v="Add building roof:material data from imagery"/>' +
         '<tag k="source" v="Bing"/>' +
         '</changeset>' +
@@ -587,7 +587,9 @@ function addKeyboardShortcut(key, conditions, action) {
 }
 
 function init() {
-    console.log('RoofMapper ' + VERSION + ', server: "' + OSM_SERVER_URL + '", auth method: ' + OSM_AUTH_METHOD);
+    console.log('RoofMapper ' + ROOFMAPPER_VERSION + ', server: "' + OSM_SERVER_URL + '", auth method: ' + OSM_AUTH_METHOD);
+
+    $('#roofmapper-version').text(ROOFMAPPER_VERSION);
     
     _map = L.map('map');
     
