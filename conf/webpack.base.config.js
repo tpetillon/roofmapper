@@ -1,6 +1,7 @@
 var webpack = require('webpack');
 var Config = require('webpack-config').Config;
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+var FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 var GlobalizePlugin = require('globalize-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -34,6 +35,7 @@ module.exports = new Config().merge({
         new HtmlWebpackPlugin({
             title: 'RoofMapper'
         }),
+        new FaviconsWebpackPlugin('./favicon.png'),
         new CopyWebpackPlugin([
             { from: 'land.html' }
         ])
