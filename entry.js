@@ -747,6 +747,14 @@ function init() {
     if (!_api.authenticated) {
         $("#help-popup").modal('show');
     }
+
+    var toggleHelp = function() {
+        $("#help-popup").modal('toggle');
+    };
+    addKeyboardShortcut('h', [], toggleHelp);
+    addKeyboardShortcut('questionmark', [], toggleHelp);
+    // hack for French keyboards, as KeyboardJS only support US layout
+    addKeyboardShortcut('shift + comma', [], toggleHelp);
 }
 
 init();
