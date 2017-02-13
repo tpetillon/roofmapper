@@ -36,6 +36,7 @@ require("font-awesome-webpack");
 L.Icon.Default.imagePath = 'http://cdn.leafletjs.com/leaflet-0.7.3/images';
 
 $("body").append(require('html!./main.html'));
+$("body").append(require('html!./helppopup.html'));
 $("body").append(require('html!./aboutpopup.html'));
 $("body").append(require('html!./messagepopup.html'));
 $("body").append(require('html!./roofmaterialpopup.html'));
@@ -742,7 +743,7 @@ function init() {
     })
     
     if (!_api.authenticated) {
-        $("#about-popup").modal('show');
+        $("#help-popup").modal('show');
     }
 }
 
