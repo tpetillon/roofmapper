@@ -18,9 +18,8 @@
   },
   "author": "Thomas Petillon <tpetillon@gmail.com>",
   "license": "MIT",
-  "repository" :
-  {
-    "type" : "git",
-    "url" : "https://github.com/tpetillon/roofmapper-server.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tpetillon/roofmapper-server.git"
   }
 }
