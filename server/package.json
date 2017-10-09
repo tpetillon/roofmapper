@@ -14,7 +14,8 @@
     "morgan": "~1.7.0",
     "node-schedule": "^1.1.1",
     "node-uuid": "^1.4.7",
-    "pg": "^6.1.0"
+    "pg": "^6.1.0",
+    "xml2js": "^0.4.19"
   },
   "author": "Thomas Petillon <tpetillon@gmail.com>",
   "license": "MIT",

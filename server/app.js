@@ -8,8 +8,10 @@ var bodyParser = require('body-parser');
 
 var sessionRoutes = require('./routes/sessions');
 var buildingRoutes = require('./routes/buildings');
+var statsRoutes = require('./routes/stats');
 
-var sessionManager = require('./sessionmanager.js');
+var sessionManager = require('./sessionmanager');
+var statsManager = require('./statsmanager');
 
 var app = express();
 
@@ -21,6 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/sessions', sessionRoutes);
 app.use('/buildings', buildingRoutes);
+app.use('/stats', statsRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -55,5 +58,8 @@ app.use(function(err, req, res, next) {
 
 sessionManager.closeOpenSessions();
 sessionManager.scheduleSessionClosing();
+
+statsManager.updateUserStats();
+statsManager.scheduleUserStatsUpdate();
 
 module.exports = app;
