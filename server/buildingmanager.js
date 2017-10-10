@@ -2,6 +2,7 @@
 
 var dbPool = require('./dbpool');
 var invalidityReasons = require('./invalidityreasons');
+var statsManager = require('./statsmanager');
 
 var maxBuildingsPerSession = 1000;
 
@@ -178,9 +179,13 @@ BuildingManager.prototype.tagBuildings = function(tagData, changesetId, session,
                 return;
             }
 
-            session.allocatedBuildingCount -= result.rowCount;
+            var taggedBuildingCount = result.rowCount;
 
-            callback(200, { message: result.rowCount + ' buildings tagged' });
+            session.allocatedBuildingCount -= taggedBuildingCount;
+
+            callback(200, { message: taggedBuildingCount + ' buildings tagged' });
+
+            statsManager.incrementTaggedBuildingCount(session.userId, taggedBuildingCount);
         });
     });
 };

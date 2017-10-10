@@ -163,7 +163,7 @@ StatsManager.prototype.updateUserStats = function() {
                     return;
                 }
 
-                that._totalTaggedBuildingCount = totalTagCountResult.rows[0].tag_count;
+                that._totalTaggedBuildingCount = parseInt(totalTagCountResult.rows[0].tag_count);
                 that._userRankings = [];
                 that._rankingByUserId.clear();
 
@@ -235,6 +235,50 @@ StatsManager.prototype.scheduleUserStatsUpdate = function() {
     schedule.scheduleJob(rule, function() {
         that.updateUserStats();
     });
+};
+
+StatsManager.prototype.incrementTaggedBuildingCount = function(userId, increment) {
+    var rankingEntry = this._rankingByUserId.get(userId);
+
+    if (rankingEntry === undefined) {
+        rankingEntry = {
+            id: userId,
+            rank: this._userRankings.length,
+            taggedBuildingCount: increment
+        };
+
+        var that = this;
+
+        getUserName(userId, function(err, userName) {
+            if (err) {
+                console.error('Error while retrieving user name: ' + e);
+                return;
+            }
+
+            rankingEntry.userName = userName;
+            that._usernamesById.set(userId, userName);
+        });
+    } else {
+        rankingEntry.taggedBuildingCount += increment;
+    }
+
+    while (rankingEntry.rank > 0) {
+        var previousRanking = this._userRankings[rankingEntry.rank - 1];
+
+        if (previousRanking.taggedBuildingCount < rankingEntry.taggedBuildingCount) {
+            rankingEntry.rank--;
+            previousRanking.rank++;
+
+            this._userRankings[rankingEntry.rank] = rankingEntry.rank;
+            this._userRankings[previousRanking.rank] = previousRanking.rank;
+        } else {
+            break;
+        }
+    }
+
+    this._totalTaggedBuildingCount += increment;
+
+    console.log('Rankings updated');
 };
 
 var statsManager = new StatsManager();
