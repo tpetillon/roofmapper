@@ -83,7 +83,7 @@ function StatsManager() {
     this._usernamesById = new Map();
 }
 
-StatsManager.prototype.getUserStats = function(callback) {
+StatsManager.prototype.getTopUserStats = function(callback) {
     var userStats = {
         totalTaggedBuildingCount: this._totalTaggedBuildingCount,
         userRankings: []
@@ -95,9 +95,28 @@ StatsManager.prototype.getUserStats = function(callback) {
         userStats.userRankings.push({
             id: rankingEntry.userId,
             name: rankingEntry.userName,
+            rank: rankingEntry.rank + 1,
             taggedBuildingCount: rankingEntry.taggedBuildingCount
         });
     }
+
+    callback(200, userStats);
+};
+
+StatsManager.prototype.getOneUserStats = function(userId, callback) {
+    var rankingEntry = this._rankingByUserId.get(userId);
+
+    if (rankingEntry === undefined) {
+        callback(404);
+        return;
+    }
+
+    var userStats = {
+        id: rankingEntry.userId,
+        name: rankingEntry.userName,
+        rank: rankingEntry.rank + 1,
+        taggedBuildingCount: rankingEntry.taggedBuildingCount
+    };
 
     callback(200, userStats);
 };
@@ -193,6 +212,12 @@ StatsManager.prototype.updateUserStats = function() {
                             return 0;
                         }
                     });
+
+                    for (var i = 0; i < that._userRankings.length; i++) {
+                        var rankingEntry = that._userRankings[i];
+
+                        rankingEntry.rank = i;
+                    }
 
                     console.log('User stats updated successfully');
                 });

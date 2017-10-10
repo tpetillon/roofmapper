@@ -6,9 +6,16 @@ var router = express.Router();
 
 var statsManager = require('../statsmanager');
 
-router.get('/', function(req, res, net) {
+router.get('/top', function(req, res, net) {
+    statsManager.getTopUserStats(function(status, response) {
+        res.status(status).json(response);
+    });
+});
 
-    statsManager.getUserStats(function(status, response) {
+router.get('/users/:id(\\d+)', function(req, res, net) {
+    var userId = parseInt(req.params.id);
+
+    statsManager.getOneUserStats(userId, function(status, response) {
         res.status(status).json(response);
     });
 });
