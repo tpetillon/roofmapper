@@ -56,6 +56,11 @@ function getUserName(userId, callback) {
 
 function getUserNames(userIds, callback) {
     function getUserNameI(i, userNames) {
+        if (i >= userIds.length) {
+            callback(undefined, userNames);
+            return;
+        }
+
         getUserName(userIds[i], function(err, userName) {
             if (err) {
                 console.warn(err);
@@ -63,12 +68,8 @@ function getUserNames(userIds, callback) {
             } else {
                 userNames.push(userName);
             }
-
-            if (i < userIds.length - 1) {
-                getUserNameI(i + 1, userNames);
-            } else {
-                callback(undefined, userNames);
-            }
+            
+            getUserNameI(i + 1, userNames);
         });
     };
 
@@ -76,11 +77,29 @@ function getUserNames(userIds, callback) {
 }
 
 function StatsManager() {
-    this._userStats = undefined;
+    this._totalTaggedBuildingCount = 0;
+    this._userRankings = [];
+    this._rankingByUserId = new Map();
+    this._usernamesById = new Map();
 }
 
 StatsManager.prototype.getUserStats = function(callback) {
-    callback(200, this._userStats);
+    var userStats = {
+        totalTaggedBuildingCount: this._totalTaggedBuildingCount,
+        userRankings: []
+    };
+    
+    for (var i = 0; i < this._userRankings.length && i < maxUserCount; i++) {
+        var rankingEntry = this._userRankings[i];
+
+        userStats.userRankings.push({
+            id: rankingEntry.userId,
+            name: rankingEntry.userName,
+            taggedBuildingCount: rankingEntry.taggedBuildingCount
+        });
+    }
+
+    callback(200, userStats);
 };
 
 StatsManager.prototype.updateUserStats = function() {
@@ -125,29 +144,55 @@ StatsManager.prototype.updateUserStats = function() {
                     return;
                 }
 
-                var userIds = [];
-                for (var i = 0; i < userRankingResult.rowCount && i < maxUserCount; i++) {
-                    userIds.push(userRankingResult.rows[i].user_id);
+                that._totalTaggedBuildingCount = totalTagCountResult.rows[0].tag_count;
+                that._userRankings = [];
+                that._rankingByUserId.clear();
+
+                var missingNameIds = [];
+
+                for (var i = 0; i < userRankingResult.rowCount; i++) {
+                    var row = userRankingResult.rows[i];
+                    var userId = parseInt(row.user_id);
+                    var taggedBuildingCount = parseInt(row.tag_count);
+
+                    var rankingEntry = {
+                        userId: userId,
+                        taggedBuildingCount: taggedBuildingCount
+                    };
+
+                    that._rankingByUserId.set(userId, rankingEntry);
+                    that._userRankings.push(rankingEntry);
+
+                    if (that._usernamesById.has(userId)) {
+                        rankingEntry.userName = that._usernamesById.get(userId);
+                    } else {
+                        missingNameIds.push(userId);
+                    }
                 }
 
-                getUserNames(userIds, function(err, userNames) {
+                getUserNames(missingNameIds, function(err, userNames) {
                     if (err) {
                         console.error('Error while updating user stats:', err);
                         return;
                     }
-            
-                    that._userStats = {
-                        totalTaggedBuildingCount: totalTagCountResult.rows[0].tag_count,
-                        userRanking: []
-                    };
-                    
-                    for (var i = 0; i < userRankingResult.rowCount && i < maxUserCount; i++) {
-                        that._userStats.userRanking.push({
-                            id: userRankingResult.rows[i].user_id,
-                            name: userNames[i],
-                            taggedBuildingCount: userRankingResult.rows[i].tag_count
-                        });
+
+                    for (var i = 0; i < missingNameIds.length; i++) {
+                        var userId = missingNameIds[i];
+                        var userName = userNames[i];
+
+                        that._usernamesById.set(userId, userName);
+                        that._rankingByUserId.get(userId).userName = userName;
                     }
+
+                    that._userRankings.sort(function(a, b) {
+                        if (a.taggedBuildingCount < b.taggedBuildingCount) {
+                            return 1;
+                        } else if (a.taggedBuildingCount > b.taggedBuildingCount) {
+                            return -1;
+                        } else {
+                            return 0;
+                        }
+                    });
 
                     console.log('User stats updated successfully');
                 });
