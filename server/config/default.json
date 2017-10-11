@@ -6,5 +6,8 @@
         "password": "thomas",
         "host": "localhost",
         "port": 5432
+    },
+    "stats" : {
+        "directory" : "E:/Dev/RoofMapper/log"
     }
 }

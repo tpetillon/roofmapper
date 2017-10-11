@@ -7,7 +7,7 @@ var pg = require('pg');
 // and client options
 // note: all config is optional and the environment variables
 // will be read if the config is not present
-var config = {
+var pgConfig = {
     user: config.get('pg.user'),
     database: config.get('pg.database'),
     password: config.get('pg.password'),
@@ -21,7 +21,7 @@ var config = {
 //this initializes a connection pool
 //it will keep idle connections open for a 30 seconds
 //and set a limit of maximum 10 idle clients
-var pool = new pg.Pool(config);
+var pool = new pg.Pool(pgConfig);
 
 pool.on('error', function (err, client) {
     // if an error is encountered by a client while it sits idle in the pool

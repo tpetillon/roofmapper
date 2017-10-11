@@ -61,5 +61,6 @@ sessionManager.scheduleSessionClosing();
 
 statsManager.updateUserStats();
 statsManager.scheduleUserStatsUpdate();
+statsManager.scheduleStatsWritingToDisk();
 
 module.exports = app;

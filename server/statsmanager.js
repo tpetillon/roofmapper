@@ -1,5 +1,8 @@
 'use strict';
 
+var config = require('config');
+var dateTime = require('node-datetime');
+var fs = require('fs');
 var http = require('http');
 var schedule = require('node-schedule');
 var xml2js = require('xml2js');
@@ -281,6 +284,50 @@ StatsManager.prototype.incrementTaggedBuildingCount = function(userId, increment
     this._totalTaggedBuildingCount += increment;
 
     console.log('Rankings updated');
+};
+
+StatsManager.prototype._writeStatsToDisk = function() {
+    var now = dateTime.create();
+    var nowString = now.format('Y-m-d-H-M-S');
+    
+    var statsDirectory = config.get('stats.directory');
+    var fileName = statsDirectory + '/' + nowString + '.csv';
+    var file = fs.createWriteStream(fileName);
+    
+    console.log('Writing stats to', fileName, '...');
+
+    file.on('error', function(error) {
+        console.error('Error while writing stats to disk:', error);
+    });
+
+    file.write('rank,userid,username,count\n');
+
+    for (var i = 0; i < this._userRankings.length; i++) {
+        var rankingEntry = this._userRankings[i];
+
+        var line =
+            (rankingEntry.rank + 1) + ',' +
+            rankingEntry.userId + ',' +
+            (rankingEntry.userName ? '"' + rankingEntry.userName + '"' : '') + ',' +
+            rankingEntry.taggedBuildingCount + '\n';
+
+        file.write(line);
+    }
+
+    file.end();
+
+    console.log('Stats successfully written to', fileName);
+};
+
+StatsManager.prototype.scheduleStatsWritingToDisk = function() {
+    var that = this;
+
+    var rule = new schedule.RecurrenceRule();
+    rule.hour = 0;
+    rule.minute = 0;
+    schedule.scheduleJob(rule, function() {
+        that._writeStatsToDisk();
+    });
 };
 
 var statsManager = new StatsManager();
