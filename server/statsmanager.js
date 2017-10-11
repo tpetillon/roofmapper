@@ -162,45 +162,47 @@ StatsManager.prototype.updateUserStats = function() {
                     console.error('Error while updating user stats:', err);
                     return;
                 }
-
-                that._totalTaggedBuildingCount = parseInt(totalTagCountResult.rows[0].tag_count);
-                that._userRankings = [];
-                that._rankingByUserId.clear();
-
+                
                 var missingNameIds = [];
 
                 for (var i = 0; i < userRankingResult.rowCount; i++) {
                     var row = userRankingResult.rows[i];
                     var userId = parseInt(row.user_id);
-                    var taggedBuildingCount = parseInt(row.tag_count);
 
-                    var rankingEntry = {
-                        userId: userId,
-                        taggedBuildingCount: taggedBuildingCount
-                    };
-
-                    that._rankingByUserId.set(userId, rankingEntry);
-                    that._userRankings.push(rankingEntry);
-
-                    if (that._usernamesById.has(userId)) {
-                        rankingEntry.userName = that._usernamesById.get(userId);
-                    } else {
+                    if (!that._usernamesById.has(userId)) {
                         missingNameIds.push(userId);
                     }
                 }
 
                 getUserNames(missingNameIds, function(err, userNames) {
-                    if (err) {
-                        console.error('Error while updating user stats:', err);
-                        return;
+                    if (!err) {
+                        for (var i = 0; i < missingNameIds.length; i++) {
+                            var userId = missingNameIds[i];
+                            var userName = userNames[i];
+                            
+                            that._usernamesById.set(userId, userName);
+                        }
+                    } else {
+                        console.error('Error while fetching names for user stats:', err);
                     }
+                    
+                    that._totalTaggedBuildingCount = parseInt(totalTagCountResult.rows[0].tag_count);
+                    that._userRankings = [];
+                    that._rankingByUserId.clear();
 
-                    for (var i = 0; i < missingNameIds.length; i++) {
-                        var userId = missingNameIds[i];
-                        var userName = userNames[i];
-
-                        that._usernamesById.set(userId, userName);
-                        that._rankingByUserId.get(userId).userName = userName;
+                    for (var i = 0; i < userRankingResult.rowCount; i++) {
+                        var row = userRankingResult.rows[i];
+                        var userId = parseInt(row.user_id);
+                        var taggedBuildingCount = parseInt(row.tag_count);
+    
+                        var rankingEntry = {
+                            userId: userId,
+                            taggedBuildingCount: taggedBuildingCount,
+                            userName: that._usernamesById.get(userId)
+                        };
+    
+                        that._rankingByUserId.set(userId, rankingEntry);
+                        that._userRankings.push(rankingEntry);
                     }
 
                     that._userRankings.sort(function(a, b) {
