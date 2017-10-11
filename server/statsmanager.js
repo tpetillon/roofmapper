@@ -136,7 +136,7 @@ StatsManager.prototype.updateUserStats = function() {
             "SELECT user_id, count(*) as tag_count \
             FROM buildings \
             INNER JOIN sessions ON buildings.session_id = sessions.id \
-            WHERE session_id IS NOT NULL \
+            WHERE changeset_id IS NOT NULL \
             GROUP BY user_id \
             ORDER BY tag_count DESC";
 
@@ -147,13 +147,13 @@ StatsManager.prototype.updateUserStats = function() {
                 return;
             }
             
-            // TODO It is probably possible to get the total count through
+            // FIXME It is probably possible to get the total count through
             // the first query, discarding the need for the second one.
 
             query =
                 "SELECT count(*) as tag_count \
                 FROM buildings \
-                WHERE session_id IS NOT NULL";
+                WHERE changeset_id IS NOT NULL";
 
             client.query(query, [], function(err, totalTagCountResult) {
                 done();
@@ -185,7 +185,7 @@ StatsManager.prototype.updateUserStats = function() {
                     } else {
                         console.error('Error while fetching names for user stats:', err);
                     }
-                    
+
                     that._totalTaggedBuildingCount = parseInt(totalTagCountResult.rows[0].tag_count);
                     that._userRankings = [];
                     that._rankingByUserId.clear();
