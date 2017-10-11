@@ -37,6 +37,7 @@ L.Icon.Default.imagePath = 'http://cdn.leafletjs.com/leaflet-0.7.3/images';
 
 $("body").append(require('html!./main.html'));
 $("body").append(require('html!./helppopup.html'));
+$("body").append(require('html!./statspopup.html'));
 $("body").append(require('html!./aboutpopup.html'));
 $("body").append(require('html!./messagepopup.html'));
 $("body").append(require('html!./roofmaterialpopup.html'));
@@ -586,6 +587,61 @@ function addKeyboardShortcut(key, conditions, action) {
     });
 }
 
+function refreshStats() {
+    $('#fetching-stats-message').show();
+    $('#stats-contents').hide();
+
+    BuildingService.fetchTopUsersStats(function(error, data) {
+        if (error) {
+            console.error("Stats fetch error: " + error.responseText);
+            $('#stats-contents').text('Error');
+            showMessage('stats-fetch-error', error.responseText);
+            return;
+        }
+        
+        $('#fetching-stats-message').hide();
+        $('#stats-contents').show();
+        
+        $('#total-taggued-building-count').text(data.totalTaggedBuildingCount);
+        
+        $('#user-stats-table-body').empty();
+
+        var selfUserId = parseInt(_api.userId);
+        var foundSelf = false;
+
+        for (var i = 0; i < data.userRankings.length; i++) {
+            var ranking = data.userRankings[i];
+
+            var isSelf = ranking.id === selfUserId;
+
+            $('#user-stats-table-body').append(
+                '<tr' + (isSelf ? ' class="info"' : '') + '>' +
+                    '<td>' + ranking.rank + '</td>' +
+                    '<td>' + ranking.name + '</td>' + 
+                    '<td>' + ranking.taggedBuildingCount + '</td>' + 
+                '</tr>');
+            
+            foundSelf = foundSelf || isSelf;
+        }
+
+        if (_api.authenticated && !foundSelf) {
+            BuildingService.fetchUserStats(selfUserId, function(error, data) {
+                if (error) {
+                    // No error message because this is expected for new users
+                    return;
+                }
+                
+                $('#user-stats-table-body').append(
+                    '<tr class="info">' +
+                        '<td>' + data.rank + '</td>' +
+                        '<td>' + _api.username + '</td>' + // not data.name because server may not have retrieved it
+                        '<td>' + data.taggedBuildingCount + '</td>' + 
+                    '</tr>');
+            });
+        }
+    });
+}
+
 function init() {
     console.log('RoofMapper ' + ROOFMAPPER_VERSION + ', server: "' + OSM_SERVER_URL + '", auth method: ' + OSM_AUTH_METHOD);
 
@@ -731,6 +787,10 @@ function init() {
 
     // avoid a situation where the map is partially loaded
     setTimeout(function() { _map.invalidateSize() }, 1);
+
+    $("#stats-button").click(function() {
+        refreshStats();
+    });
 
     $("#fullscreen-button").click(function() {
         $(document).toggleFullScreen();

@@ -111,6 +111,40 @@ var BuildingService = {
                 callback(xhr);
             }
         });
+    },
+
+    fetchTopUsersStats : function(callback) {
+        $.ajax({
+            type: 'GET',
+            url: '/stats/top'
+        })
+        .done(function(data) {
+            if (defined(callback)) {
+                callback(undefined, data);
+            }
+        })
+        .fail(function(xhr, status, error) {
+            if (defined(callback)) {
+                callback(xhr, undefined);
+            }
+        });
+    },
+
+    fetchUserStats : function(userId, callback) {
+        $.ajax({
+            type: 'GET',
+            url: '/stats/users/' + userId
+        })
+        .done(function(data) {
+            if (defined(callback)) {
+                callback(undefined, data);
+            }
+        })
+        .fail(function(xhr, status, error) {
+            if (defined(callback)) {
+                callback(xhr, undefined);
+            }
+        });
     }
 };
 

@@ -1,0 +1,27 @@
+<div class="modal fade" id="stats-popup" tabindex="-1" role="dialog" aria-labelledby="stats-popup-label">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" l10n-attr-aria-label="close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="stats-popup-label" l10n="statistics" />
+        </div>
+        <div class="modal-body">
+          <div id="fetching-stats-message">
+              <p l10n="fetching-stats" />
+          </div>
+          <div id="stats-contents">
+              <p><span l10n="total-taggued-building-count" /><span id="total-taggued-building-count" /></p>
+              <table class="table table-striped">
+                  <thead>
+                    <tr><th l10n="rank" /><th l10n="user-name" /><th l10n="taggued-building-count" /></tr>
+                  </thead>
+                  <tbody id="user-stats-table-body" />
+              </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" l10n="close" />
+        </div>
+      </div>
+    </div>
+  </div>
