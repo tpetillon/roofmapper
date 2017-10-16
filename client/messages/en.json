@@ -61,6 +61,7 @@
         "rank" : "Rank",
         "user-name" : "Name",
         "taggued-building-count" : "Tagged buildings",
+        "stats-archive" : "Archive",
         "source-code" : "Source code",
         "client-github-repo" : "Client GitHub repository",
         "server-github-repo" : "Server GitHub repository",

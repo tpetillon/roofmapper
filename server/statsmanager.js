@@ -291,7 +291,7 @@ StatsManager.prototype._writeStatsToDisk = function() {
     var nowString = now.format('Y-m-d-H-M-S');
     
     var statsDirectory = config.get('stats.directory');
-    var fileName = statsDirectory + '/' + nowString + '.csv';
+    var fileName = statsDirectory + '/roofmapper-userstats-' + nowString + '.csv';
     var file = fs.createWriteStream(fileName);
     
     console.log('Writing stats to', fileName, '...');
