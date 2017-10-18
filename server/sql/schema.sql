@@ -30,6 +30,15 @@ CREATE INDEX buildings_type_osm_id_index ON buildings (type, osm_id);
 
 SELECT AddGeometryColumn('buildings', 'location', 4326, 'POINT', 2);
 
+-- If updating
+ALTER TABLE buildings RENAME TO buildings_bak;
+ALTER INDEX buildings_type_osm_id_index RENAME TO buildings_type_osm_id_index_bak;
+
+INSERT INTO buildings (type, osm_id, version, roof_material, session_id, changeset_id, invalidity)
+SELECT type, osm_id, version, roof_material, session_id, changeset_id, invalidity FROM buildings_bak
+WHERE session_id IS NOT NULL;
+
+DROP TABLE buildings_bak;
 
 -- Insert CSV in database
 
@@ -43,8 +52,17 @@ CREATE TABLE temp (
 
 COPY temp FROM 'path/to/file.csv' DELIMITERS ',' CSV HEADER;
 
+-- Get pseudo_encrypt function:
+-- https://wiki.postgresql.org/wiki/Pseudo_encrypt
+
+CREATE SEQUENCE seq MAXVALUE 2147483647;
+
+ALTER TABLE temp
+ADD random_index integer DEFAULT (pseudo_encrypt(nextval('seq')::int)) NOT NULL;
+
 INSERT INTO buildings (type, osm_id, version, location)
-SELECT type, id, version, ST_SetSRID(ST_MakePoint(lon, lat) ,4326)
-FROM temp;
+SELECT type, id, version, ST_SetSRID(ST_MakePoint(lon, lat), 4326)
+FROM (SELECT * FROM temp ORDER BY random_index) AS temp -- Shuffle the table!
+ON CONFLICT DO NOTHING;
 
 DROP TABLE temp;
