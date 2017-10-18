@@ -650,7 +650,11 @@ function init() {
     _map = L.map('map');
     
     var bingKey = 'AlCYN3W0pAkcnVgUrS9Jb4Wkmoa_3WCGtD72BGvpzaYxAgjz0VEv5_5OalHYb3k5';
-    L.tileLayer.bing(bingKey).addTo(_map);
+    var bingLayer = L.tileLayer.bing({
+        bingMapsKey: bingKey,
+        maxZoom: 19
+    });
+    bingLayer.addTo(_map);
     
     _map.setView([46.935, 2.780], 7);
     
