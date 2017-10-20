@@ -37,6 +37,7 @@ function Building(type, id, version) {
     this._members = []; // for relations
     
     this._polygon = undefined;
+    this._pictures = undefined;
     this._roofMaterial = undefined;
     this._invalidityReason = undefined;
 }
@@ -55,6 +56,15 @@ Object.defineProperties(Building.prototype, {
     version : {
         get : function() {
             return this._version;
+        }
+    },
+    position : {
+        get : function() {
+            if (defined(this._polygon)) {
+                return this._polygon.getBounds().getCenter();
+            } else {
+                return undefined;
+            }
         }
     },
     polygon : {
@@ -86,6 +96,11 @@ Object.defineProperties(Building.prototype, {
             } else {
                 throw "Invalid invalidity reason: " + reason;
             }
+        }
+    },
+    pictures : {
+        get : function() {
+            return this._pictures;
         }
     }
 });
@@ -201,6 +216,14 @@ function extractTags($object) {
         };
     }).toArray();
 }
+
+Building.prototype.setPictures = function(pictures) {
+    this._pictures = [];
+
+    for (var i = 0; i < pictures.length; i++) {
+        this._pictures.push(pictures[i]);
+    }
+};
 
 Building.prototype.toOsmChange = function(changesetId) {
     if (!defined(this._roofMaterial)) {

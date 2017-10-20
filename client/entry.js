@@ -9,10 +9,12 @@ var Session = require('./session.js');
 var Building = require('./building.js');
 var Session = require('./session.js');
 var BuildingService = require('./buildingservice.js');
+var PictureService = require('./pictureservice.js');
 var LoadingStatus = require('./loadingstatus.js');
 var Localizer = require('./localizer.js');
 var enMessages = require('./messages/en.json');
 var frMessages = require('./messages/fr.json');
+var cameraIconImage = require('./camerabutton.svg');
 
 require("jquery-fullscreen-plugin");
 
@@ -66,11 +68,19 @@ var invalidityReasonL10nKeys = {
     "not_a_building" : "not-a-building",
 };
 
+var _cameraIcon = L.icon({
+    iconUrl: cameraIconImage,
+    iconSize: [ 24, 24 ],
+    iconAnchor: [ 12, 12 ]
+});
+
 var _localizer = new Localizer(document, [ enMessages, frMessages ]);
 var _map = undefined;
 var _recenterButton = undefined;
 var _outlineButton = undefined;
+var _pictureButton = undefined;
 var _buildingPolygon = undefined;
+var _pictureMarkerGroup = undefined;
 var _api = new OsmApi();
 var _session = new Session();
 var _loadingStatus = new LoadingStatus();
@@ -116,6 +126,12 @@ function updateUi() {
     } else {
         _recenterButton.disable();
         _outlineButton.disable();
+    }
+
+    if (!loading && defined(_session.currentBuilding) && !defined(_session.currentBuilding.pictures)) {
+        _pictureButton.enable();
+    } else {
+        _pictureButton.disable();
     }
     
     $(".tag-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
@@ -292,6 +308,56 @@ function displayBuildingPolygon(building) {
     _buildingPolygon = building.polygon;
 }
 
+function destroyPictureMarkers() {
+    if (defined(_pictureMarkerGroup)) {
+        _map.removeLayer(_pictureMarkerGroup);
+        _pictureMarkerGroup = undefined;
+    }
+}
+
+function displayPictureMarkers(building) {
+    destroyPictureMarkers();
+
+    if (!defined(building) ||
+        !defined(building.pictures) || building.pictures.length == 0) {
+        return;
+    }
+
+    _pictureMarkerGroup = L.layerGroup();
+
+    for (var i = 0; i < building.pictures.length; i++) {
+        var pictureData = building.pictures[i];
+        var latitude = pictureData.coordinates.lat;
+        var longitude = pictureData.coordinates.lng;
+
+        var marker = L.marker(
+            [ latitude, longitude ],
+            { icon: _cameraIcon });
+        _pictureMarkerGroup.addLayer(marker);
+
+        var clickCallback = (function(url) {
+            return function (event) {
+                var win = window.open(url, '_blank');
+                win.focus();
+            }
+        })(pictureData.pictureUrl);
+
+        marker.on('click', clickCallback);
+    }
+    
+    _pictureMarkerGroup.addTo(_map);
+}
+
+function hideBuilding() {
+    destroyBuildingPolygon();
+    destroyPictureMarkers();
+}
+
+function displayBuilding(building) {
+    displayBuildingPolygon(building);
+    displayPictureMarkers(building);
+}
+
 function loadAndDisplayNewBuilding() {
     if (_session.full || _session.changesetIsFull) {
         return;
@@ -330,7 +396,7 @@ function loadAndDisplayNewBuilding() {
                         } else {
                             console.log("Displaying building " + building.type + "/" + building.id);
                             _session.addBuilding(building, true);
-                            displayBuildingPolygon(building);
+                            displayBuilding(building);
                             updateUi();
                             _loadingStatus.removeSystem('load-building');
                         }
@@ -345,7 +411,7 @@ function displayPreviousBuilding() {
     if (_session.currentIndex > 0) {
         _session.currentIndex = _session.currentIndex - 1;
         var building = _session.getCurrentBuilding();
-        displayBuildingPolygon(building);
+        displayBuilding(building);
         updateUi();
     }
 }
@@ -354,7 +420,7 @@ function displayNextBuilding() {
     if (_session.currentIndex < _session.buildingCount - 1) {
         _session.currentIndex = _session.currentIndex + 1;
         var building = _session.getCurrentBuilding();
-        displayBuildingPolygon(building);
+        displayBuilding(building);
         updateUi();
     } else {
         loadAndDisplayNewBuilding();
@@ -443,7 +509,7 @@ function uploadTags(callback) {
                 }
 
                 _session.clearTaggedBuildings();
-                destroyBuildingPolygon();
+                hideBuilding();
 
                 if (callback) {
                     callback();
@@ -474,7 +540,7 @@ function uploadInvalidationData(callback) {
         }
         
         _session.clearInvalidatedBuildings();
-        destroyBuildingPolygon();
+        hideBuilding();
 
         if (defined(callback)) {
             callback();
@@ -508,7 +574,7 @@ function removeBuildingInConflict(errorString) {
     
     if (_session.currentIndex >= 0 && _session.currentIndex < _session.buildingCount) {
         var building = _session.getCurrentBuilding();
-        displayBuildingPolygon(building);
+        displayBuilding(building);
         updateUi();
     } else {
         loadAndDisplayNewBuilding();
@@ -571,6 +637,46 @@ function toggleBuildingOutline() {
             _map.addLayer(_buildingPolygon);
         }
     }
+}
+
+function fetchAndDisplayPictures() {
+    var building = _session.getCurrentBuilding();
+
+    if (!defined(building)) {
+        console.error('No building defined for picture fetch');
+        return;
+    }
+
+    var position = building.position;
+    
+    if (!defined(building)) {
+        console.error('Building has no position');
+        return;
+    }
+    
+    console.log('Fetching pictures...');
+    
+    _loadingStatus.addSystem('picture-fetch');
+
+    PictureService.fetchPictures(position.lat, position.lng, function(error, data) {
+        _loadingStatus.removeSystem('picture-fetch');
+
+        if (error) {
+            console.error('Picture fetch error: ' + error.responseText);
+            showMessage('picture-fetch-error', error.responseText);
+            return;
+        }
+
+        console.log('Got ' + data.pictures.length + ' pictures');
+
+        building.setPictures(data.pictures);
+
+        updateUi();
+
+        if (_session.getCurrentBuilding() === building) {
+            displayPictureMarkers(building);
+        }
+    });
 }
 
 function addKeyboardShortcut(key, conditions, action) {
@@ -676,11 +782,21 @@ function init() {
     _outlineButton.addTo(_map);
     _outlineButton.disable();
     
+    _pictureButton = L.easyButton(
+        'fa-camera fa-lg',
+        fetchAndDisplayPictures,
+        '', // title
+        'picture-button' // id
+    );
+    _pictureButton.addTo(_map);
+    _pictureButton.disable();
+    
     // Set the title here and not in the button constructor because when set by
     // the constructor, the title is only displayable when the button is active.
     // With this alternative way its always displayable.
     $("#recenter-button").closest(".leaflet-control").attr("l10n-attr-title", "recenter-on-building");
     $("#outline-button").closest(".leaflet-control").attr("l10n-attr-title", "toggle-building-outline");
+    $("#picture-button").closest(".leaflet-control").attr("l10n-attr-title", "fetch-pictures");
     
     _loadingStatus.addListener(updateUi);
     
@@ -714,6 +830,7 @@ function init() {
     var buildingDisplayed = function() { return defined(_session.currentBuilding); };
     var isNotAtFirstBuilding = function() { return _session.currentIndex > 0; };
     var nextBuildingIsAvailable = function() { return !(_session.currentIndex == _session.buildingCount - 1 && (_session.full || _session.changesetIsFull)); };
+    var buildingHasNoPictures = function() { return defined(_session.currentBuilding) && !defined(_session.currentBuilding.pictures); };
     var roofMaterialPopupIsShown = function() { return $('#roof-material-popup').hasClass('in') };
     var roofMaterialPopupIsHidden = function() { return !$('#roof-material-popup').hasClass('in') };
     var invalidityPopupIsShown = function() { return $('#invalidity-popup').hasClass('in') };
@@ -724,6 +841,7 @@ function init() {
 
     addKeyboardShortcut('c', [ buildingDisplayed ], recenterMapOnBuilding);
     addKeyboardShortcut('b', [ buildingDisplayed ], toggleBuildingOutline);
+    addKeyboardShortcut('p', [ isNotLoading, buildingDisplayed, buildingHasNoPictures ], fetchAndDisplayPictures);
     
     var addRoofMaterialKeyboardShortcut = function(key, material) {
         addKeyboardShortcut(
