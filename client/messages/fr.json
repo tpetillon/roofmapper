@@ -12,7 +12,7 @@
         "send-changes": "Envoyer les modifications",
         "recenter-on-building" : "Recentrer la carte sur le bâtiment",
         "toggle-building-outline" : "Afficher/cacher le contour du bâtiment",
-        "fetch-pictures" : "Chercher des photos des alentours...",
+        "toggle-picture-display" : "Afficher/cacher les photos des alentours",
         "undefined" : "Indéfini",
         "tiles" : "Tuiles",
         "slate" : "Ardoise",

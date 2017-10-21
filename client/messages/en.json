@@ -12,7 +12,7 @@
         "send-changes" : "Send changes",
         "recenter-on-building" : "Recentre map on building",
         "toggle-building-outline" : "Toggle building outline display",
-        "fetch-pictures" : "Fetch photos of the surroundings...",
+        "toggle-picture-display" : "Toggle display of photos of the surroundings",
         "undefined" : "Undefined",
         "tiles" : "Tiles",
         "slate" : "Slate",

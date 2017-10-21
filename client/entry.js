@@ -84,6 +84,7 @@ var _pictureMarkerGroup = undefined;
 var _api = new OsmApi();
 var _session = new Session();
 var _loadingStatus = new LoadingStatus();
+var _fetchingPictures = false;
 
 function logout() {
     if (_session.open) {
@@ -128,7 +129,7 @@ function updateUi() {
         _outlineButton.disable();
     }
 
-    if (!loading && defined(_session.currentBuilding) && !defined(_session.currentBuilding.pictures)) {
+    if (!loading && !_fetchingPictures && defined(_session.currentBuilding)) {
         _pictureButton.enable();
     } else {
         _pictureButton.disable();
@@ -639,44 +640,67 @@ function toggleBuildingOutline() {
     }
 }
 
-function fetchAndDisplayPictures() {
-    var building = _session.getCurrentBuilding();
-
-    if (!defined(building)) {
-        console.error('No building defined for picture fetch');
+function fetchPictures(building, callback) {
+    if (_fetchingPictures) {
+        var error = 'Already fetching pictures';
+        console.error(error);
+        callback(error);
         return;
     }
 
     var position = building.position;
     
-    if (!defined(building)) {
-        console.error('Building has no position');
+    if (!defined(position)) {
+        var error = 'Building has no position';
+        console.error(error);
+        callback(error);
         return;
     }
     
     console.log('Fetching pictures...');
     
-    _loadingStatus.addSystem('picture-fetch');
+    _fetchingPictures = true;
+    
+    updateUi();
 
     PictureService.fetchPictures(position.lat, position.lng, function(error, data) {
-        _loadingStatus.removeSystem('picture-fetch');
+        _fetchingPictures = false;
 
         if (error) {
             console.error('Picture fetch error: ' + error.responseText);
             showMessage('picture-fetch-error', error.responseText);
+            callback(error);
             return;
         }
 
         console.log('Got ' + data.pictures.length + ' pictures');
 
         building.setPictures(data.pictures);
-
+        
         updateUi();
 
-        if (_session.getCurrentBuilding() === building) {
-            displayPictureMarkers(building);
-        }
+        callback(undefined, building);
     });
+}
+
+function togglePictureDisplay() {
+    if (defined(_pictureMarkerGroup)) {
+        destroyPictureMarkers();
+    } else if (defined(_session.currentBuilding)) {
+        if (defined(_session.currentBuilding.pictures)) {
+            displayPictureMarkers(_session.currentBuilding);
+        } else if (!_fetchingPictures) {
+            fetchPictures(_session.currentBuilding, function(error, building) {
+                if (defined(error)) {
+                    return;
+                }
+
+                if (_session.currentBuilding === building) {
+                    displayPictureMarkers(building);
+                }
+            });
+        }
+    }
 }
 
 function addKeyboardShortcut(key, conditions, action) {
@@ -784,7 +808,7 @@ function init() {
     
     _pictureButton = L.easyButton(
         'fa-camera fa-lg',
-        fetchAndDisplayPictures,
+        togglePictureDisplay,
         '', // title
         'picture-button' // id
     );
@@ -796,7 +820,7 @@ function init() {
     // With this alternative way its always displayable.
     $("#recenter-button").closest(".leaflet-control").attr("l10n-attr-title", "recenter-on-building");
     $("#outline-button").closest(".leaflet-control").attr("l10n-attr-title", "toggle-building-outline");
-    $("#picture-button").closest(".leaflet-control").attr("l10n-attr-title", "fetch-pictures");
+    $("#picture-button").closest(".leaflet-control").attr("l10n-attr-title", "toggle-picture-display");
     
     _loadingStatus.addListener(updateUi);
     
@@ -830,7 +854,7 @@ function init() {
     var buildingDisplayed = function() { return defined(_session.currentBuilding); };
     var isNotAtFirstBuilding = function() { return _session.currentIndex > 0; };
     var nextBuildingIsAvailable = function() { return !(_session.currentIndex == _session.buildingCount - 1 && (_session.full || _session.changesetIsFull)); };
-    var buildingHasNoPictures = function() { return defined(_session.currentBuilding) && !defined(_session.currentBuilding.pictures); };
+    var isNotFetchingPictures = function() { return !_fetchingPictures; };
     var roofMaterialPopupIsShown = function() { return $('#roof-material-popup').hasClass('in') };
     var roofMaterialPopupIsHidden = function() { return !$('#roof-material-popup').hasClass('in') };
     var invalidityPopupIsShown = function() { return $('#invalidity-popup').hasClass('in') };
@@ -841,7 +865,7 @@ function init() {
 
     addKeyboardShortcut('c', [ buildingDisplayed ], recenterMapOnBuilding);
     addKeyboardShortcut('b', [ buildingDisplayed ], toggleBuildingOutline);
-    addKeyboardShortcut('p', [ isNotLoading, buildingDisplayed, buildingHasNoPictures ], fetchAndDisplayPictures);
+    addKeyboardShortcut('p', [ isNotLoading, isNotFetchingPictures, buildingDisplayed ], togglePictureDisplay);
     
     var addRoofMaterialKeyboardShortcut = function(key, material) {
         addKeyboardShortcut(
