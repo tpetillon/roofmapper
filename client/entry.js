@@ -71,8 +71,8 @@ var invalidityReasonL10nKeys = {
 
 var _cameraIcon = L.icon({
     iconUrl: cameraIconImage,
-    iconSize: [ 24, 24 ],
-    iconAnchor: [ 12, 12 ]
+    iconSize: [ 30, 30 ],
+    iconAnchor: [ 15, 15 ]
 });
 
 var _localizer = new Localizer(document, [ enMessages, frMessages ]);

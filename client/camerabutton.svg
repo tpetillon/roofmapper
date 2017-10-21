@@ -9,17 +9,17 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="26"
-   height="26"
-   viewBox="0 0 6.8791665 6.8791669"
+   width="30"
+   height="30"
+   viewBox="0 0 7.9374998 7.9375003"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.1 r15371"
-   sodipodi:docname="camera2.svg">
+   sodipodi:docname="camerabutton.svg">
   <defs
      id="defs2">
     <filter
-       style="color-interpolation-filters:sRGB;"
+       style="color-interpolation-filters:sRGB"
        inkscape:label="Drop Shadow"
        id="filter5327">
       <feFlood
@@ -50,6 +50,38 @@
          result="composite2"
          id="feComposite5325" />
     </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Drop Shadow"
+       id="filter6418">
+      <feFlood
+         flood-opacity="0.678431"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood6408" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite6410" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="0.3"
+         result="blur"
+         id="feGaussianBlur6412" />
+      <feOffset
+         dx="0"
+         dy="0"
+         result="offset"
+         id="feOffset6414" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite6416" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -59,7 +91,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="22.4"
-     inkscape:cx="13.308258"
+     inkscape:cx="5.3171866"
      inkscape:cy="14.104717"
      inkscape:document-units="px"
      inkscape:current-layer="g4500"
@@ -90,20 +122,20 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-290.12082)">
+     transform="translate(0,-289.06249)">
     <g
        id="g4500"
        transform="translate(3.1789143e-8,9.046224e-6)">
       <circle
          r="3.3022811"
-         cy="293.56039"
-         cx="3.4395833"
+         cy="293.03122"
+         cx="3.9687498"
          id="path4496"
-         style="fill:#337ab7;fill-opacity:0.98058256;fill-rule:nonzero;stroke:#2e6da4;stroke-width:0.11552719;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;filter:url(#filter5327)" />
+         style="fill:#337ab7;fill-opacity:0.98058256;fill-rule:nonzero;stroke:#2e6da4;stroke-width:0.11552719;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;filter:url(#filter6418)" />
       <path
          style="fill:#ffffff;fill-opacity:0.98058256;stroke-width:0.26458332"
          inkscape:connector-curvature="0"
-         d="m 3.4395783,293.22955 q 0.24607,0 0.42069,0.17462 0.17463,0.17463 0.17463,0.42069 0,0.24606 -0.17463,0.42069 -0.17462,0.17462 -0.42069,0.17462 -0.24606,0 -0.42068,-0.17462 -0.17463,-0.17463 -0.17463,-0.42069 0,-0.24606 0.17463,-0.42069 0.17462,-0.17462 0.42068,-0.17462 z m 1.45521,-0.8599 q 0.21908,0 0.37412,0.15505 0.15505,0.15504 0.15505,0.37412 v 1.85208 q 0,0.21908 -0.15505,0.37412 -0.15504,0.15505 -0.37412,0.15505 h -2.91042 q -0.21907,0 -0.37412,-0.15505 -0.15504,-0.15504 -0.15504,-0.37412 v -1.85208 q 0,-0.21908 0.15504,-0.37412 0.15505,-0.15505 0.37412,-0.15505 h 0.46303 l 0.1053,-0.28099 q 0.0392,-0.10133 0.14367,-0.17462 0.10451,-0.0733 0.21405,-0.0733 h 1.05833 q 0.10954,0 0.21405,0.0733 0.10451,0.0733 0.14367,0.17462 l 0.1053,0.28099 z m -1.45521,2.38125 q 0.38233,0 0.65432,-0.27173 0.27199,-0.27172 0.27172,-0.65431 -2.6e-4,-0.38259 -0.27172,-0.65432 -0.27147,-0.27172 -0.65432,-0.27172 -0.38285,0 -0.65431,0.27172 -0.27146,0.27173 -0.27173,0.65432 -2.6e-4,0.38259 0.27173,0.65431 0.27199,0.27173 0.65431,0.27173 z"
+         d="m 3.968745,292.70038 q 0.24607,0 0.42069,0.17462 0.17463,0.17463 0.17463,0.42069 0,0.24606 -0.17463,0.42069 -0.17462,0.17462 -0.42069,0.17462 -0.24606,0 -0.42068,-0.17462 -0.17463,-0.17463 -0.17463,-0.42069 0,-0.24606 0.17463,-0.42069 0.17462,-0.17462 0.42068,-0.17462 z m 1.45521,-0.8599 q 0.21908,0 0.37412,0.15505 0.15505,0.15504 0.15505,0.37412 v 1.85208 q 0,0.21908 -0.15505,0.37412 -0.15504,0.15505 -0.37412,0.15505 h -2.91042 q -0.21907,0 -0.37412,-0.15505 -0.15504,-0.15504 -0.15504,-0.37412 v -1.85208 q 0,-0.21908 0.15504,-0.37412 0.15505,-0.15505 0.37412,-0.15505 h 0.46303 l 0.1053,-0.28099 q 0.0392,-0.10133 0.14367,-0.17462 0.10451,-0.0733 0.21405,-0.0733 h 1.05833 q 0.10954,0 0.21405,0.0733 0.10451,0.0733 0.14367,0.17462 l 0.1053,0.28099 z m -1.45521,2.38125 q 0.38233,0 0.65432,-0.27173 0.27199,-0.27172 0.27172,-0.65431 -2.6e-4,-0.38259 -0.27172,-0.65432 -0.27147,-0.27172 -0.65432,-0.27172 -0.38285,0 -0.65431,0.27172 -0.27146,0.27173 -0.27173,0.65432 -2.6e-4,0.38259 0.27173,0.65431 0.27199,0.27173 0.65431,0.27173 z"
          id="path4485" />
     </g>
   </g>
