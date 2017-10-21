@@ -104,3 +104,18 @@ label.tag-button {
     margin: 0;
     padding: 0.1em;
 }
+
+#fullscreen-picture {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+    z-index: 2000;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.8);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+    cursor: zoom-out;
+}

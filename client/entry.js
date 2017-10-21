@@ -44,6 +44,7 @@ $("body").append(require('html!./aboutpopup.html'));
 $("body").append(require('html!./messagepopup.html'));
 $("body").append(require('html!./roofmaterialpopup.html'));
 $("body").append(require('html!./invaliditypopup.html'));
+$("body").append(require('html!./fullscreenpicture.html'));
 
 var roofMaterialL10nKeys = {
     "roof_tiles" : "tiles",
@@ -338,8 +339,7 @@ function displayPictureMarkers(building) {
 
         var clickCallback = (function(url) {
             return function (event) {
-                var win = window.open(url, '_blank');
-                win.focus();
+                displayFullscreenPicture(url);
             }
         })(pictureData.pictureUrl);
 
@@ -660,7 +660,7 @@ function fetchPictures(building, callback) {
     console.log('Fetching pictures...');
     
     _fetchingPictures = true;
-    
+
     updateUi();
 
     PictureService.fetchPictures(position.lat, position.lng, function(error, data) {
@@ -701,6 +701,18 @@ function togglePictureDisplay() {
             });
         }
     }
+}
+
+function displayFullscreenPicture(url) {
+    $('#fullscreen-picture')
+        .css('background-image', 'url("' + url + '")')
+        .show();
+}
+
+function hideFullscreenPicture() {
+    $('#fullscreen-picture')
+        .css('background-image', '')
+        .hide();
 }
 
 function addKeyboardShortcut(key, conditions, action) {
@@ -855,17 +867,20 @@ function init() {
     var isNotAtFirstBuilding = function() { return _session.currentIndex > 0; };
     var nextBuildingIsAvailable = function() { return !(_session.currentIndex == _session.buildingCount - 1 && (_session.full || _session.changesetIsFull)); };
     var isNotFetchingPictures = function() { return !_fetchingPictures; };
-    var roofMaterialPopupIsShown = function() { return $('#roof-material-popup').hasClass('in') };
-    var roofMaterialPopupIsHidden = function() { return !$('#roof-material-popup').hasClass('in') };
-    var invalidityPopupIsShown = function() { return $('#invalidity-popup').hasClass('in') };
-    var invalidityPopupIsHidden = function() { return !$('#invalidity-popup').hasClass('in') };
+    var roofMaterialPopupIsShown = function() { return $('#roof-material-popup').hasClass('in'); };
+    var roofMaterialPopupIsHidden = function() { return !$('#roof-material-popup').hasClass('in'); };
+    var invalidityPopupIsShown = function() { return $('#invalidity-popup').hasClass('in'); };
+    var invalidityPopupIsHidden = function() { return !$('#invalidity-popup').hasClass('in'); };
+    var fullscreenPictureIsVisible = function() { return $('#fullscreen-picture').is(':visible'); };
+    var fullscreenPictureIsHidden = function() { return !$('#fullscreen-picture').is(':visible'); };
 
-    addKeyboardShortcut('backspace', [ isNotLoading, isNotAtFirstBuilding ], displayPreviousBuilding);
-    addKeyboardShortcut('space', [ isNotLoading, sessionOpened, nextBuildingIsAvailable ], displayNextBuilding);
+    addKeyboardShortcut('backspace', [ isNotLoading, isNotAtFirstBuilding, fullscreenPictureIsHidden ], displayPreviousBuilding);
+    addKeyboardShortcut('space', [ isNotLoading, sessionOpened, nextBuildingIsAvailable, fullscreenPictureIsHidden ], displayNextBuilding);
 
     addKeyboardShortcut('c', [ buildingDisplayed ], recenterMapOnBuilding);
     addKeyboardShortcut('b', [ buildingDisplayed ], toggleBuildingOutline);
     addKeyboardShortcut('p', [ isNotLoading, isNotFetchingPictures, buildingDisplayed ], togglePictureDisplay);
+    addKeyboardShortcut('escape', [ fullscreenPictureIsVisible ], hideFullscreenPicture);
     
     var addRoofMaterialKeyboardShortcut = function(key, material) {
         addKeyboardShortcut(
@@ -961,6 +976,9 @@ function init() {
     addKeyboardShortcut('questionmark', [], toggleHelp);
     // hack for French keyboards, as KeyboardJS only support US layout
     addKeyboardShortcut('shift + comma', [], toggleHelp);
+
+    hideFullscreenPicture();
+    $('#fullscreen-picture').click(hideFullscreenPicture);
 }
 
 init();
