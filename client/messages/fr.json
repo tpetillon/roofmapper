@@ -48,6 +48,7 @@
                 "one{bâtiment envoyé} ",
                 "other{bâtiments envoyés}}"
         ],
+        "see-on" : "Voir sur {provider}",
         "ok" : "OK",
         "cancel" : "Annuler",
         "close" : "Fermer",

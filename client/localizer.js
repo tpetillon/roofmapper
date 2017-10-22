@@ -188,4 +188,8 @@ Localizer.prototype.getText = function(key, parameters) {
     return text;
 }
 
+Localizer.prototype.formatDate = function(date) {
+    return Globalize.formatDate(date, { datetime: 'medium' });
+}
+
 module.exports = Localizer;

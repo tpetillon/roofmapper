@@ -5,6 +5,12 @@ var FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 var GlobalizePlugin = require('globalize-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
+var cldrData = require("cldr-data");
+var path = require('path');
+
+var supportedLocales = [ 'en', 'fr' ];
+var cldrFiles = [ 'ca-gregorian', 'dateFields', 'numbers' ];
+
 module.exports = new Config().merge({
     entry: "./entry.js",
     output: {
@@ -28,9 +34,20 @@ module.exports = new Config().merge({
         }),
         new GlobalizePlugin({
 			production: false, // error when true, cf. https://github.com/rxaviers/globalize-webpack-plugin/issues/10
-			developmentLocale: "en",
-			supportedLocales: [ "en", "fr" ],
-			messages: "messages/[locale].json"
+			developmentLocale: 'en',
+            supportedLocales: supportedLocales,
+            cldr: function(locale) {
+                // Because Globalize is not used the intended way (that is, it is used in "development" mode ) all
+                // the time. CLDR files for locals that are not the development locale are not provided by default.
+                // To avoid this, the CLDR list is composed here.
+                // For the values, cf. https://github.com/rxaviers/globalize-webpack-plugin/blob/master/util.js
+                return cldrData.entireSupplemental().concat([].concat.apply([], supportedLocales.map(function(supportedLocale) {
+                    return cldrFiles.map(function(mainFile) {
+                        return cldrData(path.join('main', supportedLocale, mainFile));
+                    });
+                })));
+            },
+			messages: 'messages/[locale].json'
         }),
         new HtmlWebpackPlugin({
             title: 'RoofMapper'

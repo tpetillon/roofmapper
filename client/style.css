@@ -119,3 +119,27 @@ label.tag-button {
     background-position: center center;
     cursor: zoom-out;
 }
+
+#photo-data {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    color: white;
+    padding: 1em;
+}
+
+#photo-date {
+    font-size: large;
+}
+
+#photo-copyright {
+    font-size: small;
+}
+
+#photo-copyright a {
+    color: #f0ad4e;
+}
+
+#photo-copyright a:hover {
+    color: #ce9444;
+}

@@ -337,11 +337,11 @@ function displayPictureMarkers(building) {
             { icon: _cameraIcon });
         _pictureMarkerGroup.addLayer(marker);
 
-        var clickCallback = (function(url) {
+        var clickCallback = (function(data) {
             return function (event) {
-                displayFullscreenPicture(url);
+                displayFullscreenPicture(data);
             }
-        })(pictureData.pictureUrl);
+        })(pictureData);
 
         marker.on('click', clickCallback);
     }
@@ -703,10 +703,16 @@ function togglePictureDisplay() {
     }
 }
 
-function displayFullscreenPicture(url) {
+function displayFullscreenPicture(pictureData) {
     $('#fullscreen-picture')
-        .css('background-image', 'url("' + url + '")')
+        .css('background-image', 'url("' + pictureData.pictureUrl + '")')
         .show();
+    $('#photo-author').text(pictureData.author);
+    $('#photo-date').text(_localizer.formatDate(new Date(pictureData.date)));
+    $('#photo-license').text(pictureData.license);
+    $('#photo-provider')
+        .attr('l10n-params', JSON.stringify({ provider: pictureData.provider }))
+        .attr('href', pictureData.detailsUrl);
 }
 
 function hideFullscreenPicture() {

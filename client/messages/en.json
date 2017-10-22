@@ -38,6 +38,7 @@
         "next-building" : "Next building",
         "n-buildings-tagged" : "{count} {count, plural, one{building} other{buildings}} tagged",
         "n-buildings-uploaded" : "{count} {count, plural, one{building} other{buildings}} uploaded",
+        "see-on" : "See on {provider}",
         "ok" : "OK",
         "cancel" : "Cancel",
         "close" : "Close",
