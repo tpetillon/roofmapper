@@ -437,7 +437,7 @@ function createChangeset(callback) {
         '<changeset>' +
         '<tag k="created_by" v="RoofMapper ' + ROOFMAPPER_VERSION + '"/>' +
         '<tag k="comment" v="Add building roof:material data from imagery"/>' +
-        '<tag k="source" v="Bing"/>' +
+        '<tag k="source" v="' + _session.getSourceString() + '"/>' +
         '</changeset>' +
         '</osm>';
     
@@ -704,6 +704,8 @@ function togglePictureDisplay() {
 }
 
 function displayFullscreenPicture(pictureData) {
+    _session.addSource(pictureData.provider);
+
     $('#fullscreen-picture')
         .css('background-image', 'url("' + pictureData.pictureUrl + '")')
         .show();
@@ -803,6 +805,8 @@ function init() {
         maxZoom: 19
     });
     bingLayer.addTo(_map);
+    
+    _session.addSource('Bing');
     
     _map.setView([46.935, 2.780], 7);
     

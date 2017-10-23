@@ -13,6 +13,7 @@ function Session() {
     this._invalidatedBuildingCount = 0;
     this._uploadedBuildingCount = 0;
     this._changesetId = undefined;
+    this._sources = new Set();
 }
 
 Object.defineProperties(Session.prototype, {
@@ -254,5 +255,15 @@ Session.prototype.clearInvalidatedBuildings = function() {
     this._currentIndex = this._buildings.length - 1;
     this._invalidatedBuildingCount = 0;
 };
+
+Session.prototype.addSource = function(source) {
+    if (defined(source)) {
+        this._sources.add(source);
+    }
+}
+
+Session.prototype.getSourceString = function() {
+    return Array.from(this._sources).join(';');
+}
 
 module.exports = Session;
