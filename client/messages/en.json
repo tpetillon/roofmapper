@@ -57,6 +57,7 @@
         "keyboard-shortcuts-space" : "Space: display next building",
         "keyboard-shortcuts-backspace" : "Backspace: display previous building",
         "keyboard-shortcuts-numpad" : "Numpad 0–9: select roof material",
+        "keyboard-shortcuts-l" : "L: Switch map background layer",
         "keyboard-shortcuts-c" : "C: Recentre map on building",
         "keyboard-shortcuts-b" : "B: Toggle building outline display",
         "keyboard-shortcuts-p" : "P: Fetch photos of the surroundings, toggle their display",

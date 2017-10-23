@@ -77,6 +77,8 @@ var _cameraIcon = L.icon({
 
 var _localizer = new Localizer(document, [ enMessages, frMessages ]);
 var _map = undefined;
+var _layers = [];
+var _currentLayer = undefined;
 var _recenterButton = undefined;
 var _outlineButton = undefined;
 var _pictureButton = undefined;
@@ -792,11 +794,22 @@ function refreshStats() {
     });
 }
 
-function init() {
-    console.log('RoofMapper ' + ROOFMAPPER_VERSION + ', server: "' + OSM_SERVER_URL + '", auth method: ' + OSM_AUTH_METHOD);
+function switchLayer() {
+    var currentIndex = _layers.indexOf(_currentLayer);
 
-    $('#roofmapper-version').text(ROOFMAPPER_VERSION);
-    
+    if (currentIndex === -1) {
+        currentIndex = 0;
+    } else {
+        currentIndex = (currentIndex + 1) % _layers.length;
+    }
+
+    _map.removeLayer(_currentLayer);
+
+    _currentLayer = _layers[currentIndex];
+    _map.addLayer(_currentLayer);
+}
+
+function initMap() {
     _map = L.map('map');
     
     var bingKey = 'AlCYN3W0pAkcnVgUrS9Jb4Wkmoa_3WCGtD72BGvpzaYxAgjz0VEv5_5OalHYb3k5';
@@ -804,9 +817,17 @@ function init() {
         bingMapsKey: bingKey,
         maxZoom: 19
     });
+    _layers.push(bingLayer);
     bingLayer.addTo(_map);
-    
+    _currentLayer = bingLayer;
     _session.addSource('Bing');
+
+    var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+	var osmAttrib = '© <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+    var osmLayer = new L.TileLayer(osmUrl, { maxZoom: 19, attribution: osmAttrib });
+    _layers.push(osmLayer);
+
+    L.control.layers({ 'Bing': bingLayer, 'OpenStreetMap': osmLayer }).addTo(_map);
     
     _map.setView([46.935, 2.780], 7);
     
@@ -843,6 +864,14 @@ function init() {
     $("#recenter-button").closest(".leaflet-control").attr("l10n-attr-title", "recenter-on-building");
     $("#outline-button").closest(".leaflet-control").attr("l10n-attr-title", "toggle-building-outline");
     $("#picture-button").closest(".leaflet-control").attr("l10n-attr-title", "toggle-picture-display");
+}
+
+function init() {
+    console.log('RoofMapper ' + ROOFMAPPER_VERSION + ', server: "' + OSM_SERVER_URL + '", auth method: ' + OSM_AUTH_METHOD);
+
+    $('#roofmapper-version').text(ROOFMAPPER_VERSION);
+
+    initMap();
     
     _loadingStatus.addListener(updateUi);
     
@@ -890,6 +919,7 @@ function init() {
     addKeyboardShortcut('c', [ buildingDisplayed ], recenterMapOnBuilding);
     addKeyboardShortcut('b', [ buildingDisplayed ], toggleBuildingOutline);
     addKeyboardShortcut('p', [ isNotLoading, isNotFetchingPictures, buildingDisplayed ], togglePictureDisplay);
+    addKeyboardShortcut('l', [], switchLayer);
     addKeyboardShortcut('escape', [ fullscreenPictureIsVisible ], hideFullscreenPicture);
     
     var addRoofMaterialKeyboardShortcut = function(key, material) {
