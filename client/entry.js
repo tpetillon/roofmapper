@@ -767,7 +767,7 @@ function refreshStats() {
             $('#user-stats-table-body').append(
                 '<tr' + (isSelf ? ' class="info"' : '') + '>' +
                     '<td>' + ranking.rank + '</td>' +
-                    '<td>' + ranking.name + '</td>' + 
+                    '<td><a href="' + _api.url + "/user/" + ranking.name + '">' + ranking.name + '</a></td>' + 
                     '<td>' + ranking.taggedBuildingCount + '</td>' + 
                 '</tr>');
             
