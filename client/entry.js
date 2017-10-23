@@ -828,6 +828,8 @@ function initMap() {
     _layers.push(osmLayer);
 
     L.control.layers({ 'Bing': bingLayer, 'OpenStreetMap': osmLayer }).addTo(_map);
+
+    _map.attributionControl.setPrefix(''); // Remove Leaflet link from attribution
     
     _map.setView([46.935, 2.780], 7);
     
