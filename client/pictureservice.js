@@ -3,7 +3,7 @@
 var $ = require('jquery');
 var defined = require('./defined');
 
-var endPoint = 'http://api-pic4carto.openstreetmap.fr';
+var endPoint = PIC4CARTO_SERVER_URL;
 var radius = 250; // metres
 
 var PictureService = {

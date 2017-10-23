@@ -41,7 +41,8 @@
   },
   "config": {
     "osm_server_url": "https://www.openstreetmap.org",
-    "osm_auth_method": "oauth"
+    "osm_auth_method": "oauth",
+    "pic4carto_server_url" : "http://api-pic4carto.openstreetmap.fr"
   },
   "scripts": {
     "start": "webpack-dev-server --progress --colors --devtool source-map --config conf/webpack.production.config.js",

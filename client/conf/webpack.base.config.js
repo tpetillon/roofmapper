@@ -30,7 +30,8 @@ module.exports = new Config().merge({
         new webpack.DefinePlugin({
             ROOFMAPPER_VERSION : JSON.stringify(require("../package.json").version),
             OSM_SERVER_URL : JSON.stringify(process.env.npm_package_config_osm_server_url),
-            OSM_AUTH_METHOD : JSON.stringify(process.env.npm_package_config_osm_auth_method)
+            OSM_AUTH_METHOD : JSON.stringify(process.env.npm_package_config_osm_auth_method),
+            PIC4CARTO_SERVER_URL : JSON.stringify(process.env.npm_package_config_pic4carto_server_url)
         }),
         new GlobalizePlugin({
 			production: false, // error when true, cf. https://github.com/rxaviers/globalize-webpack-plugin/issues/10
