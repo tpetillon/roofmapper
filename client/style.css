@@ -22,8 +22,24 @@ html, body {
 }
 
 #map {
+    position: relative;
     flex: 1;
     margin: 0;
+}
+
+#location {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 799; /* 1 less than the attribution div */
+    font-size: 11px;
+    color: #333;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 0 5px;
+    margin: 0;
+    cursor: auto;
+    pointer-events: auto;
+    display: none;
 }
 
 #menu-buttons {

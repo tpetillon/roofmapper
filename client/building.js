@@ -37,6 +37,7 @@ function Building(type, id, version) {
     this._members = []; // for relations
     
     this._polygon = undefined;
+    this._locationName = undefined;
     this._pictures = undefined;
     this._roofMaterial = undefined;
     this._invalidityReason = undefined;
@@ -96,6 +97,11 @@ Object.defineProperties(Building.prototype, {
             } else {
                 throw "Invalid invalidity reason: " + reason;
             }
+        }
+    },
+    locationName: {
+        get : function() {
+            return this._locationName;
         }
     },
     pictures : {
@@ -216,6 +222,10 @@ function extractTags($object) {
         };
     }).toArray();
 }
+
+Building.prototype.setLocationName = function(locationName) {
+    this._locationName = locationName;
+};
 
 Building.prototype.setPictures = function(pictures) {
     this._pictures = [];

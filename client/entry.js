@@ -9,6 +9,7 @@ var Session = require('./session.js');
 var Building = require('./building.js');
 var Session = require('./session.js');
 var BuildingService = require('./buildingservice.js');
+var GeocodingService = require('./geocodingservice.js');
 var PictureService = require('./pictureservice.js');
 var LoadingStatus = require('./loadingstatus.js');
 var Localizer = require('./localizer.js');
@@ -319,6 +320,18 @@ function destroyPictureMarkers() {
     }
 }
 
+function hideBuildingLocationName() {
+    $('#location').text('').hide();
+}
+
+function displayBuildingLocationName(building) {
+    if (defined(building.locationName)) {
+        $('#location').text(building.locationName).show();
+    } else {
+        hideBuildingLocationName();
+    }
+}
+
 function displayPictureMarkers(building) {
     destroyPictureMarkers();
 
@@ -353,11 +366,13 @@ function displayPictureMarkers(building) {
 
 function hideBuilding() {
     destroyBuildingPolygon();
+    hideBuildingLocationName();
     destroyPictureMarkers();
 }
 
 function displayBuilding(building) {
     displayBuildingPolygon(building);
+    displayBuildingLocationName(building);
     displayPictureMarkers(building);
 }
 
@@ -402,10 +417,57 @@ function loadAndDisplayNewBuilding() {
                             displayBuilding(building);
                             updateUi();
                             _loadingStatus.removeSystem('load-building');
+
+                            fetchBuildingLocationName(building);
                         }
                     }
                 }
             });
+        }
+    });
+}
+
+function fetchBuildingLocationName(building, callback) {
+    var position = building.position;
+    
+    if (!defined(position)) {
+        var error = 'Building has no position';
+        console.error(error);
+
+        if (defined(callback)) {
+            callback(error);
+        }
+
+        return;
+    }
+    
+    var locale = _localizer.language.locale;
+    
+    console.log('Retrieving building location name...');
+
+    GeocodingService.reverse(position.lat, position.lng, locale, function(error, locationName) {
+        if (defined(error)) {
+            console.error('Could not retrieve building location name: ' + JSON.stringify(error));
+
+            if (defined(callback)) {
+                callback(error);
+            }
+
+            return;
+        }
+
+        console.log('Location retrieved');
+
+        building.setLocationName(locationName);
+
+        if (_session.currentBuilding === building) {
+            displayBuildingLocationName(building);
+        }
+        
+        updateUi();
+
+        if (defined(callback)) {
+            callback(undefined, locationName);
         }
     });
 }
@@ -655,7 +717,11 @@ function fetchPictures(building, callback) {
     if (!defined(position)) {
         var error = 'Building has no position';
         console.error(error);
-        callback(error);
+
+        if (defined(callback)) {
+            callback(error);
+        }
+
         return;
     }
     
@@ -671,7 +737,11 @@ function fetchPictures(building, callback) {
         if (error) {
             console.error('Picture fetch error: ' + error.responseText);
             showMessage('picture-fetch-error', error.responseText);
-            callback(error);
+
+            if (defined(callback)) {
+                callback(error);
+            }
+
             return;
         }
 
@@ -681,7 +751,9 @@ function fetchPictures(building, callback) {
         
         updateUi();
 
-        callback(undefined, building);
+        if (defined(callback)) {
+            callback(undefined, building);
+        }
     });
 }
 

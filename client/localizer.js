@@ -83,6 +83,9 @@ function Localizer(target, messages) {
 
 Object.defineProperties(Localizer.prototype, {
     language : {
+        get: function() {
+            return Globalize.locale();
+        },
         set : function(value) {
             if (this._availableLanguages.has(value)) {
                 Globalize.locale(value);

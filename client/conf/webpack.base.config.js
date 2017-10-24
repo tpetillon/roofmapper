@@ -31,6 +31,8 @@ module.exports = new Config().merge({
             ROOFMAPPER_VERSION : JSON.stringify(require("../package.json").version),
             OSM_SERVER_URL : JSON.stringify(process.env.npm_package_config_osm_server_url),
             OSM_AUTH_METHOD : JSON.stringify(process.env.npm_package_config_osm_auth_method),
+            NOMINATIM_SERVER_URL : JSON.stringify(process.env.npm_package_config_nominatim_server_url),
+            NOMINATIM_ZOOM_LEVEL : JSON.stringify(process.env.npm_package_config_nominatim_zoom_level),
             PIC4CARTO_SERVER_URL : JSON.stringify(process.env.npm_package_config_pic4carto_server_url)
         }),
         new GlobalizePlugin({
