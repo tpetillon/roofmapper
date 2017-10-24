@@ -826,7 +826,7 @@ function refreshStats() {
         $('#fetching-stats-message').hide();
         $('#stats-contents').show();
         
-        $('#total-taggued-building-count').text(data.totalTaggedBuildingCount);
+        $('#total-taggued-building-count').text(_localizer.formatNumber(data.totalTaggedBuildingCount));
         
         $('#user-stats-table-body').empty();
 
@@ -842,7 +842,7 @@ function refreshStats() {
                 '<tr' + (isSelf ? ' class="info"' : '') + '>' +
                     '<td>' + ranking.rank + '</td>' +
                     '<td><a href="' + _api.url + "/user/" + ranking.name + '">' + ranking.name + '</a></td>' + 
-                    '<td>' + ranking.taggedBuildingCount + '</td>' + 
+                    '<td>' + _localizer.formatNumber(ranking.taggedBuildingCount) + '</td>' + 
                 '</tr>');
             
             foundSelf = foundSelf || isSelf;

@@ -191,6 +191,15 @@ Localizer.prototype.getText = function(key, parameters) {
     return text;
 }
 
+// messageformat.js supports giving the type of the parameters, such as
+// number and date, for them to be correctly formatted.
+// However, Globalize does not support this feature correctly.
+// In the mean time those parameters have to be explicitly handled.
+// cf. https://github.com/globalizejs/globalize/pull/653
+Localizer.prototype.formatNumber = function(number) {
+    return Globalize.formatNumber(Number(number), {});
+}
+
 Localizer.prototype.formatDate = function(date) {
     return Globalize.formatDate(date, { datetime: 'medium' });
 }
