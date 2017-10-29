@@ -24,6 +24,8 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.set('view engine', 'pug')
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/sessions', sessionRoutes);
@@ -32,6 +34,13 @@ app.use('/stats', statsRoutes);
 
 app.use('/stats/archive', serveIndex(config.get('stats.directory'), { 'icons': true }));
 app.use('/stats/archive', serveStatic(config.get('stats.directory')));
+
+app.get('/maps', function(req, res) {
+    res.render('maps', {});
+});
+app.use('/maps', serveStatic(config.get('maps.directory')));
+app.use('/maps/archive', serveIndex(config.get('maps.directory'), { 'icons': true }));
+app.use('/maps/archive', serveStatic(config.get('maps.directory')));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

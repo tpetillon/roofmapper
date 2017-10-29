@@ -184,7 +184,7 @@ function addDate(map, position) {
     map.add_layer(dateLayer);
 }
 
-function makeMap(geojson, width, height, outputPaths, callback) {
+function makeMap(geojson, width, height, outputPaths, thumbWidth, thumbHeight, thumbOutputPath, callback) {
     var map = new mapnik.Map(width, height);
     map.load(path.join(__dirname, '../data/francemap.xml'), function(err, map) {
         if (err) {
@@ -210,27 +210,60 @@ function makeMap(geojson, width, height, outputPaths, callback) {
         map.zoomAll();
 
         var image = new mapnik.Image(width, height);
-        map.render(image, function(err, image) {
-            if (err) {
-                callback(err);
+        map.render(image, function(error, image) {
+            if (error) {
+                callback(error);
+                return;
             }
 
-            image.encode('png', function(err, buffer) {
-                if (err) {
-                    callback(err);
+            image.encode('png', function(error, buffer) {
+                if (error) {
+                    callback(error);
+                    return;
                 }
 
                 async.eachSeries(outputPaths, function(outputPath, next) {
-                    fs.writeFile(outputPath, buffer, function(err) {
-                        if (err) {
-                            next(err);
+                    fs.writeFile(outputPath, buffer, function(error) {
+                        if (error) {
+                            next(error);
+                            return;
                         }
                         
                         console.log('Saved map image to', outputPath);
                         next();
                     });
                 }, function done() {
-                    callback();
+                    image.premultiply(function(error, image) {
+                        if (error) {
+                            callback(error);
+                            return;
+                        }
+
+                        var resizeOptions = { scaling_method: mapnik.imageScaling.bilinear };
+                        image.resize(thumbWidth, thumbHeight, resizeOptions, function(error, image) {
+                            if (error) {
+                                callback(error);
+                                return;
+                            }
+
+                            image.encode('jpeg', function(error, buffer) {
+                                if (error) {
+                                    callback(error);
+                                    return;
+                                }
+
+                                fs.writeFile(thumbOutputPath, buffer, function(error) {
+                                    if (error) {
+                                        callback(error);
+                                        return;
+                                    }
+                                    
+                                    console.log('Saved map thumbnail image to', thumbOutputPath);
+                                    callback();
+                                });
+                            });
+                        });
+                    });
                 });
             });
         });
@@ -238,6 +271,8 @@ function makeMap(geojson, width, height, outputPaths, callback) {
 }
 
 function generateMaps(callback) {
+    console.log('Generating maps...');
+
     fetchDataFromDatabase(function(error, cells) {
         if (error) {
             console.error(error);
@@ -250,6 +285,8 @@ function generateMaps(callback) {
 
         var width = config.get('maps.width');
         var height = config.get('maps.height');
+        var thumbWidth = config.get('maps.thumbWidth');
+        var thumbHeight = config.get('maps.thumbHeight');
 
         var outputDir = config.get('maps.directory');
         
@@ -260,7 +297,11 @@ function generateMaps(callback) {
             path.join(outputDir, 'top-latest.png')
         ];
 
-        makeMap(topMaterialGeoJson, width, height, topMaterialOutputPaths, function(error) {
+        makeMap(topMaterialGeoJson,
+          width, height, topMaterialOutputPaths,
+          thumbWidth, thumbHeight,
+          path.join(outputDir, 'thumb-top-latest.jpg'),
+          function(error) {
             if (error) {
                 console.error(error);
                 callback(error);
@@ -274,7 +315,11 @@ function generateMaps(callback) {
                 path.join(outputDir, 'roof_tiles-latest.png')
             ];
     
-            makeMap(roofTilesGeoJson, width, height, roofTilesOutputPaths, function(error) {
+            makeMap(roofTilesGeoJson,
+              width, height, roofTilesOutputPaths,
+              thumbWidth, thumbHeight,
+              path.join(outputDir, 'thumb-roof_tiles-latest.jpg'),
+              function(error) {
                 if (error) {
                     console.error(error);
                     callback(error);
@@ -288,14 +333,51 @@ function generateMaps(callback) {
                     path.join(outputDir, 'slate-latest.png')
                 ];
         
-                makeMap(slateGeoJson, width, height, slateOutputPaths, function(error) {
+                makeMap(slateGeoJson,
+                  width, height, slateOutputPaths,
+                  thumbWidth, thumbHeight,
+                  path.join(outputDir, 'thumb-slate-latest.jpg'),
+                  function(error) {
                     if (error) {
                         console.error(error);
                         callback(error);
                         return;
                     }
-        
-                    callback();
+                    
+                    makeMap(roofTilesGeoJson,
+                        width, height, roofTilesOutputPaths,
+                        thumbWidth, thumbHeight,
+                        path.join(outputDir, 'thumb-other-latest.jpg'),
+                        function(error) {
+                          if (error) {
+                              console.error(error);
+                              callback(error);
+                              return;
+                          }
+              
+                          var slateGeoJson = generateOneMaterialGeoJson(cells, 'other');
+                          
+                          var slateOutputPaths = [
+                              path.join(outputDir, 'other-' + formattedDate + '.png'),
+                              path.join(outputDir, 'other-latest.png')
+                          ];
+                  
+                          makeMap(slateGeoJson,
+                            width, height, slateOutputPaths,
+                            thumbWidth, thumbHeight,
+                            path.join(outputDir, 'thumb-other-latest.jpg'),
+                            function(error) {
+                              if (error) {
+                                  console.error(error);
+                                  callback(error);
+                                  return;
+                              }
+
+                              console.log('Maps generated successfully');
+                  
+                              callback();
+                          });
+                      });
                 });
             });
         });
