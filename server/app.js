@@ -18,6 +18,8 @@ var statsManager = require('./statsmanager');
 
 var mapGenerator = require('./mapgenerator');
 
+console.log('RoofMapper server, version', process.env.npm_package_version);
+
 var app = express();
 
 app.use(logger('dev'));
