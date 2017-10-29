@@ -16,6 +16,8 @@ var statsRoutes = require('./routes/stats');
 var sessionManager = require('./sessionmanager');
 var statsManager = require('./statsmanager');
 
+var mapGenerator = require('./mapgenerator');
+
 var app = express();
 
 app.use(logger('dev'));
@@ -68,5 +70,7 @@ sessionManager.scheduleSessionClosing();
 statsManager.updateUserStats();
 statsManager.scheduleUserStatsUpdate();
 statsManager.scheduleStatsWritingToDisk();
+
+mapGenerator.scheduleMapGeneration();
 
 module.exports = app;

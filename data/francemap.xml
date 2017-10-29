@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Map srs="+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs" maximum-extent="-50000 6100000 1300000 7000000" background-color="white">
+
+    <Style name="admin">
+        <Rule>
+            <PolygonSymbolizer fill="white" />
+            <LineSymbolizer stroke="grey" stroke-width="0.8" />
+        </Rule>
+    </Style>
+    
+    <Style name="grid">
+        <Rule>
+            <PolygonSymbolizer fill="red" fill-opacity="0.4" />
+            <LineSymbolizer stroke="red" stroke-width="1.5" />
+        </Rule>
+    </Style>
+
+    <!--
+        roof_tiles:
+            #ffeee6
+            #fdddcd
+            #fbccb5
+            #f7bc9d
+            #f3ab85
+            #ed9b6e
+            #e68a57
+            #df7a40
+            #d76928
+            #ce5807
+        slate:
+            #ebf0f6
+            #d6e1ee
+            #c2d3e5
+            #aec4dd
+            #99b6d4
+            #84a8cc
+            #6e9bc3
+            #568dbb
+            #3a80b2
+            #0973aa
+        other:
+            #f1f1f1
+            #e3e3e3
+            #d6d6d6
+            #c9c9c9
+            #bbbbbb
+            #aeaeae
+            #a1a1a1
+            #959595
+            #888888
+            #7c7c7c
+    -->
+    
+    <Style name="grid-roofMaterial">
+        <Rule>
+            <Filter>[roofMaterial]='roof_tiles' and [ratio]&gt;0.0 and [ratio]&lt;0.1</Filter>
+            <PolygonSymbolizer fill="#ffeee6" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='roof_tiles' and [ratio]&gt;=0.1 and [ratio]&lt;0.2</Filter>
+            <PolygonSymbolizer fill="#fdddcd" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='roof_tiles' and [ratio]&gt;=0.2 and [ratio]&lt;0.3</Filter>
+            <PolygonSymbolizer fill="#fbccb5" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='roof_tiles' and [ratio]&gt;=0.3 and [ratio]&lt;0.4</Filter>
+            <PolygonSymbolizer fill="#f7bc9d" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='roof_tiles' and [ratio]&gt;=0.4 and [ratio]&lt;0.5</Filter>
+            <PolygonSymbolizer fill="#f3ab85" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='roof_tiles' and [ratio]&gt;=0.5 and [ratio]&lt;0.6</Filter>
+            <PolygonSymbolizer fill="#ed9b6e" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='roof_tiles' and [ratio]&gt;=0.6 and [ratio]&lt;0.7</Filter>
+            <PolygonSymbolizer fill="#e68a57" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='roof_tiles' and [ratio]&gt;=0.7 and [ratio]&lt;0.8</Filter>
+            <PolygonSymbolizer fill="#df7a40" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='roof_tiles' and [ratio]&gt;=0.8 and [ratio]&lt;0.9</Filter>
+            <PolygonSymbolizer fill="#d76928" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='roof_tiles' and [ratio]&gt;=0.9</Filter>
+            <PolygonSymbolizer fill="#ce5807" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='slate' and [ratio]&gt;0.0 and [ratio]&lt;0.1</Filter>
+            <PolygonSymbolizer fill="#ebf0f6" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='slate' and [ratio]&gt;=0.1 and [ratio]&lt;0.2</Filter>
+            <PolygonSymbolizer fill="#d6e1ee" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='slate' and [ratio]&gt;=0.2 and [ratio]&lt;0.3</Filter>
+            <PolygonSymbolizer fill="#c2d3e5" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='slate' and [ratio]&gt;=0.3 and [ratio]&lt;0.4</Filter>
+            <PolygonSymbolizer fill="#aec4dd" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='slate' and [ratio]&gt;=0.4 and [ratio]&lt;0.5</Filter>
+            <PolygonSymbolizer fill="#99b6d4" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='slate' and [ratio]&gt;=0.5 and [ratio]&lt;0.6</Filter>
+            <PolygonSymbolizer fill="#84a8cc" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='slate' and [ratio]&gt;=0.6 and [ratio]&lt;0.7</Filter>
+            <PolygonSymbolizer fill="#6e9bc3" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='slate' and [ratio]&gt;=0.7 and [ratio]&lt;0.8</Filter>
+            <PolygonSymbolizer fill="#568dbb" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='slate' and [ratio]&gt;=0.8 and [ratio]&lt;0.9</Filter>
+            <PolygonSymbolizer fill="#3a80b2" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='slate' and [ratio]&gt;=0.9</Filter>
+            <PolygonSymbolizer fill="#0973aa" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='other' and [ratio]&gt;0.0 and [ratio]&lt;0.1</Filter>
+            <PolygonSymbolizer fill="#f1f1f1" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='other' and [ratio]&gt;=0.1 and [ratio]&lt;0.2</Filter>
+            <PolygonSymbolizer fill="#e3e3e3" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='other' and [ratio]&gt;=0.2 and [ratio]&lt;0.3</Filter>
+            <PolygonSymbolizer fill="#d6d6d6" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='other' and [ratio]&gt;=0.3 and [ratio]&lt;0.4</Filter>
+            <PolygonSymbolizer fill="#c9c9c9" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='other' and [ratio]&gt;=0.4 and [ratio]&lt;0.5</Filter>
+            <PolygonSymbolizer fill="#bbbbbb" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='other' and [ratio]&gt;=0.5 and [ratio]&lt;0.6</Filter>
+            <PolygonSymbolizer fill="#aeaeae" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='other' and [ratio]&gt;=0.6 and [ratio]&lt;0.7</Filter>
+            <PolygonSymbolizer fill="#a1a1a1" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='other' and [ratio]&gt;=0.7 and [ratio]&lt;0.8</Filter>
+            <PolygonSymbolizer fill="#959595" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='other' and [ratio]&gt;=0.8 and [ratio]&lt;0.9</Filter>
+            <PolygonSymbolizer fill="#888888" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[roofMaterial]='other' and [ratio]&gt;=0.9</Filter>
+            <PolygonSymbolizer fill="#7c7c7c" fill-opacity="0.4" />
+        </Rule>
+    </Style>
+
+    <Style name="date">
+        <Rule>
+            <TextSymbolizer placement="point" face-name="DejaVu Sans Condensed" size="64" fill="black" horizontal-alignment="right" vertical-alignment="top">[name]</TextSymbolizer>
+        </Rule>
+    </Style>
+
+    <Layer name="base" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+        <StyleName>admin</StyleName>
+        <Datasource>
+            <Parameter name="file">mapdata/departements-20170102-shp/departements-20170102.shp</Parameter>
+            <Parameter name="encoding">utf-8</Parameter>
+            <Parameter name="type">shape</Parameter>
+        </Datasource>
+    </Layer>
+
+    <!--<Layer name="grid" status="on" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+        <StyleName>grid</StyleName>
+        <Datasource>
+          <Parameter name="type">postgis</Parameter>
+          <Parameter name="host">localhost</Parameter>
+          <Parameter name="dbname">roofmapper</Parameter>
+          <Parameter name="user">postgres</Parameter>      
+          <Parameter name="password">thomas</Parameter>
+          <Parameter name="table">(SELECT * FROM france_grid) AS grid</Parameter>
+        </Datasource>
+    </Layer>-->
+
+</Map>

@@ -9,5 +9,10 @@
     },
     "stats" : {
         "directory" : "E:/Dev/RoofMapper/log"
+    },
+    "maps" : {
+        "width" : 4096,
+        "height" : 4096,
+        "directory" : "E:/Dev/RoofMapper/maps"
     }
 }
