@@ -82,6 +82,7 @@ statsManager.updateUserStats();
 statsManager.scheduleUserStatsUpdate();
 statsManager.scheduleStatsWritingToDisk();
 
+mapGenerator.generateMaps();
 mapGenerator.scheduleMapGeneration();
 
 module.exports = app;
