@@ -1,23 +1,15 @@
 html(lang="en")
     head
-        title RoofMapper maps
+        title RoofMapper data maps
     body(style={'font-family':'sans-serif'})
-        h1 RoofMapper maps
-        h2 Top roof material
+        h1 RoofMapper data maps
+        p For now only France is covered. (Most buildings there are already imported, and the aerial imagery coverage is generally good, making this territory convenient for roof material mapping.) More zones will be added if there is enough interest.
+        p The grid size is fixed, but the resolution can be increased in the future if enough data has been submitted.
+        h2 Most prevalent roof material type and ratio
         a(href='/maps/top-latest.png', target='_blank')
             img(src='/maps/thumb-top-latest.jpg')
-        h2 Tiles
-        a(href='/maps/roof_tiles-latest.png', target='_blank')
-            img(src='/maps/thumb-roof_tiles-latest.jpg')
-        h2 Slate
-        a(href='/maps/slate-latest.png', target='_blank')
-            img(src='/maps/thumb-slate-latest.jpg')
-        h2 Other
-        a(href='/maps/other-latest.png', target='_blank')
-            img(src='/maps/thumb-other-latest.jpg')
-        h2 Map key
-        h3 Tiles
-        table
+        h4 Tiles
+        table(style={'table-layout':'fixed','width':'50em'})
             tr
                 td 0%
                 td 0-10%
@@ -42,8 +34,8 @@ html(lang="en")
                 td(style={'background-color':'#df7a40'})
                 td(style={'background-color':'#d76928'})
                 td(style={'background-color':'#ce5807'})
-        h3 Slate
-        table
+        h4 Slate
+        table(style={'table-layout':'fixed','width':'50em'})
             tr
                 td 0%
                 td 0-10%
@@ -68,8 +60,8 @@ html(lang="en")
                 td(style={'background-color':'#568dbb'})
                 td(style={'background-color':'#3a80b2'})
                 td(style={'background-color':'#0973aa'})
-        h3 Other
-        table
+        h4 Other
+        table(style={'table-layout':'fixed','width':'50em'})
             tr
                 td 0%
                 td 0-10%
@@ -94,5 +86,42 @@ html(lang="en")
                 td(style={'background-color':'#959595'})
                 td(style={'background-color':'#888888'})
                 td(style={'background-color':'#7c7c7c'})
+        h2 Tiles ratio
+        a(href='/maps/roof_tiles-latest.png', target='_blank')
+            img(src='/maps/thumb-roof_tiles-latest.jpg')
+        h2 Slate ratio
+        a(href='/maps/slate-latest.png', target='_blank')
+            img(src='/maps/thumb-slate-latest.jpg')
+        h2 Other roof materials ratio
+        a(href='/maps/other-latest.png', target='_blank')
+            img(src='/maps/thumb-other-latest.jpg')
+        h2 Tagged building count
+        a(href='/maps/totalCount-latest.png', target='_blank')
+            img(src='/maps/thumb-totalCount-latest.jpg')
+        table(style={'table-layout':'fixed','width':'50em'})
+            tr
+                td 0
+                td 1
+                td 2-5
+                td 5-9
+                td 10-24
+                td 25-49
+                td 50-99
+                td 100-249
+                td 250-499
+                td 500-999
+                td 1000+
+            tr(style={'height':'1em'})
+                td(style={'background-color':'#ffffff'})
+                td(style={'background-color':'#fceabb'})
+                td(style={'background-color':'#f3d3af'})
+                td(style={'background-color':'#eabda3'})
+                td(style={'background-color':'#e0a797'})
+                td(style={'background-color':'#d6918b'})
+                td(style={'background-color':'#cc7a7f'})
+                td(style={'background-color':'#c16474'})
+                td(style={'background-color':'#b64c68'})
+                td(style={'background-color':'#aa315d'})
+                td(style={'background-color':'#9e0552'})
         a(href='/maps/archive', target='_blank')
             p Archive

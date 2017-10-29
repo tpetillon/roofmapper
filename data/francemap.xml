@@ -16,6 +16,7 @@
     </Style>
 
     <!--
+        Gradients generated with: http://davidjohnstone.net/pages/lch-lab-colour-gradient-picker
         roof_tiles:
             #ffeee6
             #fdddcd
@@ -49,6 +50,17 @@
             #959595
             #888888
             #7c7c7c
+        building count:
+            #fceabb
+            #f3d3af
+            #eabda3
+            #e0a797
+            #d6918b
+            #cc7a7f
+            #c16474
+            #b64c68
+            #aa315d
+            #9e0552
     -->
     
     <Style name="grid-roofMaterial">
@@ -174,6 +186,49 @@
         </Rule>
     </Style>
 
+    <Style name="grid-totalCount">
+        <Rule>
+            <Filter>[totalCount]&gt;0 and [totalCount]&lt;=1</Filter>
+            <PolygonSymbolizer fill="#fceabb" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[totalCount]&gt;=2 and [totalCount]&lt;5</Filter>
+            <PolygonSymbolizer fill="#f3d3af" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[totalCount]&gt;=5 and [totalCount]&lt;10</Filter>
+            <PolygonSymbolizer fill="#eabda3" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[totalCount]&gt;=10 and [totalCount]&lt;25</Filter>
+            <PolygonSymbolizer fill="#e0a797" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[totalCount]&gt;=25 and [totalCount]&lt;50</Filter>
+            <PolygonSymbolizer fill="#d6918b" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[totalCount]&gt;=50 and [totalCount]&lt;100</Filter>
+            <PolygonSymbolizer fill="#cc7a7f" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[totalCount]&gt;=100 and [totalCount]&lt;250</Filter>
+            <PolygonSymbolizer fill="#c16474" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[totalCount]&gt;=250 and [totalCount]&lt;500</Filter>
+            <PolygonSymbolizer fill="#b64c68" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[totalCount]&gt;=500 and [totalCount]&lt;1000</Filter>
+            <PolygonSymbolizer fill="#aa315d" fill-opacity="0.4" />
+        </Rule>
+        <Rule>
+            <Filter>[totalCount]&gt;=1000</Filter>
+            <PolygonSymbolizer fill="#9e0552" fill-opacity="0.4" />
+        </Rule>
+    </Style>
+
     <Style name="date">
         <Rule>
             <TextSymbolizer placement="point" face-name="DejaVu Sans Condensed" size="64" fill="black" horizontal-alignment="right" vertical-alignment="top">[name]</TextSymbolizer>
@@ -189,5 +244,5 @@
             <Parameter name="type">shape</Parameter>
         </Datasource>
     </Layer>
-    
+
 </Map>

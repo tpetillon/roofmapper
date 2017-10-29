@@ -329,6 +329,15 @@ function generateMaps(callback) {
                     path.join(outputDir, 'other-latest.png')
                 ],
                 thumbOutputPath: path.join(outputDir, 'thumb-other-latest.jpg')
+            },
+            {
+                geoJson: generateTopMaterialGeoJson(cells),
+                gridStyle: 'grid-totalCount',
+                outputPaths: [
+                    path.join(outputDir, 'totalCount-' + formattedDate + '.png'),
+                    path.join(outputDir, 'totalCount-latest.png')
+                ],
+                thumbOutputPath: path.join(outputDir, 'thumb-totalCount-latest.jpg')
             }
         ];
 
