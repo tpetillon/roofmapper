@@ -184,7 +184,10 @@ function addDate(map, position) {
     map.add_layer(dateLayer);
 }
 
-function makeMap(geojson, width, height, outputPaths, thumbWidth, thumbHeight, thumbOutputPath, callback) {
+function makeMap(geojson, gridStyle,
+        width, height, outputPaths,
+        thumbWidth, thumbHeight, thumbOutputPath,
+        callback) {
     var map = new mapnik.Map(width, height);
     map.load(path.join(__dirname, '../data/francemap.xml'), function(err, map) {
         if (err) {
@@ -199,7 +202,7 @@ function makeMap(geojson, width, height, outputPaths, thumbWidth, thumbHeight, t
 
         var layer = new mapnik.Layer('grid');
         layer.srs = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
-        layer.styles = [ 'grid-roofMaterial' ];
+        layer.styles = [ gridStyle ];
 
         layer.datasource = datasource;
 
@@ -289,97 +292,65 @@ function generateMaps(callback) {
         var thumbHeight = config.get('maps.thumbHeight');
 
         var outputDir = config.get('maps.directory');
-        
-        var topMaterialGeoJson = generateTopMaterialGeoJson(cells);
 
-        var topMaterialOutputPaths = [
-            path.join(outputDir, 'top-' + formattedDate + '.png'),
-            path.join(outputDir, 'top-latest.png')
-        ];
-
-        makeMap(topMaterialGeoJson,
-          width, height, topMaterialOutputPaths,
-          thumbWidth, thumbHeight,
-          path.join(outputDir, 'thumb-top-latest.jpg'),
-          function(error) {
-            if (error) {
-                console.error(error);
-                callback(error);
-                return;
-            }
-
-            var roofTilesGeoJson = generateOneMaterialGeoJson(cells, 'roof_tiles');
-            
-            var roofTilesOutputPaths = [
-                path.join(outputDir, 'roof_tiles-' + formattedDate + '.png'),
-                path.join(outputDir, 'roof_tiles-latest.png')
-            ];
-    
-            makeMap(roofTilesGeoJson,
-              width, height, roofTilesOutputPaths,
-              thumbWidth, thumbHeight,
-              path.join(outputDir, 'thumb-roof_tiles-latest.jpg'),
-              function(error) {
-                if (error) {
-                    console.error(error);
-                    callback(error);
-                    return;
-                }
-    
-                var slateGeoJson = generateOneMaterialGeoJson(cells, 'slate');
-                
-                var slateOutputPaths = [
+        var mapParamArray = [
+            {
+                geoJson: generateTopMaterialGeoJson(cells),
+                gridStyle: 'grid-roofMaterial',
+                outputPaths: [
+                    path.join(outputDir, 'top-' + formattedDate + '.png'),
+                    path.join(outputDir, 'top-latest.png')
+                ],
+                thumbOutputPath: path.join(outputDir, 'thumb-top-latest.jpg')
+            },
+            {
+                geoJson: generateOneMaterialGeoJson(cells, 'roof_tiles'),
+                gridStyle: 'grid-roofMaterial',
+                outputPaths: [
+                    path.join(outputDir, 'roof_tiles-' + formattedDate + '.png'),
+                    path.join(outputDir, 'roof_tiles-latest.png')
+                ],
+                thumbOutputPath: path.join(outputDir, 'thumb-roof_tiles-latest.jpg')
+            },
+            {
+                geoJson: generateOneMaterialGeoJson(cells, 'slate'),
+                gridStyle: 'grid-roofMaterial',
+                outputPaths: [
                     path.join(outputDir, 'slate-' + formattedDate + '.png'),
                     path.join(outputDir, 'slate-latest.png')
-                ];
-        
-                makeMap(slateGeoJson,
-                  width, height, slateOutputPaths,
-                  thumbWidth, thumbHeight,
-                  path.join(outputDir, 'thumb-slate-latest.jpg'),
-                  function(error) {
+                ],
+                thumbOutputPath: path.join(outputDir, 'thumb-slate-latest.jpg')
+            },
+            {
+                geoJson: generateOneMaterialGeoJson(cells, 'other'),
+                gridStyle: 'grid-roofMaterial',
+                outputPaths: [
+                    path.join(outputDir, 'other-' + formattedDate + '.png'),
+                    path.join(outputDir, 'other-latest.png')
+                ],
+                thumbOutputPath: path.join(outputDir, 'thumb-other-latest.jpg')
+            }
+        ];
+
+        async.eachSeries(mapParamArray, function(mapParams, next) {
+            makeMap(
+                mapParams.geoJson, mapParams.gridStyle,
+                width, height, mapParams.outputPaths,
+                thumbWidth, thumbHeight,
+                mapParams.thumbOutputPath,
+                function(error) {
                     if (error) {
                         console.error(error);
-                        callback(error);
+                        next(error);
                         return;
                     }
                     
-                    makeMap(roofTilesGeoJson,
-                        width, height, roofTilesOutputPaths,
-                        thumbWidth, thumbHeight,
-                        path.join(outputDir, 'thumb-other-latest.jpg'),
-                        function(error) {
-                          if (error) {
-                              console.error(error);
-                              callback(error);
-                              return;
-                          }
-              
-                          var slateGeoJson = generateOneMaterialGeoJson(cells, 'other');
-                          
-                          var slateOutputPaths = [
-                              path.join(outputDir, 'other-' + formattedDate + '.png'),
-                              path.join(outputDir, 'other-latest.png')
-                          ];
-                  
-                          makeMap(slateGeoJson,
-                            width, height, slateOutputPaths,
-                            thumbWidth, thumbHeight,
-                            path.join(outputDir, 'thumb-other-latest.jpg'),
-                            function(error) {
-                              if (error) {
-                                  console.error(error);
-                                  callback(error);
-                                  return;
-                              }
-
-                              console.log('Maps generated successfully');
-                  
-                              callback();
-                          });
-                      });
-                });
-            });
+                    next();
+                }
+            );
+        }, function done() {
+            console.log('Maps generated successfully');
+            callback();
         });
     });
 }
