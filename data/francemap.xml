@@ -183,22 +183,11 @@
     <Layer name="base" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
         <StyleName>admin</StyleName>
         <Datasource>
+            <!-- data source: https://www.data.gouv.fr/fr/datasets/contours-des-departements-francais-issus-d-openstreetmap/ -->
             <Parameter name="file">mapdata/departements-20170102-shp/departements-20170102.shp</Parameter>
             <Parameter name="encoding">utf-8</Parameter>
             <Parameter name="type">shape</Parameter>
         </Datasource>
     </Layer>
-
-    <!--<Layer name="grid" status="on" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
-        <StyleName>grid</StyleName>
-        <Datasource>
-          <Parameter name="type">postgis</Parameter>
-          <Parameter name="host">localhost</Parameter>
-          <Parameter name="dbname">roofmapper</Parameter>
-          <Parameter name="user">postgres</Parameter>      
-          <Parameter name="password">thomas</Parameter>
-          <Parameter name="table">(SELECT * FROM france_grid) AS grid</Parameter>
-        </Datasource>
-    </Layer>-->
-
+    
 </Map>
