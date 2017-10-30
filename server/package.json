@@ -1,6 +1,6 @@
 {
   "name": "roofmapper-server",
-  "version": "1.1.0",
+  "version": "1.2.0-dev",
   "description": "RoofMapper server",
   "scripts": {
     "start": "node ./bin/www"
