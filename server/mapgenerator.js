@@ -275,6 +275,9 @@ function makeMap(geojson, gridStyle,
 
 function generateMaps(callback) {
     console.log('Generating maps...');
+    
+    var dt = dateTime.create();
+    var formattedDate = dt.format('Y-m-d-H-M-S');
 
     fetchDataFromDatabase(function(error, cells) {
         if (error) {
@@ -282,9 +285,6 @@ function generateMaps(callback) {
             callback(error);
             return;
         }
-
-        var dt = dateTime.create();
-        var formattedDate = dt.format('Y-m-d-H-M-S');
 
         var width = config.get('maps.width');
         var height = config.get('maps.height');
