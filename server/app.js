@@ -40,9 +40,9 @@ app.use('/stats/archive', serveStatic(config.get('stats.directory')));
 app.get('/maps', function(req, res) {
     res.render('maps', {});
 });
-app.use('/maps', serveStatic(config.get('maps.directory')));
-app.use('/maps/archive', serveIndex(config.get('maps.directory'), { 'icons': true }));
-app.use('/maps/archive', serveStatic(config.get('maps.directory')));
+app.use('/maps', serveStatic(config.get('maps.directories.latest')));
+app.use('/maps/archive', serveIndex(config.get('maps.directories.archive'), { 'icons': true }));
+app.use('/maps/archive', serveStatic(config.get('maps.directories.archive')));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

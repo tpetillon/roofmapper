@@ -291,53 +291,54 @@ function generateMaps(callback) {
         var thumbWidth = config.get('maps.thumbWidth');
         var thumbHeight = config.get('maps.thumbHeight');
 
-        var outputDir = config.get('maps.directory');
+        var latestOutputDir = config.get('maps.directories.latest');
+        var archiveOutputDir = config.get('maps.directories.archive');
 
         var mapParamArray = [
             {
                 geoJson: generateTopMaterialGeoJson(cells),
                 gridStyle: 'grid-roofMaterial',
                 outputPaths: [
-                    path.join(outputDir, 'top-' + formattedDate + '.png'),
-                    path.join(outputDir, 'top-latest.png')
+                    path.join(archiveOutputDir, 'top-' + formattedDate + '.png'),
+                    path.join(latestOutputDir, 'top-latest.png')
                 ],
-                thumbOutputPath: path.join(outputDir, 'thumb-top-latest.jpg')
+                thumbOutputPath: path.join(latestOutputDir, 'thumb-top-latest.jpg')
             },
             {
                 geoJson: generateOneMaterialGeoJson(cells, 'roof_tiles'),
                 gridStyle: 'grid-roofMaterial',
                 outputPaths: [
-                    path.join(outputDir, 'roof_tiles-' + formattedDate + '.png'),
-                    path.join(outputDir, 'roof_tiles-latest.png')
+                    path.join(archiveOutputDir, 'roof_tiles-' + formattedDate + '.png'),
+                    path.join(latestOutputDir, 'roof_tiles-latest.png')
                 ],
-                thumbOutputPath: path.join(outputDir, 'thumb-roof_tiles-latest.jpg')
+                thumbOutputPath: path.join(latestOutputDir, 'thumb-roof_tiles-latest.jpg')
             },
             {
                 geoJson: generateOneMaterialGeoJson(cells, 'slate'),
                 gridStyle: 'grid-roofMaterial',
                 outputPaths: [
-                    path.join(outputDir, 'slate-' + formattedDate + '.png'),
-                    path.join(outputDir, 'slate-latest.png')
+                    path.join(archiveOutputDir, 'slate-' + formattedDate + '.png'),
+                    path.join(latestOutputDir, 'slate-latest.png')
                 ],
-                thumbOutputPath: path.join(outputDir, 'thumb-slate-latest.jpg')
+                thumbOutputPath: path.join(latestOutputDir, 'thumb-slate-latest.jpg')
             },
             {
                 geoJson: generateOneMaterialGeoJson(cells, 'other'),
                 gridStyle: 'grid-roofMaterial',
                 outputPaths: [
-                    path.join(outputDir, 'other-' + formattedDate + '.png'),
-                    path.join(outputDir, 'other-latest.png')
+                    path.join(archiveOutputDir, 'other-' + formattedDate + '.png'),
+                    path.join(latestOutputDir, 'other-latest.png')
                 ],
-                thumbOutputPath: path.join(outputDir, 'thumb-other-latest.jpg')
+                thumbOutputPath: path.join(latestOutputDir, 'thumb-other-latest.jpg')
             },
             {
                 geoJson: generateTopMaterialGeoJson(cells),
                 gridStyle: 'grid-totalCount',
                 outputPaths: [
-                    path.join(outputDir, 'totalCount-' + formattedDate + '.png'),
-                    path.join(outputDir, 'totalCount-latest.png')
+                    path.join(archiveOutputDir, 'totalCount-' + formattedDate + '.png'),
+                    path.join(latestOutputDir, 'totalCount-latest.png')
                 ],
-                thumbOutputPath: path.join(outputDir, 'thumb-totalCount-latest.jpg')
+                thumbOutputPath: path.join(latestOutputDir, 'thumb-totalCount-latest.jpg')
             }
         ];
 

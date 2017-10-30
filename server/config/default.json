@@ -15,6 +15,9 @@
         "height" : 2048,
         "thumbWidth" : 512,
         "thumbHeight" : 512,
-        "directory" : "E:/Dev/RoofMapper/maps"
+        "directories" : {
+            "latest" : "E:/Dev/RoofMapper/maps-latest",
+            "archive" : "E:/Dev/RoofMapper/maps"
+        }
     }
 }
