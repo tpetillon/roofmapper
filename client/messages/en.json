@@ -1,5 +1,6 @@
 {
     "root" : {
+        "cookies-not-enabled" : "Cookies are not currently enabled, but are required for RoofMapper to work. Please enable them if you want to use RoofMapper.",
         "language" : "Language",
         "toggle-fullscreen" : "Toggle fullscreen",
         "help" : "Help",

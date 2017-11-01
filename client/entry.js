@@ -4,6 +4,7 @@ var $ = require('expose?$!expose?jQuery!jquery');
 var L = require('leaflet');
 var keyboardJS = require('keyboardjs');
 var defined = require('./defined');
+var CookieChecker = require('./cookiechecker.js');
 var OsmApi = require('./osmapi.js');
 var Session = require('./session.js');
 var Building = require('./building.js');
@@ -1093,6 +1094,10 @@ function init() {
 
     hideFullscreenPicture();
     $('#fullscreen-picture').click(hideFullscreenPicture);
+
+    if (!CookieChecker.areCookiesEnabled()) {
+        showMessage('cookies-not-enabled');
+    }
 }
 
 init();

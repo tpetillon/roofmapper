@@ -1,5 +1,6 @@
 {
     "fr" : {
+        "cookies-not-enabled" : "Les cookies ne sont pas actuellement activés, mais sont nécessaires pour le fonctionnement de RoofMapper. Merci de les activer si vous voulez utiliser RoofMapper.",
         "language" : "Langue",
         "toggle-fullscreen" : "(Dés)activer le plein-écran",
         "help" : "Aide",
