@@ -77,6 +77,7 @@ var _cameraIcon = L.icon({
     iconAnchor: [ 15, 15 ]
 });
 
+var _cookiesAreEnabled = CookieChecker.areCookiesEnabled();
 var _localizer = new Localizer(document, [ enMessages, frMessages ]);
 var _map = undefined;
 var _layers = [];
@@ -114,8 +115,8 @@ function confirmQuit(evt) {
 function updateUi() {
     var loading = _loadingStatus.isLoading;
     
-    $("#authenticate").prop('disabled', loading || _api.authenticated);
-    $("#logout").prop('disabled', loading || !_api.authenticated)
+    $("#authenticate-button").prop('disabled', !_cookiesAreEnabled || loading || _api.authenticated);
+    $("#logout-button").prop('disabled', loading || !_api.authenticated)
     $("#building-buttons").find("button").prop('disabled', loading);
     
     if (_session.currentIndex <= 0) {
@@ -1095,7 +1096,7 @@ function init() {
     hideFullscreenPicture();
     $('#fullscreen-picture').click(hideFullscreenPicture);
 
-    if (!CookieChecker.areCookiesEnabled()) {
+    if (!_cookiesAreEnabled) {
         showMessage('cookies-not-enabled');
     }
 }
