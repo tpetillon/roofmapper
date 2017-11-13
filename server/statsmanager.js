@@ -254,6 +254,9 @@ StatsManager.prototype.incrementTaggedBuildingCount = function(userId, increment
 
         var that = this;
 
+        that._rankingByUserId.set(userId, rankingEntry);
+        that._userRankings.push(rankingEntry);
+
         getUserName(userId, function(err, userName) {
             if (err) {
                 console.error('Error while retrieving user name: ' + e);
@@ -274,8 +277,8 @@ StatsManager.prototype.incrementTaggedBuildingCount = function(userId, increment
             rankingEntry.rank--;
             previousRanking.rank++;
 
-            this._userRankings[rankingEntry.rank] = rankingEntry.rank;
-            this._userRankings[previousRanking.rank] = previousRanking.rank;
+            this._userRankings[rankingEntry.rank] = rankingEntry;
+            this._userRankings[previousRanking.rank] = previousRanking;
         } else {
             break;
         }
