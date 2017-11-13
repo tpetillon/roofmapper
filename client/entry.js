@@ -92,6 +92,20 @@ var _session = new Session();
 var _loadingStatus = new LoadingStatus();
 var _fetchingPictures = false;
 
+function getErrorString(error) {
+    if (defined(error.responseText)) {
+        var responseObject = JSON.parse(error.responseText);
+
+        if (defined(responseObject.error)) {
+            return responseObject.error;
+        }
+
+        return error.responseText;
+    }
+
+    return JSON.stringify(error);
+}
+
 function logout() {
     if (_session.open) {
         BuildingService.closeSession(_session.id);
@@ -228,7 +242,7 @@ if (_api.authenticated) {
     _api.connect(function(error) {
         _loadingStatus.removeSystem('connection');
         if (defined(error)) {
-            showMessage("could-not-connect", error.responseText);
+            showMessage("could-not-connect", getErrorString(error));
         } else {
             console.log("connected as " + _api.username + " (" + _api.userId + ")");
             
@@ -246,7 +260,7 @@ document.getElementById('authenticate-button').onclick = function() {
         _loadingStatus.removeSystem('authentication');
         
         if (defined(error)) {
-            showMessage("could-not-authenticate", error.responseText);
+            showMessage("could-not-authenticate", getErrorString(error));
         } else {
             console.log("connected as " + _api.username + " (" + _api.userId + ")");
 
@@ -275,8 +289,8 @@ function openSession() {
         _loadingStatus.removeSystem('open-session');
 
         if (defined(error)) {
-            console.log("could not open session: " + error.responseText);
-            showMessage("could-not-open-session", error.responseText);
+            console.log('could not open session:', error.responseText);
+            showMessage('could-not-open-session', getErrorString(error));
         } else {
             console.log("session " + sessionId + " opened");
             _session.id = sessionId;
@@ -387,13 +401,13 @@ function loadAndDisplayNewBuilding() {
     
     BuildingService.getBuilding(_session.id, function(error, building) {
         if (defined(error)) {
-            console.error("Could not get building from building service: " + error.responseText);
-            showMessage("could-not-get-building-from-building-service", error.responseText);
+            console.error("Could not get building from building service:", error.responseText);
+            showMessage("could-not-get-building-from-building-service", getErrorString(error));
         } else {
             _api.request('/api/0.6/' + building.type + '/' + building.id + '/full', 'GET', function(error, response) {
                 if (defined(error)) {
-                    console.error("Download error: " + error.responseText);
-                    showMessage("download-error", error.responseText);
+                    console.error("Download error:", error.responseText);
+                    showMessage("download-error", getErrorString(error));
                     _loadingStatus.removeSystem('load-building');
                 } else {
                     var $data = $(response);
@@ -449,7 +463,7 @@ function fetchBuildingLocationName(building, callback) {
 
     GeocodingService.reverse(position.lat, position.lng, locale, function(error, locationName) {
         if (defined(error)) {
-            console.error('Could not retrieve building location name: ' + JSON.stringify(error));
+            console.error('Could not retrieve building location name:', error);
 
             if (defined(callback)) {
                 callback(error);
@@ -511,8 +525,8 @@ function createChangeset(callback) {
     
     _api.requestWithData('/api/0.6/changeset/create', 'PUT', changesetData, function(error, response) {
         if (defined(error)) {
-            console.error("Changeset creation error: " + error.responseText);
-            showMessage("changeset-creation-error", error.responseText);
+            console.error("Changeset creation error:", error.responseText);
+            showMessage("changeset-creation-error", getErrorString(error));
             _loadingStatus.removeSystem('changeset-creation');
         } else {
             var changesetId = Number(response);
@@ -548,7 +562,7 @@ function uploadTags(callback) {
     var url = '/api/0.6/changeset/' + _session.changesetId + '/upload';
     _api.requestWithData(url, 'POST', changeData, function(error, response) {
         if (defined(error)) {
-            console.error("Changes upload error: " + error.responseText);
+            console.error("Changes upload error:", error.responseText);
             
             if (error.statusText === "Conflict") {
                 if (error.responseText.match(/was closed/)) {
@@ -570,7 +584,7 @@ function uploadTags(callback) {
                 _loadingStatus.removeSystem('changes-upload');
 
                 if (defined(error)) {
-                    console.error("Could not upload tags to building service: " + error.responseText);
+                    console.error("Could not upload tags to building service:", error.responseText);
                 } else {
                     console.log("Tags uploaded to building service");
                 }
@@ -600,7 +614,7 @@ function uploadInvalidationData(callback) {
         _loadingStatus.removeSystem('invalidation-data-upload');
 
         if (defined(error)) {
-            console.error("Could not upload invalidity reasons to building service: " + error.responseText);
+            console.error("Could not upload invalidity reasons to building service:", error.responseText);
         } else {
             console.log("Invalidity reasons uploaded to building service");
             showMessage("changes-uploaded-to-osm");
@@ -737,8 +751,8 @@ function fetchPictures(building, callback) {
         _fetchingPictures = false;
 
         if (error) {
-            console.error('Picture fetch error: ' + error.responseText);
-            showMessage('picture-fetch-error', error.responseText);
+            console.error('Picture fetch error:', error.responseText);
+            showMessage('picture-fetch-error', getErrorString(error));
 
             if (defined(callback)) {
                 callback(error);
@@ -819,9 +833,9 @@ function refreshStats() {
 
     BuildingService.fetchTopUsersStats(function(error, data) {
         if (error) {
-            console.error("Stats fetch error: " + error.responseText);
+            console.error('Stats fetch error:', error.responseText);
             $('#stats-contents').text('Error');
-            showMessage('stats-fetch-error', error.responseText);
+            showMessage('stats-fetch-error', getErrorString(error));
             return;
         }
         
