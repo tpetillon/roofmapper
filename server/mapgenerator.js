@@ -195,18 +195,21 @@ function makeMap(geojson, gridStyle,
             return;
         }
 
-        var datasource = new mapnik.Datasource({
-            type: 'geojson',
-            inline: JSON.stringify(geojson)
-        });
+        // Work around this bug: https://github.com/mapnik/mapnik/issues/3463
+        if (geojson.features.length > 0) {
+            var datasource = new mapnik.Datasource({
+                type: 'geojson',
+                inline: JSON.stringify(geojson)
+            });
 
-        var layer = new mapnik.Layer('grid');
-        layer.srs = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
-        layer.styles = [ gridStyle ];
+            var layer = new mapnik.Layer('grid');
+            layer.srs = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
+            layer.styles = [ gridStyle ];
 
-        layer.datasource = datasource;
+            layer.datasource = datasource;
 
-        map.add_layer(layer);
+            map.add_layer(layer);
+        }
 
         addDate(map, [ -5, 42 ]);
 
