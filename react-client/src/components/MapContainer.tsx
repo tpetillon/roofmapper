@@ -21,17 +21,13 @@ function toLatLng(position: Coordinates) {
     return new LatLng(position.longitude, position.latitude);
 }
 
-export interface Props {
+interface Props {
     position: Coordinates;
     zoom: number;
     onViewportChanged?: (viewport: Viewport) => void;
 }
 
 class MapContainer extends React.Component<Props, object> {
-    constructor(props: Props) {
-        super(props);
-    }
-
     render() {
         const longitude = this.props.position.longitude;
         const latitude = this.props.position.latitude;
@@ -71,12 +67,12 @@ export function mapStateToProps(state: AppState): Props {
 
 export function mapDispatchToProps(dispatch: Dispatch<actions.MapAction>) {
     return {
-      onViewportChanged: (viewport: Viewport) => {
-          const position = toCoordinates(viewport.center);
-          const zoom = viewport.zoom ? viewport.zoom : 0;
-          dispatch(actions.moveTo(position, zoom))
-      },
+        onViewportChanged: (viewport: Viewport) => {
+            const position = toCoordinates(viewport.center);
+            const zoom = viewport.zoom ? viewport.zoom : 0;
+            dispatch(actions.moveTo(position, zoom));
+        },
     }
-  }
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(MapContainer);

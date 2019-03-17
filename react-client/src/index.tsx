@@ -1,17 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
-import { rootReducer } from './store';
-import MapContainer from './components/MapContainer';
+import createSagaMiddleware from 'redux-saga'
+
 import * as serviceWorker from './serviceWorker';
+import { rootReducer } from './store';
+import rootSaga from './sagas';
+import MapContainer from './components/MapContainer';
+import OsmConnection from './components/OsmConnection';
+
 import './index.css';
 
-const store = createStore(rootReducer);
+const sagaMiddleware = createSagaMiddleware();
+const store = createStore(
+    rootReducer,
+    applyMiddleware(sagaMiddleware));
+sagaMiddleware.run(rootSaga);
 
 ReactDOM.render(
     <Provider store={store}>
         <MapContainer/>
+        <OsmConnection/>
     </Provider>,
     document.getElementById('root'));
 

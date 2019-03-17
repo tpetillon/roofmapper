@@ -1,8 +1,9 @@
 import { combineReducers } from 'redux';
-import { mapReducer } from '../reducers';
+import { mapReducer, osmConnectionReducer } from '../reducers';
 
 export const rootReducer = combineReducers({
-    map: mapReducer
+    map: mapReducer,
+    osmConnection: osmConnectionReducer
 });
 
 export type AppState = ReturnType<typeof rootReducer>;
