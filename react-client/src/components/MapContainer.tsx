@@ -27,7 +27,7 @@ interface Props {
     onViewportChanged?: (viewport: Viewport) => void;
 }
 
-class MapContainer extends React.Component<Props, object> {
+class MapComponent extends React.Component<Props, object> {
     render() {
         const longitude = this.props.position.longitude;
         const latitude = this.props.position.latitude;
@@ -75,4 +75,4 @@ export function mapDispatchToProps(dispatch: Dispatch<actions.MapAction>) {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MapContainer);
+export const MapContainer = connect(mapStateToProps, mapDispatchToProps)(MapComponent);

@@ -29,7 +29,7 @@ interface Props {
     onRequestLogout?: () => void;
 }
 
-class LoginContainer extends React.Component<Props, object> {
+class LoginComponent extends React.Component<Props, object> {
     render() {
         let statusText = statusToText(this.props.status);
         if (this.props.username && this.props.userId) {
@@ -71,4 +71,4 @@ export function mapDispatchToProps(dispatch: Dispatch<actions.OsmLoginAction>) {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginContainer);
+export const OsmLoginContainer = connect(mapStateToProps, mapDispatchToProps)(LoginComponent);

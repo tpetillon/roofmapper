@@ -48,7 +48,7 @@ function* osmLoginFlow() {
     }
 }
 
-export default function* rootSaga() {
+export function* rootSaga() {
     yield all([
         osmLoginFlow()
     ]);

@@ -6,9 +6,9 @@ import createSagaMiddleware from 'redux-saga'
 
 import * as serviceWorker from './serviceWorker';
 import { rootReducer } from './store';
-import rootSaga from './sagas';
-import MapContainer from './components/MapContainer';
-import OsmLogin from './components/OsmLogin';
+import { rootSaga } from './sagas';
+import { MapContainer } from './components/MapContainer';
+import { OsmLoginContainer } from './components/OsmLogin';
 
 import './index.css';
 
@@ -21,7 +21,7 @@ sagaMiddleware.run(rootSaga);
 ReactDOM.render(
     <Provider store={store}>
         <MapContainer/>
-        <OsmLogin/>
+        <OsmLoginContainer/>
     </Provider>,
     document.getElementById('root'));
 
