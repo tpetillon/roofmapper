@@ -8,7 +8,7 @@ import * as serviceWorker from './serviceWorker';
 import { rootReducer } from './store';
 import rootSaga from './sagas';
 import MapContainer from './components/MapContainer';
-import OsmConnection from './components/OsmConnection';
+import OsmLogin from './components/OsmLogin';
 
 import './index.css';
 
@@ -21,7 +21,7 @@ sagaMiddleware.run(rootSaga);
 ReactDOM.render(
     <Provider store={store}>
         <MapContainer/>
-        <OsmConnection/>
+        <OsmLogin/>
     </Provider>,
     document.getElementById('root'));
 

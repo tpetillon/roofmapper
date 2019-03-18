@@ -1,5 +1,5 @@
 import { Coordinates } from '../Coordinates';
-import { OsmConnectionStatus } from '../reducers';
+import { OsmLoginStatus } from '../reducers';
 
 export const MOVE_TO = 'MOVE_TO';
 export type MOVE_TO = typeof MOVE_TO;
@@ -20,17 +20,17 @@ export function moveTo(position: Coordinates, zoomLevel: number): MoveToAction {
 
 export type MapAction = MoveToAction;
 
-export const SET_OSM_CONNECTION_STATUS = 'SET_OSM_CONNECTION_STATUS';
-export type SET_OSM_CONNECTION_STATUS = typeof SET_OSM_CONNECTION_STATUS;
+export const SET_OSM_LOGIN_STATUS = 'SET_OSM_LOGIN_STATUS';
+export type SET_OSM_LOGIN_STATUS = typeof SET_OSM_LOGIN_STATUS;
 
-export interface SetOsmConnectionStatusAction {
-    type: SET_OSM_CONNECTION_STATUS;
-    status: OsmConnectionStatus;
+export interface SetOsmLoginStatusAction {
+    type: SET_OSM_LOGIN_STATUS;
+    status: OsmLoginStatus;
 }
 
-export function setOsmConnectionStatus(status: OsmConnectionStatus) {
+export function setOsmLoginStatus(status: OsmLoginStatus) {
     return {
-        type: SET_OSM_CONNECTION_STATUS,
+        type: SET_OSM_LOGIN_STATUS,
         status: status
     };
 }
@@ -52,34 +52,34 @@ export function setOsmUserDetails(username: string | undefined, userId: string |
     }
 }
 
-export const REQUEST_OSM_CONNECTION = 'REQUEST_OSM_CONNECTION';
-export type REQUEST_OSM_CONNECTION = typeof REQUEST_OSM_CONNECTION;
+export const REQUEST_OSM_LOGIN = 'REQUEST_OSM_LOGIN';
+export type REQUEST_OSM_LOGIN = typeof REQUEST_OSM_LOGIN;
 
-export interface RequestOsmConnectionAction {
-    type: REQUEST_OSM_CONNECTION
+export interface RequestOsmLoginAction {
+    type: REQUEST_OSM_LOGIN
 }
 
-export function requestOsmConnection(): RequestOsmConnectionAction {
+export function requestOsmLogin(): RequestOsmLoginAction {
     return {
-        type: REQUEST_OSM_CONNECTION
+        type: REQUEST_OSM_LOGIN
     }
 }
 
-export const REQUEST_OSM_DISCONNECTION = 'REQUEST_OSM_DISCONNECTION';
-export type REQUEST_OSM_DISCONNECTION = typeof REQUEST_OSM_DISCONNECTION;
+export const REQUEST_OSM_LOGOUT = 'REQUEST_OSM_LOGOUT';
+export type REQUEST_OSM_LOGOUT = typeof REQUEST_OSM_LOGOUT;
 
-export interface RequestOsmDisconnectionAction {
-    type: REQUEST_OSM_DISCONNECTION
+export interface RequestOsmLogoutAction {
+    type: REQUEST_OSM_LOGOUT
 }
 
-export function requestOsmDisconnection(): RequestOsmDisconnectionAction {
+export function requestOsmLogout(): RequestOsmLogoutAction {
     return {
-        type: REQUEST_OSM_DISCONNECTION
+        type: REQUEST_OSM_LOGOUT
     }
 }
 
-export type OsmConnectionAction =
-    RequestOsmConnectionAction |
-    RequestOsmDisconnectionAction |
-    SetOsmConnectionStatusAction |
+export type OsmLoginAction =
+    RequestOsmLoginAction |
+    RequestOsmLogoutAction |
+    SetOsmLoginStatusAction |
     SetOsmUserDetailsAction;

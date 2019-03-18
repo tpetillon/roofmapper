@@ -2,8 +2,8 @@ import { Reducer } from 'redux';
 import {
     MapAction,
     MOVE_TO,
-    OsmConnectionAction,
-    SET_OSM_CONNECTION_STATUS, SET_OSM_USER_DETAILS, REQUEST_OSM_CONNECTION, REQUEST_OSM_DISCONNECTION
+    OsmLoginAction,
+    SET_OSM_LOGIN_STATUS, SET_OSM_USER_DETAILS,
 } from "../actions";
 import { Coordinates } from '../Coordinates';
 
@@ -26,30 +26,30 @@ export const mapReducer: Reducer<MapState, MapAction> = (state = initialMapState
     return state;
 }
 
-export enum OsmConnectionStatus {
-    Disconnected,
-    Connecting,
-    Connected,
+export enum OsmLoginStatus {
+    LoggedOut,
+    LoggingIn,
+    LoggedIn,
     Error
 }
 
-export interface OsmConnectionState {
-    status: OsmConnectionStatus;
+export interface OsmLoginState {
+    status: OsmLoginStatus;
     username: string | undefined;
     userId: string | undefined;
 }
 
-export const initialOsmConnectionState: OsmConnectionState = {
-    status: OsmConnectionStatus.Disconnected,
+export const initialOsmLoginState: OsmLoginState = {
+    status: OsmLoginStatus.LoggedOut,
     username: undefined,
     userId: undefined
 }
 
-export const osmConnectionReducer: Reducer<OsmConnectionState, OsmConnectionAction> = (state = initialOsmConnectionState, action) => {
+export const osmLoginReducer: Reducer<OsmLoginState, OsmLoginAction> = (state = initialOsmLoginState, action) => {
     switch (action.type) {
-        case SET_OSM_CONNECTION_STATUS:
-            const username = action.status == OsmConnectionStatus.Disconnected ? undefined : state.username;
-            const userId = action.status == OsmConnectionStatus.Disconnected ? undefined : state.userId;
+        case SET_OSM_LOGIN_STATUS:
+            const username = action.status == OsmLoginStatus.LoggedOut ? undefined : state.username;
+            const userId = action.status == OsmLoginStatus.LoggedOut ? undefined : state.userId;
             return { ...state, status: action.status, username: username, userId: userId };
         case SET_OSM_USER_DETAILS:
             return { ...state, username: action.username, userId: action.userId };
