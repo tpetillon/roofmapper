@@ -29,7 +29,8 @@ export const mapReducer: Reducer<MapState, MapAction> = (state = initialMapState
 export enum OsmConnectionStatus {
     Disconnected,
     Connecting,
-    Connected
+    Connected,
+    Error
 }
 
 export interface OsmConnectionState {

@@ -14,6 +14,8 @@ function statusToText(status: OsmConnectionStatus) {
             return 'Connecting...';
         case OsmConnectionStatus.Connected:
             return 'Connected';
+        case OsmConnectionStatus.Error:
+            return 'Connection error';
         default:
             return 'Error, unhandled case: ' + status;
     }
@@ -34,7 +36,7 @@ class MapContainer extends React.Component<Props, object> {
         }
 
         let button = undefined;
-        if (this.props.status == OsmConnectionStatus.Disconnected) {
+        if (this.props.status == OsmConnectionStatus.Disconnected || this.props.status == OsmConnectionStatus.Error) {
             button = <button onClick={this.props.onRequestConnection}>Connect to OSM</button>;
         } else if (this.props.status == OsmConnectionStatus.Connected) {
             button = <button onClick={this.props.onRequestDisconnection}>Disconnect from OSM</button>;
