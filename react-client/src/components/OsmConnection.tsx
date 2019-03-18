@@ -23,7 +23,8 @@ function statusToText(status: OsmConnectionStatus) {
 
 interface Props {
     status: OsmConnectionStatus;
-    username: string;
+    username: string | undefined;
+    userId: string | undefined;
     onRequestConnection?: () => void;
     onRequestDisconnection?: () => void;
 }
@@ -31,8 +32,8 @@ interface Props {
 class MapContainer extends React.Component<Props, object> {
     render() {
         let statusText = statusToText(this.props.status);
-        if (this.props.username != '') {
-            statusText += ' (' + this.props.username + ')';
+        if (this.props.username && this.props.userId) {
+            statusText += ' (' + this.props.username + ' | ' + this.props.userId + ')';
         }
 
         let button = undefined;
@@ -54,7 +55,8 @@ class MapContainer extends React.Component<Props, object> {
 export function mapStateToProps(state: AppState): Props {
     return {
         status: state.osmConnection.status,
-        username: state.osmConnection.username
+        username: state.osmConnection.username,
+        userId: state.osmConnection.userId
     };
 }
 

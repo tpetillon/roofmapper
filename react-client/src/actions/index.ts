@@ -40,13 +40,15 @@ export type SET_OSM_USER_DETAILS = typeof SET_OSM_USER_DETAILS;
 
 export interface SetOsmUserDetailsAction {
     type: SET_OSM_USER_DETAILS;
-    username: string;
+    username: string | undefined;
+    userId: string | undefined;
 }
 
-export function setOsmUserDetails(username: string) {
+export function setOsmUserDetails(username: string | undefined, userId: string | undefined) {
     return {
         type: SET_OSM_USER_DETAILS,
-        username: username
+        username: username,
+        userId: userId
     }
 }
 

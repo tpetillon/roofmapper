@@ -19,9 +19,9 @@ function* connectToOsm(osmAuth: OSMAuth.OSMAuthInstance) {
         
         const u = details.getElementsByTagName('user')[0];
         const username = u.getAttribute('display_name');
-        //const userId = u.getAttribute('id'); // @Todo
+        const userId = u.getAttribute('id');
 
-        yield put(setOsmUserDetails(username));
+        yield put(setOsmUserDetails(username, userId));
     } catch (error) {
         yield put(setOsmConnectionStatus(OsmConnectionStatus.Error));
     }
@@ -43,7 +43,7 @@ function* osmConnectionFlow() {
         yield take(REQUEST_OSM_DISCONNECTION);
         yield cancel(connectTask);
         osmAuth.logout();
-        yield put(setOsmUserDetails(''));
+        yield put(setOsmUserDetails(undefined, undefined));
         yield put(setOsmConnectionStatus(OsmConnectionStatus.Disconnected));
     }
 }
