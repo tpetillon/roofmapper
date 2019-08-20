@@ -9,6 +9,7 @@ import { rootReducer } from './store';
 import { rootSaga } from './sagas';
 import { MapContainer } from './components/MapContainer';
 import { OsmLoginContainer } from './components/OsmLogin';
+import { SessionContainer } from './components/Session';
 
 import './index.css';
 
@@ -22,6 +23,7 @@ ReactDOM.render(
     <Provider store={store}>
         <MapContainer/>
         <OsmLoginContainer/>
+        <SessionContainer/>
     </Provider>,
     document.getElementById('root'));
 

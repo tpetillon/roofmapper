@@ -1,5 +1,5 @@
 import { Coordinates } from '../Coordinates';
-import { OsmLoginStatus } from '../reducers';
+import { OsmLoginStatus, SessionStatus } from '../reducers';
 
 export const MOVE_TO = 'MOVE_TO';
 export type MOVE_TO = typeof MOVE_TO;
@@ -83,3 +83,37 @@ export type OsmLoginAction =
     RequestOsmLogoutAction |
     SetOsmLoginStatusAction |
     SetOsmUserDetailsAction;
+
+export const SET_SESSION_STATUS = 'SET_SESSION_STATUS';
+export type SET_SESSION_STATUS = typeof SET_SESSION_STATUS;
+
+export interface SetSessionStatusAction {
+    type: SET_SESSION_STATUS;
+    status: SessionStatus;
+}
+
+export function setSessionStatus(status: SessionStatus) {
+    return {
+        type: SET_SESSION_STATUS,
+        status: status
+    };
+}
+
+export const SET_SESSION_DETAILS = 'SET_SESSION_DETAILS';
+export type SET_SESSION_DETAILS = typeof SET_SESSION_DETAILS;
+
+export interface SetSessionDetailsAction {
+    type: SET_SESSION_DETAILS;
+    sessionId: string | undefined;
+}
+
+export function setSessionDetails(sessionId: string | undefined) {
+    return {
+        type: SET_SESSION_DETAILS,
+        sessionId: sessionId
+    }
+}
+
+export type SessionAction =
+    SetSessionStatusAction |
+    SetSessionDetailsAction;

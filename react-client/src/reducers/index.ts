@@ -4,6 +4,8 @@ import {
     MOVE_TO,
     OsmLoginAction,
     SET_OSM_LOGIN_STATUS, SET_OSM_USER_DETAILS,
+    SessionAction,
+    SET_SESSION_DETAILS, SET_SESSION_STATUS,
 } from "../actions";
 import { Coordinates } from '../Coordinates';
 
@@ -29,6 +31,7 @@ export const mapReducer: Reducer<MapState, MapAction> = (state = initialMapState
 export enum OsmLoginStatus {
     LoggedOut,
     LoggingIn,
+    FetchingDetails,
     LoggedIn,
     Error
 }
@@ -48,11 +51,47 @@ export const initialOsmLoginState: OsmLoginState = {
 export const osmLoginReducer: Reducer<OsmLoginState, OsmLoginAction> = (state = initialOsmLoginState, action) => {
     switch (action.type) {
         case SET_OSM_LOGIN_STATUS:
-            const username = action.status == OsmLoginStatus.LoggedOut ? undefined : state.username;
-            const userId = action.status == OsmLoginStatus.LoggedOut ? undefined : state.userId;
-            return { ...state, status: action.status, username: username, userId: userId };
+            if (action.status == OsmLoginStatus.LoggedIn) {
+                console.error("Cannot set OSM login status to logged-in without details")
+            } else {
+                return { ...state, status: action.status, username: undefined, userId: undefined };
+            }
+            break;
         case SET_OSM_USER_DETAILS:
-            return { ...state, username: action.username, userId: action.userId };
+            return { ...state, status: OsmLoginStatus.LoggedIn, username: action.username, userId: action.userId };
+    }
+
+    return state;
+}
+
+export enum SessionStatus {
+    NoSession,
+    Creating,
+    Created,
+    Error
+}
+
+export interface SessionState {
+    status: SessionStatus;
+    sessionId: string | undefined;
+}
+
+export const initialSessionState: SessionState = {
+    status: SessionStatus.NoSession,
+    sessionId: undefined
+}
+
+export const sessionReducer: Reducer<SessionState, SessionAction> = (state = initialSessionState, action) => {
+    switch (action.type) {
+        case SET_SESSION_STATUS:
+            if (action.status == SessionStatus.Created) {
+                console.error("Cannot set session status to created without details")
+            } else {
+                return { ...state, status: action.status, sessionId: undefined };
+            }
+            break;
+        case SET_SESSION_DETAILS:
+            return { ...state, status: SessionStatus.Created, sessionId: action.sessionId };
     }
 
     return state;

@@ -12,6 +12,8 @@ function statusToText(status: OsmLoginStatus) {
             return 'Logged out';
         case OsmLoginStatus.LoggingIn:
             return 'Logging in...';
+        case OsmLoginStatus.FetchingDetails:
+            return 'Fetch user details...';
         case OsmLoginStatus.LoggedIn:
             return 'Logged in';
         case OsmLoginStatus.Error:
