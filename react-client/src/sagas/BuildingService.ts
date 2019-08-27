@@ -1,6 +1,6 @@
 import { Building, BuildingType, BuildingTypeFromString } from "../reducers/Building";
 
-const SERVER_URL: string = 'http://roofmapper.eu';
+const SERVER_URL: string = 'http://lan.dev.roofmapper.eu:3000';
 
 export class BuildingService {
     static openSession(userId: string) {
