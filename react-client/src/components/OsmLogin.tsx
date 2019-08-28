@@ -39,9 +39,9 @@ class LoginComponent extends React.Component<Props, object> {
         }
 
         let button = undefined;
-        if (this.props.status == OsmLoginStatus.LoggedOut || this.props.status == OsmLoginStatus.Error) {
+        if (this.props.status === OsmLoginStatus.LoggedOut || this.props.status === OsmLoginStatus.Error) {
             button = <button onClick={this.props.onRequestLogin}>Log in to OSM</button>;
-        } else if (this.props.status == OsmLoginStatus.LoggedIn) {
+        } else if (this.props.status === OsmLoginStatus.LoggedIn) {
             button = <button onClick={this.props.onRequestLogout}>Log out of OSM</button>;
         }
 

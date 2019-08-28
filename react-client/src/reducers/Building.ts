@@ -251,7 +251,7 @@ export class Building {
                 this.tags = relation.tags;
                 break;
             default:
-                throw 'Unsupported building type: ' + this.type;
+                throw new Error('Unsupported building type: ' + this.type);
         }
         
         for (let i = 0; i < this.tags.length; i++) {
@@ -350,7 +350,7 @@ function extractWays(data: XMLDocument): Map<number, OsmWay> {
             let nodeIds = new Array<number>();
 
             for (let wayChild of osmChild.children) {
-                if (wayChild.tagName != 'nd') {
+                if (wayChild.tagName !== 'nd') {
                     continue;
                 }
 

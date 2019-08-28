@@ -30,7 +30,7 @@ export class BuildingService {
             .then(json => {
                 const buildingType = BuildingTypeFromString(json.type);
                 if (!buildingType) {
-                    throw 'Invalid building type: ' + buildingType;
+                    throw new Error('Invalid building type: ' + buildingType);
                 }
 
                 const buildingId = parseInt(json.id);
