@@ -2,8 +2,7 @@ import * as React from 'react';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 
-import { AppState } from '../store';
-import { SessionStatus } from "../reducers";
+import { SessionStatus, AppState } from "../reducers";
 import * as actions from '../actions';
 
 function statusToText(status: SessionStatus) {

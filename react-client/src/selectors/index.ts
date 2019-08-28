@@ -1,4 +1,4 @@
-import { AppState } from '../store'
+import { AppState } from '../reducers'
 
 export const osmUserId = (state: AppState) => {
     return state.osmLogin.userId;

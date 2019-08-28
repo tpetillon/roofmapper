@@ -1,11 +1,11 @@
-import { combineReducers } from 'redux';
-import { StateType } from 'typesafe-actions';
-import { mapReducer, osmLoginReducer, sessionReducer } from '../reducers';
+import { Reducer } from 'redux';
+import { initialAppState, mapReducer, osmLoginReducer, sessionReducer, AppState } from '../reducers';
+import { RootAction } from '../actions';
 
-export const rootReducer = combineReducers({
-    map: mapReducer,
-    osmLogin: osmLoginReducer,
-    session: sessionReducer
-});
-
-export type AppState = StateType<typeof rootReducer>;
+export const rootReducer: Reducer<AppState, RootAction> = (state, action): AppState => {
+    let newState = state ? state : initialAppState;
+    newState = osmLoginReducer(newState, action);
+    newState = sessionReducer(newState, action);
+    newState = mapReducer(newState, action);
+    return newState;
+};

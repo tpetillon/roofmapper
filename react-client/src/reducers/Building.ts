@@ -1,4 +1,4 @@
-import { LatLng, Polygon } from 'leaflet';
+import { LatLng, Polygon, LatLngBounds } from 'leaflet';
 
 enum OsmObjectType {
     Node = 'node',
@@ -197,6 +197,14 @@ export class Building {
     get position(): LatLng | undefined {
         if (this._polygon) {
             return this._polygon.getBounds().getCenter();
+        } else {
+            return undefined;
+        }
+    }
+
+    get bounds(): LatLngBounds | undefined {
+        if (this._polygon) {
+            return this._polygon.getBounds();
         } else {
             return undefined;
         }

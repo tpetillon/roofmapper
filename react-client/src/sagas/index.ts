@@ -70,12 +70,6 @@ function* fetchBuildings(osmAuth: OSMAuth.OSMAuthInstance) {
     if (building.setData(buildingData)) {
         yield put(actions.addBuilding(building));
         yield put(actions.selectLastBuilding());
-
-        const position: ReturnType<typeof selectors.currentBuildingPosition> =
-            yield select(selectors.currentBuildingPosition);
-        if (position) {
-            yield put(actions.moveTo(position, 9));
-        }
     } else {
         // @Todo
     }
