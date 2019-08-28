@@ -19,7 +19,8 @@
         "react-scripts": "2.1.8",
         "redux": "^4.0.4",
         "redux-saga": "^1.0.5",
-        "typescript": "3.3.3333"
+        "typesafe-actions": "^4.4.2",
+        "typescript": "3.5.3"
     },
     "devDependencies": {
         "@types/jest": "24.0.11",

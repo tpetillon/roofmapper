@@ -1,192 +1,87 @@
+import { createAction, ActionType } from 'typesafe-actions';
 import { Coordinates } from '../Coordinates';
 import { OsmLoginStatus, SessionStatus } from '../reducers';
 import { Building } from '../reducers/Building';
 
-export const MOVE_TO = 'MOVE_TO';
-export type MOVE_TO = typeof MOVE_TO;
+export const moveTo = createAction('MOVE_TO', action => {
+    return (position: Coordinates, zoomLevel: number) =>
+        action({
+            position: position,
+            zoomLevel: zoomLevel
+        });
+});
 
-export interface MoveToAction {
-    type: MOVE_TO,
-    position: Coordinates,
-    zoomLevel: number
-}
+export type MapAction = ActionType<typeof moveTo>;
 
-export function moveTo(position: Coordinates, zoomLevel: number): MoveToAction {
-    return {
-        type: MOVE_TO,
-        position: position,
-        zoomLevel: zoomLevel
-    }
-}
+export const setOsmLoginStatus = createAction('SET_OSM_LOGIN_STATUS', action => {
+    return (status: OsmLoginStatus) =>
+        action({
+            status: status
+        });
+});
 
-export type MapAction = MoveToAction;
+export const setOsmUserDetails = createAction('SET_OSM_USER_DETAILS', action => {
+    return (username: string | undefined, userId: string | undefined) =>
+        action({
+            username: username,
+            userId: userId
+        });
+});
 
-export const SET_OSM_LOGIN_STATUS = 'SET_OSM_LOGIN_STATUS';
-export type SET_OSM_LOGIN_STATUS = typeof SET_OSM_LOGIN_STATUS;
+export const requestOsmLogin = createAction('REQUEST_OSM_LOGIN', action => {
+    return () => action({});
+});
 
-export interface SetOsmLoginStatusAction {
-    type: SET_OSM_LOGIN_STATUS;
-    status: OsmLoginStatus;
-}
-
-export function setOsmLoginStatus(status: OsmLoginStatus) {
-    return {
-        type: SET_OSM_LOGIN_STATUS,
-        status: status
-    };
-}
-
-export const SET_OSM_USER_DETAILS = 'SET_OSM_USER_DETAILS';
-export type SET_OSM_USER_DETAILS = typeof SET_OSM_USER_DETAILS;
-
-export interface SetOsmUserDetailsAction {
-    type: SET_OSM_USER_DETAILS;
-    username: string | undefined;
-    userId: string | undefined;
-}
-
-export function setOsmUserDetails(username: string | undefined, userId: string | undefined) {
-    return {
-        type: SET_OSM_USER_DETAILS,
-        username: username,
-        userId: userId
-    }
-}
-
-export const REQUEST_OSM_LOGIN = 'REQUEST_OSM_LOGIN';
-export type REQUEST_OSM_LOGIN = typeof REQUEST_OSM_LOGIN;
-
-export interface RequestOsmLoginAction {
-    type: REQUEST_OSM_LOGIN
-}
-
-export function requestOsmLogin(): RequestOsmLoginAction {
-    return {
-        type: REQUEST_OSM_LOGIN
-    }
-}
-
-export const REQUEST_OSM_LOGOUT = 'REQUEST_OSM_LOGOUT';
-export type REQUEST_OSM_LOGOUT = typeof REQUEST_OSM_LOGOUT;
-
-export interface RequestOsmLogoutAction {
-    type: REQUEST_OSM_LOGOUT
-}
-
-export function requestOsmLogout(): RequestOsmLogoutAction {
-    return {
-        type: REQUEST_OSM_LOGOUT
-    }
-}
+export const requestOsmLogout = createAction('REQUEST_OSM_LOGOUT', action => {
+    return () => action({});
+});
 
 export type OsmLoginAction =
-    RequestOsmLoginAction |
-    RequestOsmLogoutAction |
-    SetOsmLoginStatusAction |
-    SetOsmUserDetailsAction;
+    ActionType<typeof setOsmLoginStatus> |
+    ActionType<typeof setOsmUserDetails> |
+    ActionType<typeof requestOsmLogin> |
+    ActionType<typeof requestOsmLogout>;
+    
+export const setSessionStatus = createAction('SET_SESSION_STATUS', action => {
+    return (status: SessionStatus) =>
+        action({
+            status: status
+        });
+});
 
-export const SET_SESSION_STATUS = 'SET_SESSION_STATUS';
-export type SET_SESSION_STATUS = typeof SET_SESSION_STATUS;
+export const setSessionDetails = createAction('SET_SESSION_DETAILS', action => {
+    return (sessionId: string | undefined) =>
+        action({
+            sessionId: sessionId
+        });
+});
 
-export interface SetSessionStatusAction {
-    type: SET_SESSION_STATUS;
-    status: SessionStatus;
-}
+export const addBuilding = createAction('ADD_BUILDING', action => {
+    return (building: Building) =>
+        action({
+            building: building
+        });
+});
 
-export function setSessionStatus(status: SessionStatus) {
-    return {
-        type: SET_SESSION_STATUS,
-        status: status
-    };
-}
+export const setBuildingIndex = createAction('SET_BUILDING_INDEX', action => {
+    return (index: number) =>
+        action({
+            index: index
+        });
+});
 
-export const SET_SESSION_DETAILS = 'SET_SESSION_DETAILS';
-export type SET_SESSION_DETAILS = typeof SET_SESSION_DETAILS;
-
-export interface SetSessionDetailsAction {
-    type: SET_SESSION_DETAILS;
-    sessionId: string | undefined;
-}
-
-export function setSessionDetails(sessionId: string | undefined) {
-    return {
-        type: SET_SESSION_DETAILS,
-        sessionId: sessionId
-    }
-}
-
-export const ADD_BUILDING = 'ADD_BUILDING';
-export type ADD_BUILDING = typeof ADD_BUILDING;
-
-export interface AddBuildingAction {
-    type: ADD_BUILDING;
-    building: Building;
-}
-
-export function addBuilding(building: Building) {
-    return {
-        type: ADD_BUILDING,
-        building: building
-    }
-}
-
-export const SET_BUILDING_INDEX = 'SET_BUILDING_INDEX';
-export type SET_BUILDING_INDEX = typeof SET_BUILDING_INDEX;
-
-export interface SetBuildingIndexAction {
-    type: SET_BUILDING_INDEX;
-    index: number;
-}
-
-export function setBuildingIndex(index: number) {
-    return {
-        type: SET_BUILDING_INDEX,
-        index: index
-    }
-}
-
-export const SELECT_LAST_BUILDING = 'SELECT_LAST_BUILDING';
-export type SELECT_LAST_BUILDING = typeof SELECT_LAST_BUILDING;
-
-export interface SelectLastBuildingAction {
-    type: SELECT_LAST_BUILDING;
-}
-
-export function selectLastBuilding() {
-    return {
-        type: SELECT_LAST_BUILDING
-    }
-}
+export const selectLastBuilding = createAction('SELECT_LAST_BUILDING', action => {
+    return () => action({});
+});
 
 export type SessionAction =
-    SetSessionStatusAction |
-    SetSessionDetailsAction | 
-    AddBuildingAction |
-    SetBuildingIndexAction |
-    SelectLastBuildingAction;
+    ActionType<typeof setSessionStatus> |
+    ActionType<typeof setSessionDetails> |
+    ActionType<typeof addBuilding> |
+    ActionType<typeof setBuildingIndex> |
+    ActionType<typeof selectLastBuilding>;
 
-/*export const OPEN_SESSION = 'OPEN_SESSION';
-export type OPEN_SESSION = typeof OPEN_SESSION;
-
-export interface OpenSessionAction {
-    type: OPEN_SESSION
-}
-
-export function openSessionAction(): OpenSessionAction {
-    return {
-        type: OPEN_SESSION
-    }
-}
-
-export const CLOSE_SESSION = 'CLOSE_SESSION';
-export type CLOSE_SESSION = typeof CLOSE_SESSION;
-
-export interface CloseSessionAction {
-    type: CLOSE_SESSION
-}
-
-export function closeSessionAction(): CloseSessionAction {
-    return {
-        type: CLOSE_SESSION
-    }
-}*/
+export type RootAction = 
+    MapAction |
+    OsmLoginAction |
+    SessionAction;

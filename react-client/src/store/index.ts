@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import { StateType } from 'typesafe-actions';
 import { mapReducer, osmLoginReducer, sessionReducer } from '../reducers';
 
 export const rootReducer = combineReducers({
@@ -7,4 +8,4 @@ export const rootReducer = combineReducers({
     session: sessionReducer
 });
 
-export type AppState = ReturnType<typeof rootReducer>;
+export type AppState = StateType<typeof rootReducer>;
