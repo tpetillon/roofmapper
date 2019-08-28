@@ -1,4 +1,4 @@
-import { LatLng } from 'leaflet';
+import { LatLng, Polygon } from 'leaflet';
 
 enum OsmObjectType {
     Node = 'node',
@@ -164,7 +164,7 @@ export class Building {
     _roofMaterial: RoofMaterial | undefined = undefined;
     _invalidityReason: InvalidityReason | undefined = undefined;
 
-    _polygon: Array<Array<Array<LatLng>>> | undefined = undefined;
+    _polygon: Polygon | undefined = undefined;
     
     constructor(type: BuildingType, id: number, version: number) {
         this.type = type;
@@ -190,14 +190,13 @@ export class Building {
         this._roofMaterial = undefined;
     }
 
-    get polygon(): Array<Array<Array<LatLng>>> | undefined {
+    get polygon(): Polygon | undefined {
         return this._polygon;
     }
 
     get position(): LatLng | undefined {
-        // @Todo Compute actual centre
         if (this._polygon) {
-            return this._polygon[0][0][0];
+            return this._polygon.getBounds().getCenter();
         } else {
             return undefined;
         }
@@ -226,7 +225,7 @@ export class Building {
                 }
 
                 const positions = way.nodes.map(node => node.position);
-                this._polygon = [[positions]];
+                this._polygon = new Polygon(positions);
 
                 this.nodes = way.nodes;
                 this.tags = way.tags;
@@ -247,7 +246,7 @@ export class Building {
                     polygons.push([outerWay.nodes.map(node => node.position)].concat(
                         relation.innerWays.map(way => way.nodes.map(node => node.position))));
                 }
-                this._polygon = polygons;
+                this._polygon = new Polygon(polygons);
                 this.members = relation.members;
                 this.tags = relation.tags;
                 break;

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { LatLng } from 'leaflet';
+import { LatLng, Polygon as LPolygon } from 'leaflet';
 import { Map, TileLayer, Marker, Popup, Viewport, Polygon } from 'react-leaflet';
 
 import { Coordinates } from '../Coordinates';
@@ -24,7 +24,7 @@ function toLatLng(position: Coordinates) {
 interface Props {
     position: Coordinates;
     zoom: number;
-    buildingPolygon: Array<Array<Array<LatLng>>> | undefined;
+    buildingPolygon: LPolygon | undefined;
     onViewportChanged?: (viewport: Viewport) => void;
 }
 
@@ -39,9 +39,7 @@ class MapComponent extends React.Component<Props, object> {
         };
 
         const polygon = this.props.buildingPolygon ?
-            <Polygon positions={this.props.buildingPolygon}></Polygon>
-            :
-            undefined;
+            <Polygon positions={this.props.buildingPolygon.getLatLngs()}></Polygon> : undefined;
 
         return (
             <div className="map-container">
