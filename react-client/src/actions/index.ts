@@ -1,5 +1,6 @@
 import { Coordinates } from '../Coordinates';
 import { OsmLoginStatus, SessionStatus } from '../reducers';
+import { Building } from '../reducers/Building';
 
 export const MOVE_TO = 'MOVE_TO';
 export type MOVE_TO = typeof MOVE_TO;
@@ -114,6 +115,78 @@ export function setSessionDetails(sessionId: string | undefined) {
     }
 }
 
+export const ADD_BUILDING = 'ADD_BUILDING';
+export type ADD_BUILDING = typeof ADD_BUILDING;
+
+export interface AddBuildingAction {
+    type: ADD_BUILDING;
+    building: Building;
+}
+
+export function addBuilding(building: Building) {
+    return {
+        type: ADD_BUILDING,
+        building: building
+    }
+}
+
+export const SET_BUILDING_INDEX = 'SET_BUILDING_INDEX';
+export type SET_BUILDING_INDEX = typeof SET_BUILDING_INDEX;
+
+export interface SetBuildingIndexAction {
+    type: SET_BUILDING_INDEX;
+    index: number;
+}
+
+export function setBuildingIndex(index: number) {
+    return {
+        type: SET_BUILDING_INDEX,
+        index: index
+    }
+}
+
+export const SELECT_LAST_BUILDING = 'SELECT_LAST_BUILDING';
+export type SELECT_LAST_BUILDING = typeof SELECT_LAST_BUILDING;
+
+export interface SelectLastBuildingAction {
+    type: SELECT_LAST_BUILDING;
+}
+
+export function selectLastBuilding() {
+    return {
+        type: SELECT_LAST_BUILDING
+    }
+}
+
 export type SessionAction =
     SetSessionStatusAction |
-    SetSessionDetailsAction;
+    SetSessionDetailsAction | 
+    AddBuildingAction |
+    SetBuildingIndexAction |
+    SelectLastBuildingAction;
+
+/*export const OPEN_SESSION = 'OPEN_SESSION';
+export type OPEN_SESSION = typeof OPEN_SESSION;
+
+export interface OpenSessionAction {
+    type: OPEN_SESSION
+}
+
+export function openSessionAction(): OpenSessionAction {
+    return {
+        type: OPEN_SESSION
+    }
+}
+
+export const CLOSE_SESSION = 'CLOSE_SESSION';
+export type CLOSE_SESSION = typeof CLOSE_SESSION;
+
+export interface CloseSessionAction {
+    type: CLOSE_SESSION
+}
+
+export function closeSessionAction(): CloseSessionAction {
+    return {
+        type: CLOSE_SESSION
+    }
+}*/

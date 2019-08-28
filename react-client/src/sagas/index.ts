@@ -1,13 +1,16 @@
 import { all, cancel, cps, fork, put, take, select } from 'redux-saga/effects';
 import OSMAuth from 'osm-auth';
 import {
+    moveTo,
     setOsmLoginStatus, setOsmUserDetails,
     REQUEST_OSM_LOGIN, REQUEST_OSM_LOGOUT,
-    setSessionDetails, setSessionStatus,
+    setSessionDetails, setSessionStatus, addBuilding, selectLastBuilding,
 } from '../actions';
 import { OsmLoginStatus, SessionStatus } from '../reducers';
 import * as selectors from '../selectors';
 import { BuildingService } from './BuildingService';
+import { Building } from '../reducers/Building';
+import { Coordinates } from '../Coordinates';
 
 function* loginToOsm(osmAuth: OSMAuth.OSMAuthInstance) {
     try {
@@ -45,12 +48,41 @@ function* openSession(userId: string) {
     }
 }
 
-function* loginToOsmAndOpenSession(osmAuth: OSMAuth.OSMAuthInstance) {
+function* initialLoginFlow(osmAuth: OSMAuth.OSMAuthInstance) {
     yield loginToOsm(osmAuth);
 
     const userId: ReturnType<typeof selectors.osmUserId> = yield select(selectors.osmUserId);
     if (userId) {
         yield openSession(userId);
+    }
+
+    yield fetchBuildings(osmAuth);
+}
+
+function* fetchBuildings(osmAuth: OSMAuth.OSMAuthInstance) {
+    const sessionId: ReturnType<typeof selectors.sessionId> = yield select(selectors.sessionId);
+
+    if (!sessionId) {
+        return;
+    }
+
+    const building: Building = yield BuildingService.getBuilding(sessionId);
+    const buildingData: XMLDocument = yield cps(cb => osmAuth.xhr({
+            path: '/api/0.6/' + building.type + '/' + building.id + '/full',
+            method: 'GET'
+        },
+        (error, result) => cb(error, result)));
+    if (building.setData(buildingData)) {
+        yield put(addBuilding(building));
+        yield put(selectLastBuilding());
+
+        const position: ReturnType<typeof selectors.currentBuildingPosition> =
+            yield select(selectors.currentBuildingPosition);
+        if (position) {
+            yield put(moveTo(new Coordinates(position.lng, position.lat), 9));
+        }
+    } else {
+        // @Todo
     }
 }
 
@@ -66,18 +98,19 @@ function* osmLoginFlow() {
     
     while (true) {
         yield take(REQUEST_OSM_LOGIN);
-        const connectTask = yield fork(loginToOsmAndOpenSession, osmAuth);
+        const loginTask = yield fork(initialLoginFlow, osmAuth);
         yield take(REQUEST_OSM_LOGOUT);
-        yield cancel(connectTask);
+        yield cancel(loginTask);
         
         const sessionId: ReturnType<typeof selectors.sessionId> = yield select(selectors.sessionId);
+        yield put(setSessionStatus(SessionStatus.NoSession));
+        yield put(setOsmLoginStatus(OsmLoginStatus.LoggedOut));
+
+        // @Todo Do these two actions in parallel
         if (sessionId) {
             yield BuildingService.closeSession(sessionId);
         }
-        yield put(setSessionStatus(SessionStatus.NoSession));
-
         osmAuth.logout();
-        yield put(setOsmLoginStatus(OsmLoginStatus.LoggedOut));
     }
 }
 

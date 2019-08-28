@@ -1,4 +1,4 @@
-import { LatLng, Polygon } from 'leaflet';
+import { LatLng } from 'leaflet';
 
 enum OsmObjectType {
     Node = 'node',
@@ -164,7 +164,7 @@ export class Building {
     _roofMaterial: RoofMaterial | undefined = undefined;
     _invalidityReason: InvalidityReason | undefined = undefined;
 
-    _polygon: Polygon | undefined = undefined;
+    _polygon: Array<Array<Array<LatLng>>> | undefined = undefined;
     
     constructor(type: BuildingType, id: number, version: number) {
         this.type = type;
@@ -190,33 +190,43 @@ export class Building {
         this._roofMaterial = undefined;
     }
 
-    get polygon(): Polygon | undefined {
+    get polygon(): Array<Array<Array<LatLng>>> | undefined {
         return this._polygon;
     }
 
     get position(): LatLng | undefined {
+        // @Todo Compute actual centre
         if (this._polygon) {
-            return this._polygon.getBounds().getCenter();
+            return this._polygon[0][0][0];
         } else {
             return undefined;
         }
     }
 
-    setData(data: XMLDocument) {
+    /**
+     * @returns `true` if the supplied data corresponds to the building,
+     *          `false` otherwise.
+     */
+    setData(data: XMLDocument): boolean {
+        const checkResult = checkIdAndVersion(this, data);
+        if (!checkResult) {
+            return false;
+        }
+
         switch (this.type) {
             case (BuildingType.Way):
                 const ways = extractWays(data);
                 if (ways.size === 0) {
-                    return;
+                    return true;
                 }
 
                 const way = ways.get(this.id)
                 if (!way) {
-                    return;
+                    return true;
                 }
 
                 const positions = way.nodes.map(node => node.position);
-                this._polygon = new Polygon(positions);
+                this._polygon = [[positions]];
 
                 this.nodes = way.nodes;
                 this.tags = way.tags;
@@ -224,12 +234,12 @@ export class Building {
             case (BuildingType.Relation):
                 const relations = extractRelations(data);
                 if (relations.size === 0) {
-                    return;
+                    return true;
                 }
 
                 const relation = relations.get(this.id);
                 if (!relation) {
-                    return;
+                    return true;
                 }
 
                 let polygons = new Array<Array<Array<LatLng>>>();
@@ -237,7 +247,7 @@ export class Building {
                     polygons.push([outerWay.nodes.map(node => node.position)].concat(
                         relation.innerWays.map(way => way.nodes.map(node => node.position))));
                 }
-                this._polygon = new Polygon(polygons);
+                this._polygon = polygons;
                 this.members = relation.members;
                 this.tags = relation.tags;
                 break;
@@ -253,7 +263,35 @@ export class Building {
                 break;
             }
         }
+
+        return true;
     }
+}
+
+function checkIdAndVersion(building: Building, data: XMLDocument): boolean {
+    for (let dataChild of data.children) {
+        if (dataChild.tagName !== 'osm') {
+            continue;
+        }
+
+        for (let osmChild of dataChild.children) {
+            if (osmChild.tagName === building.type as string) {
+                const idAttr = osmChild.attributes.getNamedItem('id');
+                const versionAttr = osmChild.attributes.getNamedItem('version');
+
+                if (!idAttr || !versionAttr) {
+                    continue;
+                }
+
+                const id = parseInt(idAttr.value);
+                const version = parseInt(versionAttr.value);
+
+                return id === building.id && version === building.version;
+            }
+        }
+    }
+
+    return false;
 }
 
 function extractNodes(data: XMLDocument): Map<number, LatLng> {
@@ -271,17 +309,17 @@ function extractNodes(data: XMLDocument): Map<number, LatLng> {
 
             const idAttr = osmChild.attributes.getNamedItem('id');
             const latAttr = osmChild.attributes.getNamedItem('lat');
-            const lngAttr = osmChild.attributes.getNamedItem('lng');
+            const lonAttr = osmChild.attributes.getNamedItem('lon');
     
-            if (!idAttr || !latAttr || !lngAttr) {
+            if (!idAttr || !latAttr || !lonAttr) {
                 continue;
             }
     
-            const id = Number(idAttr.value);
-            const lat = Number(latAttr.value);
-            const lng = Number(lngAttr.value);
+            const id = parseInt(idAttr.value);
+            const lat = parseFloat(latAttr.value);
+            const lon = parseFloat(lonAttr.value);
     
-            nodes.set(id, new LatLng(lat, lng));
+            nodes.set(id, new LatLng(lat, lon));
         }
     }
     
@@ -308,7 +346,7 @@ function extractWays(data: XMLDocument): Map<number, OsmWay> {
                 continue;
             }
             
-            const id = Number(idAttr.value);
+            const id = parseInt(idAttr.value);
 
             let nodeIds = new Array<number>();
 
@@ -322,7 +360,7 @@ function extractWays(data: XMLDocument): Map<number, OsmWay> {
                     continue;
                 }
 
-                const ref = Number(refAttr.value);
+                const ref = parseInt(refAttr.value);
                 nodeIds.push(ref);
             }
 
@@ -360,7 +398,7 @@ function extractRelations(data: XMLDocument): Map<number, OsmRelation> {
                 continue;
             }
 
-            const id = Number(idAttr.value);
+            const id = parseInt(idAttr.value);
             
             let outerWays = new Array<OsmWay>();
             let innerWays = new Array<OsmWay>();
@@ -383,7 +421,7 @@ function extractRelations(data: XMLDocument): Map<number, OsmRelation> {
                 }
                 
                 const type = OsmObjectTypeFromString(typeAttr.value);
-                const ref = Number(refAttr.value);
+                const ref = parseInt(refAttr.value);
                 const role = roleAttr.value;
 
                 if (!type) {

@@ -33,8 +33,10 @@ export class BuildingService {
                     throw 'Invalid building type: ' + buildingType;
                 }
 
-                const buildingId = Number(json.id);
-                const buildingVersion = Number(json.version);
+                const buildingId = parseInt(json.id);
+                const buildingVersion = parseInt(json.version);
+
+                // @Todo Check for NaNs
 
                 return new Building(buildingType, buildingId, buildingVersion);
             });

@@ -5,9 +5,10 @@ import {
     OsmLoginAction,
     SET_OSM_LOGIN_STATUS, SET_OSM_USER_DETAILS,
     SessionAction,
-    SET_SESSION_DETAILS, SET_SESSION_STATUS,
+    SET_SESSION_DETAILS, SET_SESSION_STATUS, ADD_BUILDING, SET_BUILDING_INDEX, SELECT_LAST_BUILDING,
 } from "../actions";
 import { Coordinates } from '../Coordinates';
+import { Building } from './Building';
 
 export interface MapState {
     position: Coordinates;
@@ -15,7 +16,7 @@ export interface MapState {
 }
 
 export const initialMapState: MapState = {
-    position: new Coordinates(48, -4),
+    position: new Coordinates(-4, 48),
     zoomLevel: 7
 };
 
@@ -51,8 +52,8 @@ export const initialOsmLoginState: OsmLoginState = {
 export const osmLoginReducer: Reducer<OsmLoginState, OsmLoginAction> = (state = initialOsmLoginState, action) => {
     switch (action.type) {
         case SET_OSM_LOGIN_STATUS:
-            if (action.status == OsmLoginStatus.LoggedIn) {
-                console.error("Cannot set OSM login status to logged-in without details")
+            if (action.status === OsmLoginStatus.LoggedIn) {
+                console.error('Cannot set OSM login status to logged-in without details');
             } else {
                 return { ...state, status: action.status, username: undefined, userId: undefined };
             }
@@ -74,24 +75,40 @@ export enum SessionStatus {
 export interface SessionState {
     status: SessionStatus;
     sessionId: string | undefined;
+    buildings: Building[];
+    currentBuildingIndex: number;
 }
 
 export const initialSessionState: SessionState = {
     status: SessionStatus.NoSession,
-    sessionId: undefined
+    sessionId: undefined,
+    buildings: [],
+    currentBuildingIndex: -1
 }
 
 export const sessionReducer: Reducer<SessionState, SessionAction> = (state = initialSessionState, action) => {
     switch (action.type) {
         case SET_SESSION_STATUS:
-            if (action.status == SessionStatus.Created) {
-                console.error("Cannot set session status to created without details")
+            if (action.status === SessionStatus.Created) {
+                console.error('Cannot set session status to created without details');
             } else {
                 return { ...state, status: action.status, sessionId: undefined };
             }
             break;
         case SET_SESSION_DETAILS:
             return { ...state, status: SessionStatus.Created, sessionId: action.sessionId };
+        case ADD_BUILDING:
+            return { ...state, buildings: state.buildings.concat([action.building]) };
+        case SET_BUILDING_INDEX:
+            if ((state.buildings.length === 0 && action.index !== -1) ||
+                (state.buildings.length > 0 && (action.index < 0 || action.index >= state.buildings.length))) {
+                console.error('Invalid building index', action.index);
+            } else {
+                return { ...state, currentBuildingIndex: action.index };
+            }
+            break;
+        case SELECT_LAST_BUILDING:
+            return { ...state, currentBuildingIndex: state.buildings.length - 1 };
     }
 
     return state;

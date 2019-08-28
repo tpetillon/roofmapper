@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { LatLng } from 'leaflet';
-import { Map, TileLayer, Marker, Popup, Viewport } from 'react-leaflet';
+import { Map, TileLayer, Marker, Popup, Viewport, Polygon } from 'react-leaflet';
 
 import { Coordinates } from '../Coordinates';
 import * as actions from '../actions';
@@ -11,19 +11,20 @@ import { AppState } from '../store';
 function toCoordinates(position: [number, number] | null | undefined) {
     if (position)
     {
-        return new Coordinates(position[0], position[1]);
+        return new Coordinates(position[1], position[0]);
     }
 
     return new Coordinates(0, 0);
 }
 
 function toLatLng(position: Coordinates) {
-    return new LatLng(position.longitude, position.latitude);
+    return new LatLng(position.latitude, position.longitude);
 }
 
 interface Props {
     position: Coordinates;
     zoom: number;
+    buildingPolygon: Array<Array<Array<LatLng>>> | undefined;
     onViewportChanged?: (viewport: Viewport) => void;
 }
 
@@ -33,9 +34,14 @@ class MapComponent extends React.Component<Props, object> {
         const latitude = this.props.position.latitude;
         const zoom = this.props.zoom;
         const viewport: Viewport = {
-            center: [longitude, latitude],
+            center: [latitude, longitude],
             zoom: zoom
         };
+
+        const polygon = this.props.buildingPolygon ?
+            <Polygon positions={this.props.buildingPolygon}></Polygon>
+            :
+            undefined;
 
         return (
             <div className="map-container">
@@ -52,6 +58,7 @@ class MapComponent extends React.Component<Props, object> {
                             A pretty CSS3 popup. <br /> Easily customizable.
                         </Popup>
                     </Marker>
+                    {polygon}
                 </Map>
             </div>
           );
@@ -59,9 +66,13 @@ class MapComponent extends React.Component<Props, object> {
 }
 
 export function mapStateToProps(state: AppState): Props {
+    const building = state.session.buildings[state.session.currentBuildingIndex];
+    const polygon = building ? building.polygon : undefined;
+
     return {
         position: state.map.position,
-        zoom: state.map.zoomLevel
+        zoom: state.map.zoomLevel,
+        buildingPolygon: polygon
     };
 }
 
