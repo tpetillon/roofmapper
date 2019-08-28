@@ -48,10 +48,10 @@ class MapComponent extends React.Component<Props, object> {
                 <div className="position-display">
                     The map is at {longitude}, {latitude}. Zoom {zoom}.
                 </div>
-                <Map id="map" viewport={viewport} onViewportChanged={this.props.onViewportChanged}>
+                <Map id="map" viewport={viewport} onViewportChanged={this.props.onViewportChanged} maxZoom={19}>
                     <TileLayer
-                        attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     />
                     <Marker position={toLatLng(this.props.position)}>
                         <Popup>
