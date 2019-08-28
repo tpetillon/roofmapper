@@ -1,4 +1,5 @@
 import { Reducer } from 'redux';
+import { produce } from 'immer';
 import {
     MapAction,
     MOVE_TO,
@@ -21,12 +22,14 @@ export const initialMapState: MapState = {
 };
 
 export const mapReducer: Reducer<MapState, MapAction> = (state = initialMapState, action) => {
-    switch (action.type) {
-        case MOVE_TO:
-            return { ...state, position: action.position, zoomLevel: action.zoomLevel };
-    }
-
-    return state;
+    return produce(state, draft => {
+        switch (action.type) {
+            case MOVE_TO:
+                draft.position = action.position;
+                draft.zoomLevel = action.zoomLevel;
+                break;
+        }
+    });
 }
 
 export enum OsmLoginStatus {
@@ -50,19 +53,24 @@ export const initialOsmLoginState: OsmLoginState = {
 }
 
 export const osmLoginReducer: Reducer<OsmLoginState, OsmLoginAction> = (state = initialOsmLoginState, action) => {
-    switch (action.type) {
-        case SET_OSM_LOGIN_STATUS:
-            if (action.status === OsmLoginStatus.LoggedIn) {
-                console.error('Cannot set OSM login status to logged-in without details');
-            } else {
-                return { ...state, status: action.status, username: undefined, userId: undefined };
-            }
-            break;
-        case SET_OSM_USER_DETAILS:
-            return { ...state, status: OsmLoginStatus.LoggedIn, username: action.username, userId: action.userId };
-    }
-
-    return state;
+    return produce(state, draft => {
+        switch (action.type) {
+            case SET_OSM_LOGIN_STATUS:
+                if (action.status === OsmLoginStatus.LoggedIn) {
+                    console.error('Cannot set OSM login status to logged-in without details');
+                } else {
+                    draft.status = action.status;
+                    draft.username = undefined;
+                    draft.userId = undefined;
+                }
+                break;
+            case SET_OSM_USER_DETAILS:
+                draft.status = OsmLoginStatus.LoggedIn;
+                draft.username = action.username;
+                draft.userId = action.userId;
+                break;
+        }
+    });
 }
 
 export enum SessionStatus {
@@ -87,29 +95,34 @@ export const initialSessionState: SessionState = {
 }
 
 export const sessionReducer: Reducer<SessionState, SessionAction> = (state = initialSessionState, action) => {
-    switch (action.type) {
-        case SET_SESSION_STATUS:
-            if (action.status === SessionStatus.Created) {
-                console.error('Cannot set session status to created without details');
-            } else {
-                return { ...state, status: action.status, sessionId: undefined };
-            }
-            break;
-        case SET_SESSION_DETAILS:
-            return { ...state, status: SessionStatus.Created, sessionId: action.sessionId };
-        case ADD_BUILDING:
-            return { ...state, buildings: state.buildings.concat([action.building]) };
-        case SET_BUILDING_INDEX:
-            if ((state.buildings.length === 0 && action.index !== -1) ||
-                (state.buildings.length > 0 && (action.index < 0 || action.index >= state.buildings.length))) {
-                console.error('Invalid building index', action.index);
-            } else {
-                return { ...state, currentBuildingIndex: action.index };
-            }
-            break;
-        case SELECT_LAST_BUILDING:
-            return { ...state, currentBuildingIndex: state.buildings.length - 1 };
-    }
-
-    return state;
+    return produce(state, draft => {
+        switch (action.type) {
+            case SET_SESSION_STATUS:
+                if (action.status === SessionStatus.Created) {
+                    console.error('Cannot set session status to created without details');
+                } else {
+                    draft.status = action.status;
+                    draft.sessionId = undefined;
+                }
+                break;
+            case SET_SESSION_DETAILS:
+                draft.status = SessionStatus.Created;
+                draft.sessionId = action.sessionId;
+                break;
+            case ADD_BUILDING:
+                draft.buildings.push(action.building);
+                break;
+            case SET_BUILDING_INDEX:
+                if ((state.buildings.length === 0 && action.index !== -1) ||
+                    (state.buildings.length > 0 && (action.index < 0 || action.index >= state.buildings.length))) {
+                    console.error('Invalid building index', action.index);
+                } else {
+                    draft.currentBuildingIndex = action.index;
+                }
+                break;
+            case SELECT_LAST_BUILDING:
+                draft.currentBuildingIndex = state.buildings.length - 1;
+                break;
+        }
+    });
 }
