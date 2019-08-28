@@ -4,25 +4,20 @@ import { connect } from 'react-redux';
 import { LatLng, Polygon as LPolygon } from 'leaflet';
 import { Map, TileLayer, Marker, Popup, Viewport, Polygon } from 'react-leaflet';
 
-import { Coordinates } from '../Coordinates';
 import * as actions from '../actions';
 import { AppState } from '../store';
 
-function toCoordinates(position: [number, number] | null | undefined) {
+function toLatLng(position: [number, number] | null | undefined) {
     if (position)
     {
-        return new Coordinates(position[1], position[0]);
+        return new LatLng(position[0], position[1]);
     }
 
-    return new Coordinates(0, 0);
-}
-
-function toLatLng(position: Coordinates) {
-    return new LatLng(position.latitude, position.longitude);
+    return new LatLng(0, 0);
 }
 
 interface Props {
-    position: Coordinates;
+    position: LatLng;
     zoom: number;
     buildingPolygon: LPolygon | undefined;
     onViewportChanged?: (viewport: Viewport) => void;
@@ -30,8 +25,8 @@ interface Props {
 
 class MapComponent extends React.Component<Props, object> {
     render() {
-        const longitude = this.props.position.longitude;
-        const latitude = this.props.position.latitude;
+        const longitude = this.props.position.lng;
+        const latitude = this.props.position.lat;
         const zoom = this.props.zoom;
         const viewport: Viewport = {
             center: [latitude, longitude],
@@ -51,7 +46,7 @@ class MapComponent extends React.Component<Props, object> {
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     />
-                    <Marker position={toLatLng(this.props.position)}>
+                    <Marker position={this.props.position}>
                         <Popup>
                             A pretty CSS3 popup. <br /> Easily customizable.
                         </Popup>
@@ -77,7 +72,7 @@ export function mapStateToProps(state: AppState): Props {
 export function mapDispatchToProps(dispatch: Dispatch<actions.MapAction>) {
     return {
         onViewportChanged: (viewport: Viewport) => {
-            const position = toCoordinates(viewport.center);
+            const position = toLatLng(viewport.center);
             const zoom = viewport.zoom ? viewport.zoom : 0;
             dispatch(actions.moveTo(position, zoom));
         },

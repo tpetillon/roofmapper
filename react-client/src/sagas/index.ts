@@ -6,7 +6,6 @@ import { OsmLoginStatus, SessionStatus } from '../reducers';
 import * as selectors from '../selectors';
 import { BuildingService } from './BuildingService';
 import { Building } from '../reducers/Building';
-import { Coordinates } from '../Coordinates';
 
 function* loginToOsm(osmAuth: OSMAuth.OSMAuthInstance) {
     try {
@@ -75,7 +74,7 @@ function* fetchBuildings(osmAuth: OSMAuth.OSMAuthInstance) {
         const position: ReturnType<typeof selectors.currentBuildingPosition> =
             yield select(selectors.currentBuildingPosition);
         if (position) {
-            yield put(actions.moveTo(new Coordinates(position.lng, position.lat), 9));
+            yield put(actions.moveTo(position, 9));
         }
     } else {
         // @Todo

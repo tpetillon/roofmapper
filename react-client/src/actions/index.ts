@@ -1,10 +1,10 @@
 import { createAction, ActionType } from 'typesafe-actions';
-import { Coordinates } from '../Coordinates';
+import { LatLng } from 'leaflet';
 import { OsmLoginStatus, SessionStatus } from '../reducers';
 import { Building } from '../reducers/Building';
 
 export const moveTo = createAction('MOVE_TO', action => {
-    return (position: Coordinates, zoomLevel: number) =>
+    return (position: LatLng, zoomLevel: number) =>
         action({
             position: position,
             zoomLevel: zoomLevel

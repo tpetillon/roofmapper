@@ -1,17 +1,16 @@
-import { Reducer } from 'redux';
 import { createReducer } from 'typesafe-actions';
 import { produce } from 'immer';
+import { LatLng } from 'leaflet';
 import * as actions from '../actions';
-import { Coordinates } from '../Coordinates';
 import { Building } from './Building';
 
 export interface MapState {
-    position: Coordinates;
+    position: LatLng;
     zoomLevel: number;
 }
 
 export const initialMapState: MapState = {
-    position: new Coordinates(-4, 48),
+    position: new LatLng(48, -4),
     zoomLevel: 7
 };
 
