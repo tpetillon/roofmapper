@@ -56,6 +56,10 @@ export const setSessionDetails = createAction('SET_SESSION_DETAILS', action => {
         });
 });
 
+export const requestBuilding = createAction('REQUEST_BUILDING', action => {
+    return () => action({});
+});
+
 export const addBuilding = createAction('ADD_BUILDING', action => {
     return (building: Building) =>
         action({
@@ -77,6 +81,7 @@ export const selectLastBuilding = createAction('SELECT_LAST_BUILDING', action =>
 export type SessionAction =
     ActionType<typeof setSessionStatus> |
     ActionType<typeof setSessionDetails> |
+    ActionType<typeof requestBuilding> |
     ActionType<typeof addBuilding> |
     ActionType<typeof setBuildingIndex> |
     ActionType<typeof selectLastBuilding>;

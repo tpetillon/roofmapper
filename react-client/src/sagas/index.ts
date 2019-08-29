@@ -54,6 +54,14 @@ function* initialLoginFlow(osmAuth: OSMAuth.OSMAuthInstance) {
     yield fetchBuildings(osmAuth);
 }
 
+function fetchBuildingData(building: Building, osmAuth: OSMAuth.OSMAuthInstance) {
+    return cps(cb => osmAuth.xhr({
+            path: '/api/0.6/' + building.type + '/' + building.id + '/full',
+            method: 'GET'
+        },
+        (error, result) => cb(error, result)));
+}
+
 function* fetchBuildings(osmAuth: OSMAuth.OSMAuthInstance) {
     const sessionId: ReturnType<typeof selectors.sessionId> = yield select(selectors.sessionId);
 
@@ -62,16 +70,24 @@ function* fetchBuildings(osmAuth: OSMAuth.OSMAuthInstance) {
     }
 
     const building: Building = yield BuildingService.getBuilding(sessionId);
-    const buildingData: XMLDocument = yield cps(cb => osmAuth.xhr({
-            path: '/api/0.6/' + building.type + '/' + building.id + '/full',
-            method: 'GET'
-        },
-        (error, result) => cb(error, result)));
+    const buildingData: XMLDocument = yield fetchBuildingData(building, osmAuth);
     if (building.setData(buildingData)) {
         yield put(actions.addBuilding(building));
         yield put(actions.selectLastBuilding());
     } else {
         // @Todo
+    }
+
+    while (true) {
+        yield take(getType(actions.requestBuilding));
+        const building: Building = yield BuildingService.getBuilding(sessionId);
+        const buildingData: XMLDocument = yield fetchBuildingData(building, osmAuth);
+        if (building.setData(buildingData)) {
+            yield put(actions.addBuilding(building));
+            yield put(actions.selectLastBuilding());
+        } else {
+            // @Todo
+        }
     }
 }
 

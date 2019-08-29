@@ -36,13 +36,15 @@ export interface SessionState {
     sessionId: string | undefined;
     buildings: Building[];
     currentBuildingIndex: number;
+    waitingForNewBuilding: boolean;
 }
 
 export const initialSessionState: SessionState = {
     status: SessionStatus.NoSession,
     sessionId: undefined,
     buildings: [],
-    currentBuildingIndex: -1
+    currentBuildingIndex: -1,
+    waitingForNewBuilding: false
 };
 
 export interface MapState {
@@ -98,8 +100,15 @@ export const sessionReducer = createReducer<AppState, actions.RootAction>(initia
             draft.session.status = SessionStatus.Created;
             draft.session.sessionId = action.payload.sessionId;
         }))
+    .handleAction(actions.requestBuilding, (state, action) => produce(state, draft => {
+            draft.session.waitingForNewBuilding = true;
+        }))
     .handleAction(actions.addBuilding, (state, action) => produce(state, draft => {
             draft.session.buildings.push(action.payload.building);
+            if (state.session.waitingForNewBuilding) {
+                draft.session.waitingForNewBuilding = false;
+                draft.session.currentBuildingIndex = draft.session.buildings.length - 1;
+            }
         }))
     .handleAction(actions.setBuildingIndex, (state, action) => produce(state, draft => {
             if ((state.session.buildings.length === 0 && action.payload.index !== -1) ||
