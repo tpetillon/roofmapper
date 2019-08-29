@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 
+import { Button, Menu, Dropdown, Icon } from 'antd';
+
 import { OsmLoginStatus, AppState } from '../reducers';
 import * as actions from '../actions';
 
@@ -26,28 +28,66 @@ interface Props {
     status: OsmLoginStatus;
     username: string | undefined;
     userId: string | undefined;
+
     onRequestLogin?: () => void;
     onRequestLogout?: () => void;
 }
 
 class LoginComponent extends React.Component<Props, object> {
     render() {
-        let statusText = statusToText(this.props.status);
-        if (this.props.username && this.props.userId) {
-            statusText += ' (' + this.props.username + ' | ' + this.props.userId + ')';
-        }
+        //let statusText = statusToText(this.props.status);
+        //if (this.props.username && this.props.userId) {
+        //    statusText += ' (' + this.props.username + ' | ' + this.props.userId + ')';
+        //}
 
-        let button = undefined;
+        let menu;
         if (this.props.status === OsmLoginStatus.LoggedOut || this.props.status === OsmLoginStatus.Error) {
-            button = <button onClick={this.props.onRequestLogin}>Log in to OSM</button>;
+            menu = <Button type="primary" onClick={this.props.onRequestLogin}>Log in to OSM</Button>;
+        } else if (this.props.status === OsmLoginStatus.LoggingIn || this.props.status === OsmLoginStatus.FetchingDetails) {
+            menu = <Button type="primary" disabled>Logging in...</Button>;
         } else if (this.props.status === OsmLoginStatus.LoggedIn) {
-            button = <button onClick={this.props.onRequestLogout}>Log out of OSM</button>;
+            let profileItem;
+            if (this.props.username) {
+                const profileUrl = 'https://www.openstreetmap.org/user/' + this.props.username;
+                profileItem = (
+                    <Menu.Item>
+                        <a target="_blank" rel="noopener noreferrer" href={profileUrl}>
+                            OpenStreetMap profile
+                        </a>
+                    </Menu.Item>
+                );
+            } else {
+                profileItem = (
+                    <Menu.Item disabled>
+                        OpenStreetMap profile
+                    </Menu.Item>
+                )
+            }
+
+            const subMenu = (
+                <Menu>
+                    {profileItem}
+                    <Menu.Divider/>
+                    <Menu.Item onClick={this.props.onRequestLogout}>
+                        Log out
+                    </Menu.Item>
+                </Menu>
+            );
+            
+            menu = (
+                <Dropdown overlay={subMenu}>
+                    <Button>
+                        {this.props.username || 'Logged in' } <Icon type="down" />
+                    </Button>
+                </Dropdown>
+            );
+        } else {
+            throw new Error('Unhandled case: ' + this.props.status);
         }
 
         return (
             <div className="osm-login">
-                <p>{statusText}</p>
-                {button}
+                {menu}
             </div>
         );
     }

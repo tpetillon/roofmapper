@@ -4,12 +4,16 @@ import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import createSagaMiddleware from 'redux-saga'
 
+import { Layout } from 'antd';
+import { Row, Col } from 'antd';
+
 import * as serviceWorker from './serviceWorker';
 import { rootReducer } from './store';
 import { rootSaga } from './sagas';
 import { MapContainer } from './components/MapContainer';
 import { OsmLoginContainer } from './components/OsmLogin';
 import { SessionContainer } from './components/Session';
+import { NavigationButtonsContainer } from './components/NavigationButtons';
 
 import './index.css';
 
@@ -21,9 +25,24 @@ sagaMiddleware.run(rootSaga);
 
 ReactDOM.render(
     <Provider store={store}>
-        <MapContainer/>
-        <OsmLoginContainer/>
-        <SessionContainer/>
+        <Layout style={{height:"100vh"}}>
+            <Layout>
+                <Row>
+                    <Col span={12}>
+                        <OsmLoginContainer/>
+                    </Col>
+                    <Col span={12}>
+                        <SessionContainer/>
+                    </Col>
+                </Row>
+            </Layout>
+            <Layout>
+                <MapContainer/>
+            </Layout>
+            <Layout>
+                <NavigationButtonsContainer/>
+            </Layout>
+        </Layout>
     </Provider>,
     document.getElementById('root'));
 
