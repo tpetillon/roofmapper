@@ -14,6 +14,7 @@ import { MapContainer } from './components/MapContainer';
 import { OsmLoginContainer } from './components/OsmLogin';
 import { SessionContainer } from './components/Session';
 import { NavigationButtonsContainer } from './components/NavigationButtons';
+import { RoofMaterialButtonsContainer } from './components/RoofMaterialButtons';
 
 import './index.css';
 
@@ -40,7 +41,14 @@ ReactDOM.render(
                 <MapContainer/>
             </Layout>
             <Layout>
-                <NavigationButtonsContainer/>
+                <Row>
+                    <Col span={20}>
+                        <RoofMaterialButtonsContainer/>
+                    </Col>
+                    <Col span={4}>
+                        <NavigationButtonsContainer/>
+                    </Col>
+                </Row>
             </Layout>
         </Layout>
     </Provider>,

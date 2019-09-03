@@ -78,13 +78,21 @@ export const selectLastBuilding = createAction('SELECT_LAST_BUILDING', action =>
     return () => action({});
 });
 
+export const setCurrentBuildingRoofMaterial = createAction('SET_CURRENT_BUILDING_ROOF_MATERIAL', action => {
+    return (roofMaterial: RoofMaterial | undefined) =>
+        action ({
+            roofMaterial: roofMaterial
+        });
+});
+
 export type SessionAction =
     ActionType<typeof setSessionStatus> |
     ActionType<typeof setSessionDetails> |
     ActionType<typeof requestBuilding> |
     ActionType<typeof addBuilding> |
     ActionType<typeof setBuildingIndex> |
-    ActionType<typeof selectLastBuilding>;
+    ActionType<typeof selectLastBuilding> |
+    ActionType<typeof setCurrentBuildingRoofMaterial>;
 
 export type RootAction = 
     MapAction |

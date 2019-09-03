@@ -130,6 +130,13 @@ export const sessionReducer = createReducer<AppState, actions.RootAction>(initia
         }))
     .handleAction(actions.selectLastBuilding, (state, action) => produce(state, draft => {
             draft.session.currentBuildingIndex = state.session.buildings.length - 1;
+        }))
+    .handleAction(actions.setCurrentBuildingRoofMaterial, (state, action) => produce(state, draft => {
+            const building = draft.session.buildings[state.session.currentBuildingIndex];
+            if (building) {
+                building.roofMaterial = action.payload.roofMaterial;
+                building.invalidityReason = undefined;
+            }
         }));
 
 export const mapReducer = createReducer<AppState, actions.RootAction>(initialAppState)
