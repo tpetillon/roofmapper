@@ -38,7 +38,11 @@ export class BuildingService {
 
                 // @Todo Check for NaNs
 
-                return new Building(buildingType, buildingId, buildingVersion);
+                return {
+                    type: buildingType,
+                    id: buildingId,
+                    version: buildingVersion
+                } as Building;
             });
     }
 

@@ -5,7 +5,7 @@ import * as actions from '../actions';
 import { OsmLoginStatus, SessionStatus } from '../reducers';
 import * as selectors from '../selectors';
 import { BuildingService } from './BuildingService';
-import { Building } from '../reducers/Building';
+import { Building, setBuildingData } from '../reducers/Building';
 
 function* loginToOsm(osmAuth: OSMAuth.OSMAuthInstance) {
     try {
@@ -71,7 +71,7 @@ function* fetchBuildings(osmAuth: OSMAuth.OSMAuthInstance) {
 
     const building: Building = yield BuildingService.getBuilding(sessionId);
     const buildingData: XMLDocument = yield fetchBuildingData(building, osmAuth);
-    if (building.setData(buildingData)) {
+    if (setBuildingData(building, buildingData)) {
         yield put(actions.addBuilding(building));
         yield put(actions.selectLastBuilding());
     } else {
@@ -82,7 +82,7 @@ function* fetchBuildings(osmAuth: OSMAuth.OSMAuthInstance) {
         yield take(getType(actions.requestBuilding));
         const building: Building = yield BuildingService.getBuilding(sessionId);
         const buildingData: XMLDocument = yield fetchBuildingData(building, osmAuth);
-        if (building.setData(buildingData)) {
+        if (setBuildingData(building, buildingData)) {
             yield put(actions.addBuilding(building));
             yield put(actions.selectLastBuilding());
         } else {

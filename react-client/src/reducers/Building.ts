@@ -1,4 +1,6 @@
-import { LatLng, Polygon, LatLngBounds } from 'leaflet';
+import { Polygon, Multipolygon, computeMultipolygonBounds } from "./Polygon";
+import { Point } from "./Point";
+import { Bounds, getBoundsCenter } from "./Bounds";
 
 enum OsmObjectType {
     Node = 'node',
@@ -19,64 +21,34 @@ function OsmObjectTypeFromString(type: string) {
     }
 }
 
-class OsmTag {
-    public readonly key: string;
-    public readonly value: string;
-
-    constructor(key: string, value: string) {
-        this.key = key;
-        this.value = value;
-    }
+interface OsmTag {
+    key: string;
+    value: string;
 }
 
-class OsmNode {
-    public readonly id: number;
-    public readonly position: LatLng;
-
-    constructor(id: number, position: LatLng) {
-        this.id = id;
-        this.position = position;
-    }
+interface OsmNode {
+    id: number;
+    position: Point;
 }
 
-class OsmWay {
-    public readonly id: number;
-    public readonly nodes: OsmNode[];
-    public readonly tags: OsmTag[];
-
-    constructor(id: number, nodes: OsmNode[], tags: OsmTag[]) {
-        this.id = id;
-        this.nodes = nodes;
-        this.tags = tags;
-    }
+interface OsmWay {
+    id: number;
+    nodes: OsmNode[];
+    tags: OsmTag[];
 }
 
-class OsmRelationMember {
-    public readonly type: OsmObjectType;
-    public readonly ref: number;
-    public readonly role: string;
-
-    constructor(type: OsmObjectType, ref: number, role: string) {
-        this.type = type;
-        this.ref = ref;
-        this.role = role;
-    }
+interface OsmRelationMember {
+    type: OsmObjectType;
+    ref: number;
+    role: string;
 }
 
-class OsmRelation {
-    public readonly id: number;
-    public readonly members: OsmRelationMember[];
-    public readonly outerWays: OsmWay[];
-    public readonly innerWays: OsmWay[];
-    public readonly tags: OsmTag[];
-
-    constructor(id: number, members: OsmRelationMember[], outerWays: OsmWay[], innerWays: OsmWay[], tags: OsmTag[]) {
-        this.id = id;
-        this.members = members;
-        this.outerWays = outerWays;
-        this.innerWays = innerWays;
-        this.tags = tags;
-    }
+interface OsmRelation {
+    id: number;
+    members: OsmRelationMember[];
+    outerWays: OsmWay[];
+    innerWays: OsmWay[];
+    tags: OsmTag[];
 }
 
 export enum BuildingType {
@@ -95,7 +67,7 @@ export function BuildingTypeFromString(type: string) {
     }
 }
 
-enum RoofMaterial {
+export enum RoofMaterial {
     Tiles = 'roof_tiles',
     Slate = 'slate',
     Metal = 'metal',
@@ -152,127 +124,111 @@ enum InvalidityReason {
     NotABuilding = 'not_a_building',
 }
 
-export class Building {
-    readonly type: BuildingType;
-    readonly id: number;
-    readonly version: number;
+export interface Building {
+    type: BuildingType;
+    id: number;
+    version: number;
 
-    tags: OsmTag[] = [];
-    nodes: OsmNode[] = []; // for ways
-    members: OsmRelationMember[] = []; // for relations
+    tags: OsmTag[];
+    nodes: OsmNode[]; // for ways
+    members: OsmRelationMember[]; // for relations
 
-    _roofMaterial: RoofMaterial | undefined = undefined;
-    _invalidityReason: InvalidityReason | undefined = undefined;
+    roofMaterial: RoofMaterial | undefined;
+    invalidityReason: InvalidityReason | undefined;
 
-    _polygon: Polygon | undefined = undefined;
-    
-    constructor(type: BuildingType, id: number, version: number) {
-        this.type = type;
-        this.id = id;
-        this.version = version;
+    polygon: Multipolygon | undefined;
+    bounds: Bounds | undefined;
+}
+
+export function newBuilding(type: BuildingType, id: number, version: number): Building {
+    return {
+        type: type,
+        id: id,
+        version: version,
+        tags: [],
+        nodes: [],
+        members: [],
+        roofMaterial: undefined,
+        invalidityReason: undefined,
+        polygon: undefined,
+        bounds: undefined
+    }
+}
+
+export function getBuildingPosition(building: Building): Point | undefined {
+    if (building.bounds) {
+        return getBoundsCenter(building.bounds);
+    } else {
+        return undefined;
+    }
+}
+
+export function getBuildingBounds(building: Building): Bounds | undefined {
+    return building.bounds;
+}
+
+/**
+ * @returns `true` if the supplied data corresponds to the building,
+ *          `false` otherwise.
+ */
+export function setBuildingData(building: Building, data: XMLDocument): boolean {
+    const checkResult = checkIdAndVersion(building, data);
+    if (!checkResult) {
+        return false;
     }
 
-    get roofMaterial(): RoofMaterial | undefined {
-        return this._roofMaterial;
-    }
-
-    set roofMaterial(newMaterial: RoofMaterial | undefined) {
-        this._roofMaterial = newMaterial;
-        this._invalidityReason = undefined;
-    }
-
-    get invalidityReason(): InvalidityReason | undefined {
-        return this._invalidityReason;
-    }
-
-    set invalidityReason(newReason: InvalidityReason | undefined) {
-        this._invalidityReason = newReason;
-        this._roofMaterial = undefined;
-    }
-
-    get polygon(): Polygon | undefined {
-        return this._polygon;
-    }
-
-    get position(): LatLng | undefined {
-        if (this._polygon) {
-            return this._polygon.getBounds().getCenter();
-        } else {
-            return undefined;
-        }
-    }
-
-    get bounds(): LatLngBounds | undefined {
-        if (this._polygon) {
-            return this._polygon.getBounds();
-        } else {
-            return undefined;
-        }
-    }
-
-    /**
-     * @returns `true` if the supplied data corresponds to the building,
-     *          `false` otherwise.
-     */
-    setData(data: XMLDocument): boolean {
-        const checkResult = checkIdAndVersion(this, data);
-        if (!checkResult) {
-            return false;
-        }
-
-        switch (this.type) {
-            case (BuildingType.Way):
-                const ways = extractWays(data);
-                if (ways.size === 0) {
-                    return true;
-                }
-
-                const way = ways.get(this.id)
-                if (!way) {
-                    return true;
-                }
-
-                const positions = way.nodes.map(node => node.position);
-                this._polygon = new Polygon(positions);
-
-                this.nodes = way.nodes;
-                this.tags = way.tags;
-                break;
-            case (BuildingType.Relation):
-                const relations = extractRelations(data);
-                if (relations.size === 0) {
-                    return true;
-                }
-
-                const relation = relations.get(this.id);
-                if (!relation) {
-                    return true;
-                }
-
-                let polygons = new Array<Array<Array<LatLng>>>();
-                for (let outerWay of relation.outerWays) {
-                    polygons.push([outerWay.nodes.map(node => node.position)].concat(
-                        relation.innerWays.map(way => way.nodes.map(node => node.position))));
-                }
-                this._polygon = new Polygon(polygons);
-                this.members = relation.members;
-                this.tags = relation.tags;
-                break;
-            default:
-                throw new Error('Unsupported building type: ' + this.type);
-        }
-        
-        for (let i = 0; i < this.tags.length; i++) {
-            const tag = this.tags[i];
-            if (tag.key === 'roof:material') {
-                this._roofMaterial = RoofMaterialFromString(tag.value);
-                this.tags.splice(i, 1);
-                break;
+    switch (building.type) {
+        case (BuildingType.Way):
+            const ways = extractWays(data);
+            if (ways.size === 0) {
+                return true;
             }
-        }
 
-        return true;
+            const way = ways.get(building.id)
+            if (!way) {
+                return true;
+            }
+
+            const positions = way.nodes.map(node => node.position);
+            building.polygon = { outers: [{ points: positions }], inners: [] };
+
+            building.nodes = way.nodes;
+            building.tags = way.tags;
+            break;
+        case (BuildingType.Relation):
+            const relations = extractRelations(data);
+            if (relations.size === 0) {
+                return true;
+            }
+
+            const relation = relations.get(building.id);
+            if (!relation) {
+                return true;
+            }
+
+            const outers = relation.outerWays.map(way => ({ points: way.nodes.map(node => node.position) } as Polygon));
+            const inners = relation.innerWays.map(way => ({ points: way.nodes.map(node => node.position) } as Polygon));
+            building.polygon = { outers: outers, inners: inners };
+
+            building.members = relation.members;
+            building.tags = relation.tags;
+            break;
+        default:
+            throw new Error('Unsupported building type: ' + building.type);
     }
+    
+    building.bounds = computeMultipolygonBounds(building.polygon);
+    
+    for (let i = 0; i < building.tags.length; i++) {
+        const tag = building.tags[i];
+        if (tag.key === 'roof:material') {
+            building.roofMaterial = RoofMaterialFromString(tag.value);
+            building.tags.splice(i, 1);
+            break;
+        }
+    }
+
+    return true;
 }
 
 function checkIdAndVersion(building: Building, data: XMLDocument): boolean {
@@ -301,8 +257,8 @@ function checkIdAndVersion(building: Building, data: XMLDocument): boolean {
     return false;
 }
 
-function extractNodes(data: XMLDocument): Map<number, LatLng> {
-    let nodes = new Map<number, LatLng>();
+function extractNodes(data: XMLDocument): Map<number, Point> {
+    let nodes = new Map<number, Point>();
 
     for (let dataChild of data.children) {
         if (dataChild.tagName !== 'osm') {
@@ -326,7 +282,7 @@ function extractNodes(data: XMLDocument): Map<number, LatLng> {
             const lat = parseFloat(latAttr.value);
             const lon = parseFloat(lonAttr.value);
     
-            nodes.set(id, new LatLng(lat, lon));
+            nodes.set(id, { longitude: lon, latitude: lat });
         }
     }
     
@@ -373,12 +329,15 @@ function extractWays(data: XMLDocument): Map<number, OsmWay> {
 
             const nodes = nodeIds.map(nodeId => {
                 const position = nodePositions.get(nodeId);
-                return new OsmNode(nodeId, position ? position : new LatLng(0, 0));
+                return {
+                    id: nodeId,
+                    position: position ? position : { longitude: 0, latitude: 0 },
+                } as OsmNode;
             });
             
             const tags = extractTags(osmChild);
 
-            ways.set(id, new OsmWay(id, nodes, tags));
+            ways.set(id, { id: id, nodes: nodes, tags: tags } as OsmWay);
         }
     }
     
@@ -435,7 +394,7 @@ function extractRelations(data: XMLDocument): Map<number, OsmRelation> {
                     continue;
                 }
 
-                members.push(new OsmRelationMember(type, ref, role));
+                members.push({ type: type, ref: ref, role: role } as OsmRelationMember);
 
                 if (typeAttr.value === 'way') {
 
@@ -454,7 +413,13 @@ function extractRelations(data: XMLDocument): Map<number, OsmRelation> {
 
             const tags = extractTags(osmChild);
 
-            relations.set(id, new OsmRelation(id, members, outerWays, innerWays, tags));
+            relations.set(id, {
+                id: id,
+                members: members,
+                outerWays: outerWays,
+                innerWays: innerWays,
+                tags: tags
+            } as OsmRelation);
         }
     }
 
@@ -476,7 +441,7 @@ function extractTags(object: Element): OsmTag[] {
             continue;
         }
 
-        tags.push(new OsmTag(kAttr.value, vAttr.value));
+        tags.push({ key: kAttr.value, value: vAttr.value } as OsmTag);
     }
 
     return tags;

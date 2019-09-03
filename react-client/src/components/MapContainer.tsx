@@ -6,14 +6,36 @@ import { Map, TileLayer, Marker, Popup, Viewport, Polygon } from 'react-leaflet'
 
 import * as actions from '../actions';
 import { AppState } from '../reducers';
+import { Point } from '../reducers/Point';
+import { Bounds } from '../reducers/Bounds';
+import { Multipolygon } from '../reducers/Polygon';
 
-function toLatLng(position: [number, number] | null | undefined) {
+function coordPairToPoint(position: [number, number] | null | undefined): Point {
     if (position)
     {
-        return new LatLng(position[0], position[1]);
+        return { longitude: position[1], latitude: position[0] };
     }
 
-    return new LatLng(0, 0);
+    return { longitude: 0, latitude: 0 };
+}
+
+function pointToLatLng(point: Point) {
+    return new LatLng(point.latitude, point.longitude);
+}
+
+function boundsToLatLngBounds(bounds: Bounds) {
+    return new LatLngBounds(
+        pointToLatLng(bounds.min),
+        pointToLatLng(bounds.max));
+}
+
+function toPolygon(multipolygon: Multipolygon): LPolygon {
+    let polygons = new Array<Array<Array<LatLng>>>();
+    for (let outer of multipolygon.outers) {
+        polygons.push([outer.points.map(point => pointToLatLng(point))].concat(
+            multipolygon.inners.map(inner => inner.points.map(point => pointToLatLng(point)))));
+    }
+    return new LPolygon(polygons);
 }
 
 interface Props {
@@ -64,21 +86,24 @@ class MapComponent extends React.Component<Props, object> {
 }
 
 export function mapStateToProps(state: AppState): Props {
+    const bounds = state.map.bounds ? boundsToLatLngBounds(state.map.bounds) : undefined;
+
     const building = state.session.buildings[state.session.currentBuildingIndex];
     const polygon = building ? building.polygon : undefined;
+    const leafletPolygon = polygon ? toPolygon(polygon) : undefined;
 
     return {
-        position: state.map.position,
+        position: pointToLatLng(state.map.position),
         zoom: state.map.zoomLevel,
-        bounds: state.map.bounds,
-        buildingPolygon: polygon
+        bounds: bounds,
+        buildingPolygon: leafletPolygon
     };
 }
 
 export function mapDispatchToProps(dispatch: Dispatch<actions.MapAction>) {
     return {
         onViewportChanged: (viewport: Viewport) => {
-            const position = toLatLng(viewport.center);
+            const position = coordPairToPoint(viewport.center);
             const zoom = viewport.zoom ? viewport.zoom : 0;
             dispatch(actions.moveTo(position, zoom));
         },

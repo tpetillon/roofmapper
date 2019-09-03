@@ -1,10 +1,10 @@
 import { createAction, ActionType } from 'typesafe-actions';
-import { LatLng } from 'leaflet';
 import { OsmLoginStatus, SessionStatus } from '../reducers';
-import { Building } from '../reducers/Building';
+import { Point } from '../reducers/Point';
+import { Building, RoofMaterial } from '../reducers/Building';
 
 export const moveTo = createAction('MOVE_TO', action => {
-    return (position: LatLng, zoomLevel: number) =>
+    return (position: Point, zoomLevel: number) =>
         action({
             position: position,
             zoomLevel: zoomLevel
@@ -68,9 +68,9 @@ export const addBuilding = createAction('ADD_BUILDING', action => {
 });
 
 export const setBuildingIndex = createAction('SET_BUILDING_INDEX', action => {
-    return (index: number) =>
+    return (buildingIndex: number) =>
         action({
-            index: index
+            buildingIndex: buildingIndex
         });
 });
 

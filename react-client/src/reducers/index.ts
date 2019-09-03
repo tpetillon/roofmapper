@@ -1,8 +1,9 @@
 import { createReducer } from 'typesafe-actions';
 import { produce } from 'immer';
-import { LatLng, LatLngBounds } from 'leaflet';
 import * as actions from '../actions';
-import { Building } from './Building';
+import { Point } from './Point';
+import { Bounds } from './Bounds';
+import { Building, getBuildingBounds } from './Building';
 
 export enum OsmLoginStatus {
     LoggedOut,
@@ -48,13 +49,13 @@ export const initialSessionState: SessionState = {
 };
 
 export interface MapState {
-    position: LatLng;
+    position: Point;
     zoomLevel: number;
-    bounds: LatLngBounds | undefined
+    bounds: Bounds | undefined
 }
 
 export const initialMapState: MapState = {
-    position: new LatLng(48, -4),
+    position: { longitude: -4, latitude: 48 },
     zoomLevel: 7,
     bounds: undefined
 };
@@ -70,6 +71,18 @@ export const initialAppState: AppState = {
     session: initialSessionState,
     map: initialMapState
 };
+
+function checkForBuildingIndex(session: SessionState, buildingIndex: number) {
+    if (!Number.isInteger(buildingIndex) ||
+        (session.buildings.length === 0 && buildingIndex !== -1) ||
+        (session.buildings.length > 0 &&
+        (buildingIndex < 0 || buildingIndex >= session.buildings.length))) {
+        console.error('Invalid building index', buildingIndex);
+        return false;
+    }
+
+    return true;
+}
 
 export const osmLoginReducer = createReducer<AppState, actions.RootAction>(initialAppState)
     .handleAction(actions.setOsmLoginStatus, (state, action) => produce(state, draft => {
@@ -111,11 +124,8 @@ export const sessionReducer = createReducer<AppState, actions.RootAction>(initia
             }
         }))
     .handleAction(actions.setBuildingIndex, (state, action) => produce(state, draft => {
-            if ((state.session.buildings.length === 0 && action.payload.index !== -1) ||
-                (state.session.buildings.length > 0 && (action.payload.index < 0 || action.payload.index >= state.session.buildings.length))) {
-                console.error('Invalid building index', action.payload.index);
-            } else {
-                draft.session.currentBuildingIndex = action.payload.index;
+            if (checkForBuildingIndex(state.session, action.payload.buildingIndex)) {
+                draft.session.currentBuildingIndex = action.payload.buildingIndex;
             }
         }))
     .handleAction(actions.selectLastBuilding, (state, action) => produce(state, draft => {
@@ -130,12 +140,12 @@ export const mapReducer = createReducer<AppState, actions.RootAction>(initialApp
         }))
     .handleAction(actions.setBuildingIndex, (state, action) => produce(state, draft => {
             if (state.session.currentBuildingIndex !== -1) {
-                draft.map.bounds = state.session.buildings[state.session.currentBuildingIndex].bounds;
+                draft.map.bounds = getBuildingBounds(state.session.buildings[state.session.currentBuildingIndex]);
             }
         }))
     .handleAction(actions.selectLastBuilding, (state, action) => produce(state, draft => {
             // @Todo Deduplicate
             if (state.session.currentBuildingIndex !== -1) {
-                draft.map.bounds = state.session.buildings[state.session.currentBuildingIndex].bounds;
+                draft.map.bounds = getBuildingBounds(state.session.buildings[state.session.currentBuildingIndex]);
             }
         }));

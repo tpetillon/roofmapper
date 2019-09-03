@@ -1,4 +1,5 @@
 import { AppState } from '../reducers'
+import { getBuildingPosition } from '../reducers/Building';
 
 export const osmUserId = (state: AppState) => {
     return state.osmLogin.userId;
@@ -10,5 +11,5 @@ export const sessionId = (state: AppState) => {
 
 export const currentBuildingPosition = (state: AppState) => {
     const building = state.session.buildings[state.session.currentBuildingIndex];
-    return building ? building.position : undefined;
+    return building ? getBuildingPosition(building) : undefined;
 }
