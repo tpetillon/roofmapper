@@ -3,7 +3,8 @@ import { produce } from 'immer';
 import * as actions from '../actions';
 import { Point } from './Point';
 import { Bounds } from './Bounds';
-import { Building, getBuildingBounds } from './Building';
+import { getBuildingBounds } from './Building';
+import { SessionStatus, Session, newSession } from './Session';
 
 export enum OsmLoginStatus {
     LoggedOut,
@@ -25,25 +26,12 @@ export const initialOsmLoginState: OsmLoginState = {
     userId: undefined
 };
 
-export enum SessionStatus {
-    NoSession,
-    Creating,
-    Created,
-    Error
-}
-
-export interface SessionState {
-    status: SessionStatus;
-    sessionId: string | undefined;
-    buildings: Building[];
+export interface WorkState {
     currentBuildingIndex: number;
     waitingForNewBuilding: boolean;
 }
 
-export const initialSessionState: SessionState = {
-    status: SessionStatus.NoSession,
-    sessionId: undefined,
-    buildings: [],
+export const initialWorkState: WorkState = {
     currentBuildingIndex: -1,
     waitingForNewBuilding: false
 };
@@ -62,17 +50,19 @@ export const initialMapState: MapState = {
 
 export interface AppState {
     osmLogin: OsmLoginState;
-    session: SessionState;
+    session: Session;
+    work: WorkState;
     map: MapState;
 }
 
 export const initialAppState: AppState = {
     osmLogin: initialOsmLoginState,
-    session: initialSessionState,
+    session: newSession(),
+    work: initialWorkState,
     map: initialMapState
 };
 
-function checkForBuildingIndex(session: SessionState, buildingIndex: number) {
+function checkForBuildingIndex(session: Session, buildingIndex: number) {
     if (!Number.isInteger(buildingIndex) ||
         (session.buildings.length === 0 && buildingIndex !== -1) ||
         (session.buildings.length > 0 &&
@@ -114,28 +104,42 @@ export const sessionReducer = createReducer<AppState, actions.RootAction>(initia
             draft.session.sessionId = action.payload.sessionId;
         }))
     .handleAction(actions.requestBuilding, (state, action) => produce(state, draft => {
-            draft.session.waitingForNewBuilding = true;
+            draft.work.waitingForNewBuilding = true;
         }))
     .handleAction(actions.addBuilding, (state, action) => produce(state, draft => {
             draft.session.buildings.push(action.payload.building);
-            if (state.session.waitingForNewBuilding) {
-                draft.session.waitingForNewBuilding = false;
-                draft.session.currentBuildingIndex = draft.session.buildings.length - 1;
+            if (state.work.waitingForNewBuilding) {
+                draft.work.waitingForNewBuilding = false;
+                draft.work.currentBuildingIndex = draft.session.buildings.length - 1;
             }
         }))
     .handleAction(actions.setBuildingIndex, (state, action) => produce(state, draft => {
             if (checkForBuildingIndex(state.session, action.payload.buildingIndex)) {
-                draft.session.currentBuildingIndex = action.payload.buildingIndex;
+                draft.work.currentBuildingIndex = action.payload.buildingIndex;
             }
         }))
     .handleAction(actions.selectLastBuilding, (state, action) => produce(state, draft => {
-            draft.session.currentBuildingIndex = state.session.buildings.length - 1;
+            draft.work.currentBuildingIndex = state.session.buildings.length - 1;
         }))
     .handleAction(actions.setCurrentBuildingRoofMaterial, (state, action) => produce(state, draft => {
-            const building = draft.session.buildings[state.session.currentBuildingIndex];
+            const building = draft.session.buildings[state.work.currentBuildingIndex];
             if (building) {
+                const previousRoofMaterial = building.roofMaterial;
+                const previousInvalidityReason = building.invalidityReason;
+
                 building.roofMaterial = action.payload.roofMaterial;
                 building.invalidityReason = undefined;
+
+                if (action.payload.roofMaterial && !previousRoofMaterial) {
+                    draft.session.taggedBuildingCount += 1;
+                }
+                if (!action.payload.roofMaterial && previousRoofMaterial) {
+                    draft.session.taggedBuildingCount -= 1;
+                }
+
+                if (previousInvalidityReason) {
+                    draft.session.invalidatedBuildingCount -= 1;
+                }
             }
         }));
 
@@ -146,13 +150,13 @@ export const mapReducer = createReducer<AppState, actions.RootAction>(initialApp
             draft.map.bounds = undefined;
         }))
     .handleAction(actions.setBuildingIndex, (state, action) => produce(state, draft => {
-            if (state.session.currentBuildingIndex !== -1) {
-                draft.map.bounds = getBuildingBounds(state.session.buildings[state.session.currentBuildingIndex]);
+            if (state.work.currentBuildingIndex !== -1) {
+                draft.map.bounds = getBuildingBounds(state.session.buildings[state.work.currentBuildingIndex]);
             }
         }))
     .handleAction(actions.selectLastBuilding, (state, action) => produce(state, draft => {
             // @Todo Deduplicate
-            if (state.session.currentBuildingIndex !== -1) {
-                draft.map.bounds = getBuildingBounds(state.session.buildings[state.session.currentBuildingIndex]);
+            if (state.work.currentBuildingIndex !== -1) {
+                draft.map.bounds = getBuildingBounds(state.session.buildings[state.work.currentBuildingIndex]);
             }
         }));

@@ -61,8 +61,8 @@ class RoofMaterialButtonsComponent extends React.Component<Props, object> {
 }
 
 export function mapStateToProps(state: AppState): Props {
-    const hasBuilding = state.session.currentBuildingIndex !== -1;
-    const building = hasBuilding ? state.session.buildings[state.session.currentBuildingIndex] : undefined;
+    const hasBuilding = state.work.currentBuildingIndex !== -1;
+    const building = hasBuilding ? state.session.buildings[state.work.currentBuildingIndex] : undefined;
 
     return {
         hasBuilding: hasBuilding,

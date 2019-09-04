@@ -2,10 +2,11 @@ import { all, cancel, cps, fork, put, take, select } from 'redux-saga/effects';
 import { getType } from 'typesafe-actions';
 import OSMAuth from 'osm-auth';
 import * as actions from '../actions';
-import { OsmLoginStatus, SessionStatus } from '../reducers';
+import { OsmLoginStatus } from '../reducers';
 import * as selectors from '../selectors';
 import { BuildingService } from './BuildingService';
 import { Building, setBuildingData } from '../reducers/Building';
+import { SessionStatus } from '../reducers/Session';
 
 function* loginToOsm(osmAuth: OSMAuth.OSMAuthInstance) {
     try {

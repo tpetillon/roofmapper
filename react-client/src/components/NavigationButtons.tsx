@@ -4,7 +4,8 @@ import { connect } from 'react-redux';
 
 import { Button, Icon } from 'antd';
 
-import { AppState, SessionStatus } from "../reducers";
+import { AppState } from "../reducers";
+import { SessionStatus } from '../reducers/Session';
 import * as actions from '../actions';
 
 interface Props {
@@ -63,9 +64,9 @@ class NavigationButtonsComponent extends React.Component<Props, object> {
 export function mapStateToProps(state: AppState): Props {
     return {
         buildingCount: state.session.buildings.length,
-        buildingIndex: state.session.currentBuildingIndex,
+        buildingIndex: state.work.currentBuildingIndex,
         canRequestNewBuilding: state.session.status === SessionStatus.Created,
-        waitingForNewBuilding: state.session.waitingForNewBuilding
+        waitingForNewBuilding: state.work.waitingForNewBuilding
     };
 }
 

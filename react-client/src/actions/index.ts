@@ -1,7 +1,8 @@
 import { createAction, ActionType } from 'typesafe-actions';
-import { OsmLoginStatus, SessionStatus } from '../reducers';
+import { OsmLoginStatus } from '../reducers';
 import { Point } from '../reducers/Point';
 import { Building, RoofMaterial } from '../reducers/Building';
+import { SessionStatus } from '../reducers/Session';
 
 export const moveTo = createAction('MOVE_TO', action => {
     return (position: Point, zoomLevel: number) =>

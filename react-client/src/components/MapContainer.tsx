@@ -88,7 +88,7 @@ class MapComponent extends React.Component<Props, object> {
 export function mapStateToProps(state: AppState): Props {
     const bounds = state.map.bounds ? boundsToLatLngBounds(state.map.bounds) : undefined;
 
-    const building = state.session.buildings[state.session.currentBuildingIndex];
+    const building = state.session.buildings[state.work.currentBuildingIndex];
     const polygon = building ? building.polygon : undefined;
     const leafletPolygon = polygon ? toPolygon(polygon) : undefined;
 

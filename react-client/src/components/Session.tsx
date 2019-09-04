@@ -2,7 +2,8 @@ import * as React from 'react';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 
-import { SessionStatus, AppState } from "../reducers";
+import { AppState } from "../reducers";
+import { SessionStatus } from '../reducers/Session';
 import * as actions from '../actions';
 
 function statusToText(status: SessionStatus) {
@@ -23,6 +24,9 @@ function statusToText(status: SessionStatus) {
 interface Props {
     status: SessionStatus;
     sessionId: string | undefined;
+    taggedBuildingCount: number;
+    invalidatedBuildingCount: number;
+    uploadedBuildingCount: number;
 }
 
 class SessionComponent extends React.Component<Props, object> {
@@ -35,6 +39,9 @@ class SessionComponent extends React.Component<Props, object> {
         return (
             <div className="session-details">
                 <p>{statusText}</p>
+                <p>{this.props.taggedBuildingCount} buildings tagged</p>
+                <p>{this.props.invalidatedBuildingCount} buildings invalidated</p>
+                <p>{this.props.uploadedBuildingCount} buildings uploaded</p>
             </div>
         );
     }
@@ -43,7 +50,10 @@ class SessionComponent extends React.Component<Props, object> {
 export function mapStateToProps(state: AppState): Props {
     return {
         status: state.session.status,
-        sessionId: state.session.sessionId
+        sessionId: state.session.sessionId,
+        taggedBuildingCount: state.session.taggedBuildingCount,
+        invalidatedBuildingCount: state.session.invalidatedBuildingCount,
+        uploadedBuildingCount: state.session.uploadedBuildingCount
     };
 }
 

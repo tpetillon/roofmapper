@@ -10,6 +10,6 @@ export const sessionId = (state: AppState) => {
 }
 
 export const currentBuildingPosition = (state: AppState) => {
-    const building = state.session.buildings[state.session.currentBuildingIndex];
+    const building = state.session.buildings[state.work.currentBuildingIndex];
     return building ? getBuildingPosition(building) : undefined;
 }
