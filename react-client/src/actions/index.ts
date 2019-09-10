@@ -86,6 +86,17 @@ export const setCurrentBuildingRoofMaterial = createAction('SET_CURRENT_BUILDING
         });
 });
 
+export const clearTaggedBuildings = createAction('CLEAR_TAGGED_BUILDINGS', action => {
+    return () => action({});
+});
+
+export const addUploadedBuildingCount = createAction('ADD_UPLOADED_BUILDING_COUNT', action => {
+    return (taggedBuildingCount: number) =>
+        action({
+            taggedBuildingCount: taggedBuildingCount
+        });
+});
+
 export type SessionAction =
     ActionType<typeof setSessionStatus> |
     ActionType<typeof setSessionDetails> |
@@ -93,9 +104,32 @@ export type SessionAction =
     ActionType<typeof addBuilding> |
     ActionType<typeof setBuildingIndex> |
     ActionType<typeof selectLastBuilding> |
-    ActionType<typeof setCurrentBuildingRoofMaterial>;
+    ActionType<typeof setCurrentBuildingRoofMaterial> |
+    ActionType<typeof clearTaggedBuildings> |
+    ActionType<typeof addUploadedBuildingCount>;
+
+export const openChangeset = createAction('OPEN_CHANGESET', action => {
+    return () => action({});
+});
+
+export const setChangesetId = createAction('SET_CHANGEGET_ID', action => {
+    return (changesetId: number) =>
+        action({
+            changesetId: changesetId
+        })
+});
+
+export const uploadTags = createAction('UPLOAD_TAGS', action => {
+    return () => action({});
+});
+
+export type ChangesetAction =
+    ActionType<typeof openChangeset> |
+    ActionType<typeof setChangesetId> |
+    ActionType<typeof uploadTags>;
 
 export type RootAction = 
     MapAction |
     OsmLoginAction |
-    SessionAction;
+    SessionAction |
+    ChangesetAction;

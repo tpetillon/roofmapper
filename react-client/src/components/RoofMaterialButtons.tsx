@@ -38,7 +38,7 @@ class RoofMaterialButtonsComponent extends React.Component<Props, object> {
                     Tiles
                 </Button>
                 <Button type="primary" disabled={this.isDisabled(RoofMaterial.Slate)} onClick={this.setMaterial(RoofMaterial.Slate)}>
-                    Slate {this.props.currentMaterial}
+                    Slate
                 </Button>
                 <Button type="primary" disabled={this.isDisabled(RoofMaterial.Metal)} onClick={this.setMaterial(RoofMaterial.Metal)}>
                     Metal

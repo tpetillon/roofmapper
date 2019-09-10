@@ -3,7 +3,7 @@ import { produce } from 'immer';
 import * as actions from '../actions';
 import { Point } from './Point';
 import { Bounds } from './Bounds';
-import { getBuildingBounds } from './Building';
+import { getBuildingBounds, RoofMaterial } from './Building';
 import { SessionStatus, Session, newSession } from './Session';
 
 export enum OsmLoginStatus {
@@ -141,6 +141,30 @@ export const sessionReducer = createReducer<AppState, actions.RootAction>(initia
                     draft.session.invalidatedBuildingCount -= 1;
                 }
             }
+        }))
+    .handleAction(actions.setChangesetId, (state, action) => produce(state, draft => {
+            if (state.session.changesetId) {
+                console.warn('A changeset is already set');
+            }
+            draft.session.changesetId = action.payload.changesetId;
+        }))
+    .handleAction(actions.clearTaggedBuildings, (state, action) => produce(state, draft => {
+            let i = draft.session.buildings.length;
+            while (i--) {
+                const building = draft.session.buildings[i];
+                if (building.roofMaterial) {
+                    draft.session.buildings.splice(i, 1);
+                    if (draft.work.currentBuildingIndex > i) {
+                        draft.work.currentBuildingIndex -= 1;
+                    }
+                }
+            }
+            if (draft.work.currentBuildingIndex >= draft.session.buildings.length) {
+                draft.work.currentBuildingIndex = -1;
+            }
+        }))
+    .handleAction(actions.addUploadedBuildingCount, (state, action) => produce(state, draft => {
+            draft.work.currentBuildingIndex += action.payload.taggedBuildingCount;
         }));
 
 export const mapReducer = createReducer<AppState, actions.RootAction>(initialAppState)

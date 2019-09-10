@@ -1,4 +1,5 @@
 import { Building, BuildingType, BuildingTypeFromString } from "../reducers/Building";
+import { TagData } from "../reducers/OsmChange";
 
 const SERVER_URL: string = 'http://lan.dev.roofmapper.eu:3000';
 
@@ -53,11 +54,11 @@ export class BuildingService {
     }
 
     // @Todo Type `tagData`
-    static tagBuildings(sessionId: string, tagData: any) {
+    static tagBuildings(sessionId: string, tagData: TagData) {
         return fetch(SERVER_URL + '/sessions/' + sessionId + '/buildings/tag', {
             method: 'POST',
             headers: {
-                contentType: 'application/json'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(tagData)
         });
@@ -68,7 +69,7 @@ export class BuildingService {
         return fetch(SERVER_URL + '/sessions/' + sessionId + '/buildings/invalidate', {
             method: 'POST',
             headers: {
-                contentType: 'application/json'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(invalidationData)
         });

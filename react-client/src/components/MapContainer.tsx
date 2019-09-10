@@ -2,13 +2,16 @@ import * as React from 'react';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { LatLng, Polygon as LPolygon, LatLngBounds } from 'leaflet';
-import { Map, TileLayer, Marker, Popup, Viewport, Polygon } from 'react-leaflet';
+import { Map, TileLayer, Marker, Popup, Viewport, Polygon, LayersControl } from 'react-leaflet';
+import { BingLayer } from 'react-leaflet-bing';
 
 import * as actions from '../actions';
 import { AppState } from '../reducers';
 import { Point } from '../reducers/Point';
 import { Bounds } from '../reducers/Bounds';
 import { Multipolygon } from '../reducers/Polygon';
+
+const BING_KEY = 'AlCYN3W0pAkcnVgUrS9Jb4Wkmoa_3WCGtD72BGvpzaYxAgjz0VEv5_5OalHYb3k5';
 
 function coordPairToPoint(position: [number, number] | null | undefined): Point {
     if (position)
@@ -56,8 +59,11 @@ class MapComponent extends React.Component<Props, object> {
             zoom: zoom
         };
 
-        const polygon = this.props.buildingPolygon ?
-            <Polygon positions={this.props.buildingPolygon.getLatLngs()}></Polygon> : undefined;
+        const polygonOverlay = this.props.buildingPolygon ?
+            <LayersControl.Overlay name="Building outline" checked={true}>
+                <Polygon positions={this.props.buildingPolygon.getLatLngs()}></Polygon>
+            </LayersControl.Overlay> :
+            undefined;
 
         return (
             <div className="map-container">
@@ -69,16 +75,25 @@ class MapComponent extends React.Component<Props, object> {
                     viewport={viewport}
                     bounds={this.props.bounds}
                     onViewportChanged={this.props.onViewportChanged}>
-                    <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                    />
-                    <Marker position={this.props.position}>
-                        <Popup>
-                            A pretty CSS3 popup. <br /> Easily customizable.
-                        </Popup>
-                    </Marker>
-                    {polygon}
+                    <LayersControl position="topright">
+                        <LayersControl.BaseLayer name="OpenStreetMap">
+                            <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                            />
+                        </LayersControl.BaseLayer>
+                        <LayersControl.BaseLayer name="Bing" checked={true}>
+                            <BingLayer bingkey={BING_KEY} type="Aerial"/>
+                        </LayersControl.BaseLayer>
+                        <LayersControl.Overlay name="Marker with popup">
+                            <Marker position={this.props.position}>
+                                <Popup>
+                                    A pretty CSS3 popup. <br /> Easily customizable.
+                                </Popup>
+                            </Marker>
+                        </LayersControl.Overlay>
+                        {polygonOverlay}
+                    </LayersControl>
                 </Map>
             </div>
           );
