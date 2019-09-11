@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { LatLng, Polygon as LPolygon, LatLngBounds } from 'leaflet';
+import { LatLng, Polygon as LPolygon, LatLngBounds, LayersControlEvent } from 'leaflet';
 import { Map, TileLayer, Marker, Popup, Viewport, Polygon, LayersControl } from 'react-leaflet';
 import { BingLayer } from 'react-leaflet-bing';
 
 import * as actions from '../actions';
-import { AppState } from '../reducers';
+import { AppState, ImageryLayer } from '../reducers';
 import { Point } from '../reducers/Point';
 import { Bounds } from '../reducers/Bounds';
 import { Multipolygon } from '../reducers/Polygon';
@@ -45,8 +45,11 @@ interface Props {
     position: LatLng;
     zoom: number;
     bounds: LatLngBounds | undefined;
+    selectedBaseLayer: ImageryLayer;
     buildingPolygon: LPolygon | undefined;
+
     onViewportChanged?: (viewport: Viewport) => void;
+    onBaseLayerChanged?: (layer: ImageryLayer) => void;
 }
 
 class MapComponent extends React.Component<Props, object> {
@@ -65,6 +68,39 @@ class MapComponent extends React.Component<Props, object> {
             </LayersControl.Overlay> :
             undefined;
 
+        const onBaseLayerChanged = (event: LayersControlEvent) => {
+            if (!this.props.onBaseLayerChanged) {
+                return;
+            }
+
+            // The only officially exploitable property in the event to
+            // identify which layer has been selected is `event.layer.name`.
+            // Unfortunately this is a user-facing string, which cannot
+            // serve as an identifier.
+            // Although it isn't in the typed properties, `zIndex` gives the
+            // 1-based index of the layer in the `LayersControl`.
+            // (If for some reason this breaks or is unsufficient, it is
+            // possible to add custom properties on the layers and get them
+            // back in `event.layer.options`.
+            const index = (event.layer as any).options.zIndex as number;
+
+            let layer: ImageryLayer;
+            switch (index) {
+                case 1:
+                    layer = ImageryLayer.OpenStreetMap;
+                    break;
+                case 2:
+                    layer = ImageryLayer.BingAerial;
+                    break;
+                default:
+                    console.error('Invalid layer index:', index);
+                    layer = ImageryLayer.OpenStreetMap;
+                    break;
+            }
+
+            this.props.onBaseLayerChanged(layer);
+        };
+
         return (
             <div className="map-container">
                 <div className="position-display">
@@ -74,16 +110,19 @@ class MapComponent extends React.Component<Props, object> {
                     maxZoom={19}
                     viewport={viewport}
                     bounds={this.props.bounds}
-                    onViewportChanged={this.props.onViewportChanged}>
+                    onViewportChanged={this.props.onViewportChanged}
+                    onbaselayerchange={onBaseLayerChanged}>
                     <LayersControl position="topright">
-                        <LayersControl.BaseLayer name="OpenStreetMap">
+                        <LayersControl.BaseLayer name="OpenStreetMap" checked={this.props.selectedBaseLayer === ImageryLayer.OpenStreetMap}>
                             <TileLayer
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                 attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                             />
                         </LayersControl.BaseLayer>
-                        <LayersControl.BaseLayer name="Bing" checked={true}>
-                            <BingLayer bingkey={BING_KEY} type="Aerial"/>
+                        <LayersControl.BaseLayer name="Bing Aerial" checked={this.props.selectedBaseLayer === ImageryLayer.BingAerial}>
+                            <BingLayer
+                                bingkey={BING_KEY}
+                                type="Aerial"/>
                         </LayersControl.BaseLayer>
                         <LayersControl.Overlay name="Marker with popup">
                             <Marker position={this.props.position}>
@@ -111,6 +150,7 @@ export function mapStateToProps(state: AppState): Props {
         position: pointToLatLng(state.map.position),
         zoom: state.map.zoomLevel,
         bounds: bounds,
+        selectedBaseLayer: state.work.imageryLayer,
         buildingPolygon: leafletPolygon
     };
 }
@@ -122,6 +162,9 @@ export function mapDispatchToProps(dispatch: Dispatch<actions.MapAction>) {
             const zoom = viewport.zoom ? viewport.zoom : 0;
             dispatch(actions.moveTo(position, zoom));
         },
+        onBaseLayerChanged: (layer: ImageryLayer) => {
+            console.log("Base layer changed", layer);
+        }
     }
 }
 

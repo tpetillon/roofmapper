@@ -26,12 +26,19 @@ export const initialOsmLoginState: OsmLoginState = {
     userId: undefined
 };
 
+export enum ImageryLayer {
+    OpenStreetMap = 'OpenStreetMap',
+    BingAerial = 'BingAerial'
+}
+
 export interface WorkState {
+    imageryLayer: ImageryLayer;
     currentBuildingIndex: number;
     waitingForNewBuilding: boolean;
 }
 
 export const initialWorkState: WorkState = {
+    imageryLayer: ImageryLayer.BingAerial,
     currentBuildingIndex: -1,
     waitingForNewBuilding: false
 };
