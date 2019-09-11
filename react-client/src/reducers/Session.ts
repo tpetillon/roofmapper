@@ -15,6 +15,7 @@ export interface Session {
     invalidatedBuildingCount: number;
     uploadedBuildingCount: number;
     changesetId: number | undefined;
+    sources: string[];
 }
 
 export function newSession(): Session {
@@ -25,6 +26,7 @@ export function newSession(): Session {
         taggedBuildingCount: 0,
         invalidatedBuildingCount: 0,
         uploadedBuildingCount: 0,
-        changesetId: undefined
+        changesetId: undefined,
+        sources: []
     };
 }

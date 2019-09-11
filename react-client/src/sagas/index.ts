@@ -7,7 +7,12 @@ import * as selectors from '../selectors';
 import { BuildingService } from './BuildingService';
 import { Building, setBuildingData } from '../reducers/Building';
 import { SessionStatus } from '../reducers/Session';
+import { ImageryLayer } from '../reducers/ImageryLayer';
 import { version as roofmapperVersion } from '../../package.json'
+
+function* initMap() {
+    yield put(actions.selectImageryLayer(ImageryLayer.BingAerial));
+}
 
 function* loginToOsm(osmAuth: OSMAuth.OSMAuthInstance) {
     try {
@@ -112,13 +117,13 @@ function* changesetFlow(osmAuth: OSMAuth.OSMAuthInstance) {
 }
 
 function* openChangeset(osmAuth: OSMAuth.OSMAuthInstance) {
-    // @Todo Sources
+    const source: string = yield select(selectors.sessionSourceString);
     const changesetCreationData =
         `<osm>
         <changeset>
         <tag k="created_by" v="RoofMapper ${roofmapperVersion}"/>
         <tag k="comment" v="Add building roof:material data from imagery"/>
-        <tag k="source" v=""/>
+        <tag k="source" v="${source}"/>
         </changeset>
         </osm>`;
     
@@ -216,6 +221,7 @@ function* osmLoginFlow() {
 
 export function* rootSaga() {
     yield all([
+        initMap(),
         osmLoginFlow()
     ]);
 }

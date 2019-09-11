@@ -30,3 +30,7 @@ export const sessionOsmChange = (state: AppState) => {
 export const sessionTagData = (state: AppState) => {
     return sessionToTagData(state.session);
 }
+
+export const sessionSourceString = (state: AppState) => {
+    return state.session.sources.join(';');
+}

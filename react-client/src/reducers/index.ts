@@ -3,8 +3,9 @@ import { produce } from 'immer';
 import * as actions from '../actions';
 import { Point } from './Point';
 import { Bounds } from './Bounds';
-import { getBuildingBounds, RoofMaterial } from './Building';
+import { getBuildingBounds } from './Building';
 import { SessionStatus, Session, newSession } from './Session';
+import { ImageryLayer, getSourceString } from './ImageryLayer';
 
 export enum OsmLoginStatus {
     LoggedOut,
@@ -26,11 +27,6 @@ export const initialOsmLoginState: OsmLoginState = {
     userId: undefined
 };
 
-export enum ImageryLayer {
-    OpenStreetMap = 'OpenStreetMap',
-    BingAerial = 'BingAerial'
-}
-
 export interface WorkState {
     imageryLayer: ImageryLayer;
     currentBuildingIndex: number;
@@ -38,7 +34,7 @@ export interface WorkState {
 }
 
 export const initialWorkState: WorkState = {
-    imageryLayer: ImageryLayer.BingAerial,
+    imageryLayer: ImageryLayer.OpenStreetMap,
     currentBuildingIndex: -1,
     waitingForNewBuilding: false
 };
@@ -179,6 +175,14 @@ export const mapReducer = createReducer<AppState, actions.RootAction>(initialApp
             draft.map.position = action.payload.position;
             draft.map.zoomLevel = action.payload.zoomLevel;
             draft.map.bounds = undefined;
+        }))
+    .handleAction(actions.selectImageryLayer, (state, action) => produce(state, draft => {
+            draft.work.imageryLayer = action.payload.imageryLayer;
+            
+            const source = getSourceString(action.payload.imageryLayer);
+            if (source && !state.session.sources.includes(source)) {
+                draft.session.sources.push(source);
+            }
         }))
     .handleAction(actions.setBuildingIndex, (state, action) => produce(state, draft => {
             if (state.work.currentBuildingIndex !== -1) {

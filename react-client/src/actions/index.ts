@@ -3,6 +3,7 @@ import { OsmLoginStatus } from '../reducers';
 import { Point } from '../reducers/Point';
 import { Building, RoofMaterial } from '../reducers/Building';
 import { SessionStatus } from '../reducers/Session';
+import { ImageryLayer } from '../reducers/ImageryLayer';
 
 export const moveTo = createAction('MOVE_TO', action => {
     return (position: Point, zoomLevel: number) =>
@@ -12,7 +13,16 @@ export const moveTo = createAction('MOVE_TO', action => {
         });
 });
 
-export type MapAction = ActionType<typeof moveTo>;
+export const selectImageryLayer = createAction('SELECT_IMAGERY_LAYER', action => {
+    return (imageryLayer: ImageryLayer) =>
+        action({
+            imageryLayer: imageryLayer
+        });
+});
+
+export type MapAction =
+    ActionType<typeof moveTo> |
+    ActionType<typeof selectImageryLayer>;
 
 export const setOsmLoginStatus = createAction('SET_OSM_LOGIN_STATUS', action => {
     return (status: OsmLoginStatus) =>

@@ -6,10 +6,11 @@ import { Map, TileLayer, Marker, Popup, Viewport, Polygon, LayersControl } from 
 import { BingLayer } from 'react-leaflet-bing';
 
 import * as actions from '../actions';
-import { AppState, ImageryLayer } from '../reducers';
+import { AppState } from '../reducers';
 import { Point } from '../reducers/Point';
 import { Bounds } from '../reducers/Bounds';
 import { Multipolygon } from '../reducers/Polygon';
+import { ImageryLayer } from '../reducers/ImageryLayer';
 
 const BING_KEY = 'AlCYN3W0pAkcnVgUrS9Jb4Wkmoa_3WCGtD72BGvpzaYxAgjz0VEv5_5OalHYb3k5';
 
@@ -163,7 +164,7 @@ export function mapDispatchToProps(dispatch: Dispatch<actions.MapAction>) {
             dispatch(actions.moveTo(position, zoom));
         },
         onBaseLayerChanged: (layer: ImageryLayer) => {
-            console.log("Base layer changed", layer);
+            dispatch(actions.selectImageryLayer(layer));
         }
     }
 }
