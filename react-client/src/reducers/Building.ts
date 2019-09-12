@@ -56,7 +56,7 @@ export enum BuildingType {
     Relation = 'relation',
 }
 
-export function BuildingTypeFromString(type: string) {
+export function buildingTypeFromString(type: string) {
     switch (type) {
         case 'way':
             return BuildingType.Way;
@@ -83,7 +83,7 @@ export enum RoofMaterial {
     Thatch = 'thatch',
 }
 
-function RoofMaterialFromString(type: string) {
+function roofMaterialFromString(type: string) {
     switch (type) {
         case 'roof_tiles':
             return RoofMaterial.Tiles;
@@ -116,8 +116,8 @@ function RoofMaterialFromString(type: string) {
     }
 }
 
-enum InvalidityReason {
-    //Outdated = 'outdated',
+export enum InvalidityReason {
+    Outdated = 'outdated',
     MultipleMaterials = 'multiple_materials',
     MultipleBuildings = 'multiple_buildings',
     BuildingFraction = 'building_fraction',
@@ -222,7 +222,7 @@ export function setBuildingData(building: Building, data: XMLDocument): boolean 
     for (let i = 0; i < building.tags.length; i++) {
         const tag = building.tags[i];
         if (tag.key === 'roof:material') {
-            building.roofMaterial = RoofMaterialFromString(tag.value);
+            building.roofMaterial = roofMaterialFromString(tag.value);
             building.tags.splice(i, 1);
             break;
         }

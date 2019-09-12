@@ -116,6 +116,21 @@ export const sessionReducer = createReducer<AppState, actions.RootAction>(initia
                 draft.work.currentBuildingIndex = draft.session.buildings.length - 1;
             }
         }))
+    .handleAction(actions.removeBuilding, (state, action) => produce(state, draft => {
+            for (let i = 0; i < draft.session.buildings.length; i++) {
+                const building = draft.session.buildings[i];
+                if (building.type === action.payload.buildingType &&
+                    building.id === action.payload.buildingId) {
+                    draft.session.buildings.splice(i, 1);
+
+                    if (draft.work.currentBuildingIndex >= draft.session.buildings.length) {
+                        draft.work.currentBuildingIndex = -1;
+                    }
+
+                    return;
+                }
+            }
+        }))
     .handleAction(actions.setBuildingIndex, (state, action) => produce(state, draft => {
             if (checkForBuildingIndex(state.session, action.payload.buildingIndex)) {
                 draft.work.currentBuildingIndex = action.payload.buildingIndex;

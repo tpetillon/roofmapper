@@ -1,5 +1,5 @@
-import { Building, BuildingType, BuildingTypeFromString } from "../reducers/Building";
-import { TagData } from "../reducers/OsmChange";
+import { Building, BuildingType, buildingTypeFromString } from "../reducers/Building";
+import { TagData, InvalidationData } from "../reducers/OsmChange";
 
 const SERVER_URL: string = 'http://lan.dev.roofmapper.eu:3000';
 
@@ -29,7 +29,7 @@ export class BuildingService {
                 })
             .then(data => data.json())
             .then(json => {
-                const buildingType = BuildingTypeFromString(json.type);
+                const buildingType = buildingTypeFromString(json.type);
                 if (!buildingType) {
                     throw new Error('Invalid building type: ' + buildingType);
                 }
@@ -53,7 +53,6 @@ export class BuildingService {
         });
     }
 
-    // @Todo Type `tagData`
     static tagBuildings(sessionId: string, tagData: TagData) {
         return fetch(SERVER_URL + '/sessions/' + sessionId + '/buildings/tag', {
             method: 'POST',
@@ -64,8 +63,7 @@ export class BuildingService {
         });
     }
     
-    // @Todo Type `invalidationData`
-    static invalidateBuildings(sessionId: string, invalidationData: any) {
+    static invalidateBuildings(sessionId: string, invalidationData: InvalidationData) {
         return fetch(SERVER_URL + '/sessions/' + sessionId + '/buildings/invalidate', {
             method: 'POST',
             headers: {

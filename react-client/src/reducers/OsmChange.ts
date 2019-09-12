@@ -1,4 +1,4 @@
-import { Building, BuildingType, RoofMaterial } from "./Building";
+import { Building, BuildingType, RoofMaterial, InvalidityReason } from "./Building";
 import { Session } from "./Session";
 
 function buildingToOsmChange(building: Building, changesetId: number): string {
@@ -79,5 +79,27 @@ export function sessionToTagData(session: Session): TagData | undefined {
     return {
         changeset_id: session.changesetId,
         tag_data: tagData
+    }
+}
+
+export interface InvalidationData {
+    invalidation_data: { type: BuildingType, id: number, invalidity_reason: InvalidityReason }[]
+}
+
+export function sessionToInvalidationData(session: Session): InvalidationData {
+    let invalidationData: { type: BuildingType, id: number, invalidity_reason: InvalidityReason }[] = [];
+
+    session.buildings.forEach(building => {
+        if (building.invalidityReason) {
+            invalidationData.push({
+                type: building.type,
+                id: building.id,
+                invalidity_reason: building.invalidityReason
+            });
+        }
+    });
+
+    return {
+        invalidation_data: invalidationData
     }
 }

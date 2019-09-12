@@ -1,7 +1,7 @@
 import { createAction, ActionType } from 'typesafe-actions';
 import { OsmLoginStatus } from '../reducers';
 import { Point } from '../reducers/Point';
-import { Building, RoofMaterial } from '../reducers/Building';
+import { Building, RoofMaterial, BuildingType } from '../reducers/Building';
 import { SessionStatus } from '../reducers/Session';
 import { ImageryLayer } from '../reducers/ImageryLayer';
 
@@ -78,6 +78,14 @@ export const addBuilding = createAction('ADD_BUILDING', action => {
         });
 });
 
+export const removeBuilding = createAction('REMOVE_BUILDING', action => {
+    return (buildingType: BuildingType, buildingId: number) =>
+        action({
+            buildingType: buildingType,
+            buildingId: buildingId
+        });
+});
+
 export const setBuildingIndex = createAction('SET_BUILDING_INDEX', action => {
     return (buildingIndex: number) =>
         action({
@@ -112,6 +120,7 @@ export type SessionAction =
     ActionType<typeof setSessionDetails> |
     ActionType<typeof requestBuilding> |
     ActionType<typeof addBuilding> |
+    ActionType<typeof removeBuilding> |
     ActionType<typeof setBuildingIndex> |
     ActionType<typeof selectLastBuilding> |
     ActionType<typeof setCurrentBuildingRoofMaterial> |

@@ -1,14 +1,15 @@
-import { all, call, cancel, cps, fork, put, take, select } from 'redux-saga/effects';
+import { all, call, cancel, cps, fork, put, take, select, spawn } from 'redux-saga/effects';
 import { getType } from 'typesafe-actions';
 import OSMAuth from 'osm-auth';
 import * as actions from '../actions';
 import { OsmLoginStatus } from '../reducers';
 import * as selectors from '../selectors';
 import { BuildingService } from './BuildingService';
-import { Building, setBuildingData } from '../reducers/Building';
+import { Building, setBuildingData, InvalidityReason, BuildingType, buildingTypeFromString } from '../reducers/Building';
 import { SessionStatus } from '../reducers/Session';
 import { ImageryLayer } from '../reducers/ImageryLayer';
 import { version as roofmapperVersion } from '../../package.json'
+import { InvalidationData } from '../reducers/OsmChange';
 
 function* initMap() {
     yield put(actions.selectImageryLayer(ImageryLayer.BingAerial));
@@ -86,7 +87,7 @@ function* fetchBuilding(osmAuth: OSMAuth.OSMAuthInstance) {
 
         return true;
     } else {
-        // @Todo Invalidate building
+        yield spawn(invalidateBuilding, sessionId, building.type, building.id, InvalidityReason.Outdated);
         return false;
     }
 }
@@ -181,7 +182,7 @@ function* uploadData(osmAuth: OSMAuth.OSMAuthInstance): Iterable<any> {
                 yield call(uploadData, osmAuth);
             } else if (error.responseText.match(/Version mismatch/)) {
                 // Version mismatch: Provided #ver_client, server had: #ver_serv of [Way|Relation] #id
-                // @Todo Remove building in conflict
+                yield call(removeBuildingInConflict, error, sessionId);
                 yield call(uploadData, osmAuth);
             }
         } else {
@@ -189,6 +190,39 @@ function* uploadData(osmAuth: OSMAuth.OSMAuthInstance): Iterable<any> {
             throw new Error(`Could not upload data: ${errorMessage}`);
         }
     }
+}
+
+function* removeBuildingInConflict(errorString: string, sessionId: string) {
+    const matches = errorString.match(/(Way|Relation) (\d+)/);
+    
+    if (matches == null) {
+        return;
+    }
+    
+    const type = buildingTypeFromString(matches[1].toLowerCase());
+    const id = parseInt(matches[2]);
+
+    if (!type || isNaN(id)) {
+        return;
+    }
+
+    yield put(actions.removeBuilding(type, id));
+    yield call(invalidateBuilding, sessionId, type, id, InvalidityReason.Outdated);
+}
+
+function* invalidateBuilding(
+    sessionId: string, buildingType: BuildingType, buildingId: number, invalidityReason: InvalidityReason) {
+    const invalidationData = {
+            invalidation_data: [
+            {
+                type: buildingType,
+                id: buildingId,
+                invalidity_reason: invalidityReason
+            }
+        ]
+    } as InvalidationData;
+
+    yield call(BuildingService.invalidateBuildings, sessionId, invalidationData);
 }
 
 function* osmLoginFlow() {
