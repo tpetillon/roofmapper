@@ -620,13 +620,15 @@ function removeBuildingInConflict(errorString) {
 }
 
 function invalidateBuilding(buildingType, buildingId, reason, callback) {
-    var invalidationData = [
-        {
-            type : buildingType,
-            id : buildingId,
-            invalidation_reason : reason
-        }
-    ];
+    var invalidationData = {
+        invalidation_data: [
+            {
+                type : buildingType,
+                id : buildingId,
+                invalidation_reason : reason
+            }
+        ]
+    };
 
     BuildingService.invalidateBuildings(_session.id, invalidationData, function() {
         console.log("building " + buildingType + "/" + buildingId + " invalidated because of \"" + reason + "\"");
