@@ -3,7 +3,7 @@
 var config = require('config');
 var dateTime = require('node-datetime');
 var fs = require('fs');
-var http = require('http');
+var https = require('https');
 var schedule = require('node-schedule');
 var xml2js = require('xml2js');
 
@@ -19,7 +19,7 @@ function getUserName(userId, callback) {
         method: 'GET'
     };
 
-    var request = http.request(options, function(response) {
+    var request = https.request(options, function(response) {
         var statusCode = response.statusCode;
         if (statusCode !== 200) {
             callback('Status ' + statusCode + ' while retrieving user name for id ' + userId);
