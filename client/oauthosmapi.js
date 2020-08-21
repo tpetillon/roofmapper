@@ -83,7 +83,10 @@ OAuthOsmApi.prototype.logout = function() {
 
 OAuthOsmApi.prototype.request = function(url, method, callback, contentType, data) {
     var header = {};
-    header['Content-Type'] = contentType;
+
+    if (defined(contentType)) {
+        header['Content-Type'] = contentType;
+    }
 
     this._auth.xhr({
         method: method,
