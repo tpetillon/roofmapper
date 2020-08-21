@@ -209,6 +209,8 @@ function updateUi() {
     } else {
         window.removeEventListener('beforeunload', confirmQuit)
     }
+
+    _map.invalidateSize();
 }
 
 function updateConnectionStatusDisplay() {
@@ -1024,9 +1026,6 @@ function init() {
     
     updateConnectionStatusDisplay();
     updateUi();
-
-    // avoid a situation where the map is partially loaded
-    setTimeout(function() { _map.invalidateSize() }, 1);
 
     $("#stats-button").click(function() {
         refreshStats();
