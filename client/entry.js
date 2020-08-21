@@ -125,18 +125,22 @@ function updateUi() {
         $("#next-building").prop('disabled', true);
     }
     
-    if (defined(_session.currentBuilding)) {
-        _recenterButton.enable();
-        _outlineButton.enable();
-    } else {
-        _recenterButton.disable();
-        _outlineButton.disable();
+    if (defined(_recenterButton) && defined(_outlineButton)) {
+        if (defined(_session.currentBuilding)) {
+            _recenterButton.enable();
+            _outlineButton.enable();
+        } else {
+            _recenterButton.disable();
+            _outlineButton.disable();
+        }
     }
 
-    if (!loading && !_fetchingPictures && defined(_session.currentBuilding)) {
-        _pictureButton.enable();
-    } else {
-        _pictureButton.disable();
+    if (defined(_pictureButton)) {
+        if (!loading && !_fetchingPictures && defined(_session.currentBuilding)) {
+            _pictureButton.enable();
+        } else {
+            _pictureButton.disable();
+        }
     }
     
     $(".tag-buttons").find("input").prop('disabled', loading || _session.currentIndex < 0);
@@ -219,44 +223,6 @@ function updateConnectionStatusDisplay() {
         $("#username").attr("l10n", "username");
     }
 }
-
-if (_api.authenticated) {
-    $("#connection-status").text("Authenticated, retrieving username...");
-    _loadingStatus.addSystem('connection');
-    _api.connect(function(error) {
-        _loadingStatus.removeSystem('connection');
-        if (defined(error)) {
-            showMessage("could-not-connect", error.responseText);
-        } else {
-            console.log("connected as " + _api.username + " (" + _api.userId + ")");
-            
-            openSession();
-        }
-        
-        updateConnectionStatusDisplay();
-        updateUi();
-    });
-}
-
-document.getElementById('authenticate-button').onclick = function() {
-    _loadingStatus.addSystem('authentication');
-    _api.authenticate(function(error) {
-        _loadingStatus.removeSystem('authentication');
-        
-        if (defined(error)) {
-            showMessage("could-not-authenticate", error.responseText);
-        } else {
-            console.log("connected as " + _api.username + " (" + _api.userId + ")");
-
-            openSession();
-        }
-        
-        updateConnectionStatusDisplay();
-        updateUi();
-    });
-};
-
-document.getElementById('logout-button').onclick = logout;
 
 function openSession() {
     if (!_api.authenticated) {
@@ -492,9 +458,6 @@ function displayNextBuilding() {
     }
 }
 
-document.getElementById('previous-building').onclick = displayPreviousBuilding;
-document.getElementById('next-building').onclick = displayNextBuilding;
-
 function createChangeset(callback) {
     var changesetData =
         '<osm>' +
@@ -672,10 +635,6 @@ function releaseBuilding(buildingType, buildingId, callback) {
         }
     });
 }
-
-document.getElementById('upload-changes').onclick = function() {
-    uploadChanges();
-};
 
 function showMessage(messageKey) {
     var parameters = [];
@@ -1095,4 +1054,50 @@ function init() {
     $('#fullscreen-picture').click(hideFullscreenPicture);
 }
 
-init();
+$(document).ready(function() {
+    document.getElementById('authenticate-button').onclick = function() {
+        _loadingStatus.addSystem('authentication');
+        _api.authenticate(function(error) {
+            _loadingStatus.removeSystem('authentication');
+            
+            if (defined(error)) {
+                showMessage("could-not-authenticate", error.responseText);
+            } else {
+                console.log("connected as " + _api.username + " (" + _api.userId + ")");
+    
+                openSession();
+            }
+            
+            updateConnectionStatusDisplay();
+            updateUi();
+        });
+    };
+    
+    document.getElementById('logout-button').onclick = logout;
+    document.getElementById('previous-building').onclick = displayPreviousBuilding;
+    document.getElementById('next-building').onclick = displayNextBuilding;
+    
+    document.getElementById('upload-changes').onclick = function() {
+        uploadChanges();
+    };
+
+    init();
+
+    if (_api.authenticated) {
+        $("#connection-status").text("Authenticated, retrieving username...");
+        _loadingStatus.addSystem('connection');
+        _api.connect(function(error) {
+            _loadingStatus.removeSystem('connection');
+            if (defined(error)) {
+                showMessage("could-not-connect", error.responseText);
+            } else {
+                console.log("connected as " + _api.username + " (" + _api.userId + ")");
+                
+                openSession();
+            }
+            
+            updateConnectionStatusDisplay();
+            updateUi();
+        });
+    }
+});

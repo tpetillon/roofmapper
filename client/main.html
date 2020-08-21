@@ -2,27 +2,27 @@
     <div id="header">
         <div id="menu-buttons">
             <div class="btn-group" id="roofmapper-menu">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">RoofMapper <span class="caret" /></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">RoofMapper <span class="caret"></span></button>
                 <ul class="dropdown-menu dropdown-menu-left" role="menu">
-                    <li class="dropdown-header" l10n="language" />
+                    <li class="dropdown-header" l10n="language"></li>
                     <li><a href="#" id="language-en-button">English</a></li>
                     <li><a href="#" id="language-fr-button">Français</a></li>
-                    <li class="divider" />
-                    <li><a href="#" id="fullscreen-button" l10n="toggle-fullscreen" /></li>
-                    <li class="divider" />
-                    <li><a href="#" target="_blank" data-toggle="modal" data-target="#help-popup" id="help-button" l10n="help" /></li>
-                    <li><a href="/maps" target="_blank" id="maps-button" l10n="maps" /></li>
-                    <li><a href="#" target="_blank" data-toggle="modal" data-target="#stats-popup" id="stats-button" l10n="statistics" /></li>
-                    <li><a href="#" target="_blank" data-toggle="modal" data-target="#about-popup" id="about-button" l10n="about" /></li>
+                    <li class="divider"></li>
+                    <li><a href="#" id="fullscreen-button" l10n="toggle-fullscreen"></a></li>
+                    <li class="divider"></li>
+                    <li><a href="#" target="_blank" data-toggle="modal" data-target="#help-popup" id="help-button" l10n="help"></a></li>
+                    <li><a href="/maps" target="_blank" id="maps-button" l10n="maps"></a></li>
+                    <li><a href="#" target="_blank" data-toggle="modal" data-target="#stats-popup" id="stats-button" l10n="statistics"></a></li>
+                    <li><a href="#" target="_blank" data-toggle="modal" data-target="#about-popup" id="about-button" l10n="about"></a></li>
                 </ul>
             </div>
-            <button type="button" class="btn btn-primary" id="authenticate-button" l10n="authenticate" />
+            <button type="button" class="btn btn-primary" id="authenticate-button" l10n="authenticate"></button>
             <div class="btn-group" id="user-menu">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"><span id="username" l10n="username" /> <span class="caret" /></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"><span id="username" l10n="username"></span> <span class="caret"></span></button>
                 <ul class="dropdown-menu dropdown-menu-left" role="menu">
-                    <li><a href="#" target="_blank" id="user-profile-link" l10n="osm-profile" /></li>
-                    <li class="divider" />
-                    <li><a href="#" id="logout-button" l10n="disconnect" /></li>
+                    <li><a href="#" target="_blank" id="user-profile-link" l10n="osm-profile"></a></li>
+                    <li class="divider"></li>
+                    <li><a href="#" id="logout-button" l10n="disconnect"></a></li>
                 </ul>
             </div>
         </div>
@@ -30,34 +30,34 @@
         <div id="session-buttons">
             <p id="tagged-building-count">0 buildings tagged</p>
             <p id="uploaded-building-count">0 buildings uploaded</p>
-            <button type="button" class="btn btn-primary" id="upload-changes"><i class="fa fa-cloud-upload" aria-hidden="true" /> <span l10n="send-changes" /></button>
+            <button type="button" class="btn btn-primary" id="upload-changes"><i class="fa fa-cloud-upload" aria-hidden="true"></i> <span l10n="send-changes"></span></button>
         </div>
     </div>
 
     <div id="map">
-        <div id="location" />
+        <div id="location"></div>
     </div>
 
     <div id="footer">
         <div class="btn-group tag-buttons" data-toggle="buttons" id="tag-buttons">
-            <label class="btn btn-default tag-button"><input type="checkbox" name="tag-selection" id="tag-undefined" value="undefined" autocomplete="off" /><span l10n="undefined" /></label>
-            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-roof_tiles" value="roof_tiles" autocomplete="off" /><span l10n="tiles" /></label>
-            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-slate" value="slate" autocomplete="off" /><span l10n="slate" /></label>
-            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-metal" value="metal" autocomplete="off" /><span l10n="metal" /></label>
-            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-copper" value="copper" autocomplete="off" /><span l10n="copper" /></label>
-            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-concrete" value="concrete" autocomplete="off" /><span l10n="concrete" /></label>
-            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-eternit" value="eternit" autocomplete="off" /><span l10n="eternit" /></label>
-            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-gravel" value="gravel" autocomplete="off" /><span l10n="gravel" /></label>
-            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-other" value="other" autocomplete="off" />
-                <div><span id="tag-other-text" l10n="other-material" /><span id="tag-other-detail-span"><br />(<span id="tag-other-detail-text" />)</span></div>
+            <label class="btn btn-default tag-button"><input type="checkbox" name="tag-selection" id="tag-undefined" value="undefined" autocomplete="off"><span l10n="undefined"></span></label>
+            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-roof_tiles" value="roof_tiles" autocomplete="off"><span l10n="tiles"></span></label>
+            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-slate" value="slate" autocomplete="off"><span l10n="slate"></span></label>
+            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-metal" value="metal" autocomplete="off"><span l10n="metal"></span></label>
+            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-copper" value="copper" autocomplete="off"><span l10n="copper"></span></label>
+            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-concrete" value="concrete" autocomplete="off"><span l10n="concrete"></span></label>
+            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-eternit" value="eternit" autocomplete="off"><span l10n="eternit"></span></label>
+            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-gravel" value="gravel" autocomplete="off"><span l10n="gravel"></span></label>
+            <label class="btn btn-primary tag-button"><input type="checkbox" name="tag-selection" id="tag-other" value="other" autocomplete="off">
+                <div><span id="tag-other-text" l10n="other-material"></span><span id="tag-other-detail-span"><br>(<span id="tag-other-detail-text"></span>)</span></div>
             </label>
-            <label class="btn btn-warning tag-button"><input type="checkbox" name="tag-selection" id="tag-invalid" value="invalid" autocomplete="off" />
-                <div><span id="tag-invalid-text" l10n="mark-as-invalid" /><span id="tag-invalid-detail-span"><br />(<span id="tag-invalid-detail-text" />)</span></div>
+            <label class="btn btn-warning tag-button"><input type="checkbox" name="tag-selection" id="tag-invalid" value="invalid" autocomplete="off">
+                <div><span id="tag-invalid-text" l10n="mark-as-invalid"></span><span id="tag-invalid-detail-span"><br>(<span id="tag-invalid-detail-text"></span>)</span></div>
             </label>
         </div>
         <div id="building-buttons">
-            <button type="button" class="btn btn-default" id="previous-building"><div class="fa fa-chevron-left" aria-hidden="true" /><div l10n="previous-building" /></button><!--
-            --><button type="button" class="btn btn-default" id="next-building"><div class="fa fa-chevron-right" aria-hidden="true" /><div l10n="next-building" /></button>
+            <button type="button" class="btn btn-default" id="previous-building"><div class="fa fa-chevron-left" aria-hidden="true"></div><div l10n="previous-building"></div></button><!--
+            --><button type="button" class="btn btn-default" id="next-building"><div class="fa fa-chevron-right" aria-hidden="true"></div><div l10n="next-building"></div></button>
         </div>
     </div>
 </div>
