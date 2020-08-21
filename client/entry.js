@@ -356,8 +356,14 @@ function loadAndDisplayNewBuilding() {
         } else {
             _api.request('/api/0.6/' + building.type + '/' + building.id + '/full', 'GET', function(error, response) {
                 if (defined(error)) {
-                    console.error("Download error: " + error.responseText);
-                    showMessage("download-error", error.responseText);
+                    if (error.status === 410) {
+                        console.log("Building " + building.type + "/" + building.id + " has been deleted.");
+                        invalidateBuilding(building.type, building.id, 'outdated');
+                        loadAndDisplayNewBuilding();
+                    } else {
+                        console.error("Download error: " + error.responseText);
+                        showMessage("download-error", error.responseText);
+                    }
                     _loadingStatus.removeSystem('load-building');
                 } else {
                     var $data = $(response);
@@ -620,7 +626,7 @@ function invalidateBuilding(buildingType, buildingId, reason, callback) {
         }
     ];
 
-    BuildingService.invalidate(_session.id, invalidationData, function() {
+    BuildingService.invalidateBuildings(_session.id, invalidationData, function() {
         console.log("building " + buildingType + "/" + buildingId + " invalidated because of \"" + reason + "\"");
     });
 }
