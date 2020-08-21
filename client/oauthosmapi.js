@@ -83,6 +83,7 @@ OAuthOsmApi.prototype.logout = function() {
 
 OAuthOsmApi.prototype.request = function(url, method, callback, contentType, data) {
     var header = {};
+    header['Accept'] = 'application/xml';
 
     if (defined(contentType)) {
         header['Content-Type'] = contentType;
