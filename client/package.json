@@ -4,7 +4,7 @@
   "description": "RoofMapper client",
   "main": "bundle.js",
   "dependencies": {
-    "bootstrap": "^3.3.7",
+    "bootstrap": "^3.4.1",
     "bootstrap-webpack": "0.0.5",
     "cldr-data": "^30.0.1",
     "css-loader": "^0.23.1",
