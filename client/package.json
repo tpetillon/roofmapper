@@ -34,7 +34,7 @@
   "devDependencies": {
     "copy-webpack-plugin": "^4.0.1",
     "expose-loader": "^0.7.1",
-    "favicons-webpack-plugin": "0.0.7",
+    "favicons-webpack-plugin": "6.0.0",
     "html-webpack-plugin": "^2.24.1",
     "webpack": "^1.9.0",
     "webpack-config": "^6.0.0"
